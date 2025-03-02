@@ -70,26 +70,24 @@ public class CombatSystem : MonoBehaviour
 
     private void PerformAttack()
     {
-        if (animator.GetCurrentAnimatorStateInfo(0).IsName("1H_Melee_Attack_Slice_Diagonal")
-            || animator.GetCurrentAnimatorStateInfo(0).IsName("1H_Melee_Attack_Stab")
-            || animator.GetCurrentAnimatorStateInfo(0).IsName("1H_Melee_Attack_Slice_Horizontal"))
+        print(animator.GetCurrentAnimatorStateInfo(1).IsName("1H_Melee_Attack_Slice_Horizontal"));
+
+        if (currentAttackIndex > 2)
             return;
+        
         currentAttackIndex = Mathf.Min(currentAttackIndex + 1, 3);
         lastAttackTime = Time.time;
         
-
         switch (currentAttackIndex)
         {
             case 1:
-                if (!animator.GetCurrentAnimatorStateInfo(0).IsName("1H_Melee_Attack_Slice_Horizontal") && !animator.GetCurrentAnimatorStateInfo(0).IsName("1H_Melee_Attack_Stab"))
-                    animator.SetTrigger("Attack1");
+                animator.SetTrigger("Attack1");
                 break;
             case 2:
                 animator.SetTrigger("Attack2");
                 break;
             case 3:
                 animator.SetTrigger("Attack3");
-                ResetAttackCombo(); 
                 break;
         }
 
