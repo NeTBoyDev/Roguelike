@@ -17,7 +17,7 @@ public class SkeletonAI : MonoBehaviour
     public AIDestinationSetter destinationSetter;
     private AIPath aiPath;
 
-    private Creature skeletonModel;
+    public Creature skeletonModel { get; private set; }
 
     private Transform target;
 
@@ -28,6 +28,8 @@ public class SkeletonAI : MonoBehaviour
     private float lastAttackTime;
 
     private IState currentState;
+    public Animator animator;
+    public ParticleSystem hitEffect;
 
     void Start()
     {
@@ -38,6 +40,9 @@ public class SkeletonAI : MonoBehaviour
         
         target = GameObject.FindGameObjectWithTag("Player").transform;
         destinationSetter.target = target;
+
+        animator = GetComponent<Animator>();
+        hitEffect = GetComponentInChildren<ParticleSystem>();
 
         ChangeState(new ApproachState(this));
     }
@@ -51,6 +56,7 @@ public class SkeletonAI : MonoBehaviour
         if (skeletonModel.Stats[StatType.Health].CurrentValue <= 0 && currentState is not DeadState)
         {
             ChangeState(new DeadState(this));
+            GetComponent<Collider>().enabled = false;
         }
     }
 
@@ -99,6 +105,7 @@ public class ApproachState : IState
 
     public void Enter()
     {
+        skeleton.animator.SetBool("Walking",true);
         skeleton.AIPath.canMove = true;
         skeleton.AIPath.maxSpeed = 3f; // Скорость приближения
     }
@@ -119,6 +126,7 @@ public class ApproachState : IState
     public void Exit()
     {
         skeleton.AIPath.canMove = false;
+        skeleton.animator.SetBool("Walking",false);
     }
 }
 
@@ -133,6 +141,7 @@ public class RetreatState : IState
 
     public void Enter()
     {
+        skeleton.animator.SetBool($"Walking",true);
         skeleton.AIPath.canMove = true;
         skeleton.AIPath.maxSpeed = 2f; 
     }
@@ -154,6 +163,7 @@ public class RetreatState : IState
 
     public void Exit()
     {
+        skeleton.animator.SetBool($"Walking",false);
         skeleton.AIPath.canMove = false;
         skeleton.destinationSetter.target = skeleton.Target; 
     }
@@ -170,6 +180,7 @@ public class KeepDistanceState : IState
 
     public void Enter()
     {
+        skeleton.animator.SetBool($"Walking",true);
         skeleton.AIPath.canMove = true;
         skeleton.AIPath.maxSpeed = 2.5f;
     }
@@ -193,6 +204,7 @@ public class KeepDistanceState : IState
 
     public void Exit()
     {
+        skeleton.animator.SetBool($"Walking",false);
         skeleton.AIPath.canMove = false;
     }
 }
@@ -208,6 +220,7 @@ public class AttackState : IState
 
     public void Enter()
     {
+        skeleton.animator.SetTrigger($"Attack{Random.Range(1,4)}");
         skeleton.AIPath.canMove = false;
     }
 
@@ -222,8 +235,42 @@ public class AttackState : IState
 
         if (Time.time - skeleton.LastAttackTime >= skeleton.AttackCooldown)
         {
+            Vector3 attackDirection = skeleton.transform.forward;
+            Vector3 attackPoint = skeleton.transform.position + Vector3.up + attackDirection * 1.5f * 0.5f;
+
+            Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, 1.5f * 0.5f);
+            foreach (var hit in hitEnemies)
+            {
+                if (hit.CompareTag("Player"))
+                {
+                    CombatSystem enemy = hit.GetComponent<CombatSystem>();
+                    if (enemy != null)
+                    {
+                        float damage = skeleton.skeletonModel[StatType.Strength].CurrentValue;
+                        enemy.TakeDamage(damage);
+                        Debug.Log($"Skeleton attacked {hit.name} for {damage} damage!");
+                    }
+                }
+            }
+            
             Debug.Log("Skeleton attacks!");
             skeleton.LastAttackTime = Time.time;
+
+            int r = Random.Range(0, 3);
+            switch (r)
+            {
+                case 0:
+                    skeleton.ChangeState(new RetreatState(skeleton));
+                    break;
+                case 1:
+                    skeleton.ChangeState(new KeepDistanceState(skeleton));
+                    break;
+                case 2:
+                    skeleton.ChangeState(new ApproachState(skeleton));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -243,8 +290,10 @@ public class TakeDamageState : IState
 
     public void Enter()
     {
+        skeleton.animator.SetTrigger($"Hit");
         skeleton.AIPath.canMove = false;
         staggerTimer = staggerDuration;
+        skeleton.hitEffect.Play();
     }
 
     public void Execute()
@@ -273,6 +322,9 @@ public class DeadState : IState
 
     public void Enter()
     {
+        skeleton.animator.Play("Death_A");
+        skeleton.animator.SetTrigger($"Die");
+        skeleton.animator.SetBool($"isDead",true);
         skeleton.AIPath.canMove = false;
         Debug.Log("Skeleton is dead!");
     }

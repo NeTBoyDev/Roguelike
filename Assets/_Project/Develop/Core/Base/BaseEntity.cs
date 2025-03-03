@@ -36,4 +36,9 @@ public abstract class BaseEntity : IEntity
             }
         }
     }
+
+    public Stat this[StatType type]
+    {
+        get => Stats[type];
+    }
 }
