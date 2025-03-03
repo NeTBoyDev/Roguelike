@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25b1b7e720d971449d29381c087748e, type: 3}
+  m_Name: ItemGenerator
+  m_EditorClassIdentifier: 
+  Melee:
+  - {fileID: 919132149155446097, guid: b9aac7aea18e7ed41937fb4026efdc67, type: 3}
+  - {fileID: 919132149155446097, guid: e0e59ce7338714b48a1475de9d4f9c9c, type: 3}
+  - {fileID: 919132149155446097, guid: 32294f601f81d8740a429da7f1c0f199, type: 3}
+  Magic:
+  - {fileID: 919132149155446097, guid: bff8eb213ed747e4b910dec071278f3d, type: 3}
+  Range:
+  - {fileID: 919132149155446097, guid: a1ec3e66b50146e44bce958d173ffe93, type: 3}
+  Artifacts: []
+  ModificatorObjects: []

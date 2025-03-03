@@ -631,7 +631,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Type>k__BackingField: 2
   <SpawnChance>k__BackingField: 1
-  <PlayerPrefab>k__BackingField: {fileID: 1698089634386301801, guid: 8e6003701ec614c42ab8b78e53bc67af,
+  <PlayerPrefab>k__BackingField: {fileID: 7528292338955704060, guid: bcd8cf2dc2a4070419c1842908868655,
     type: 3}
   <Spawnpoint>k__BackingField: {fileID: 8403994684316852650}
   <RoomColliders>k__BackingField: []

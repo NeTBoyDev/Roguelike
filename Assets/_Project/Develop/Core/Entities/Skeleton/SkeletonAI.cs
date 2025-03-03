@@ -293,7 +293,6 @@ public class TakeDamageState : IState
         skeleton.animator.SetTrigger($"Hit");
         skeleton.AIPath.canMove = false;
         staggerTimer = staggerDuration;
-        skeleton.hitEffect.Play();
     }
 
     public void Execute()
