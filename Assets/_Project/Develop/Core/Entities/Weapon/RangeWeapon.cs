@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeeleWeapon : Weapon
+public class RangeWeapon :Weapon
 {
-    public MeeleWeapon(string id) : base(id)
+
+    public RangeWeapon(string id) : base(id)
     {
-        
     }
 }
