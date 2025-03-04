@@ -20,7 +20,9 @@ namespace _Project.Develop.Core.Base
 
         public void Modify(float value)
         {
+            //Debug.Log($"Before{CurrentValue}");
             CurrentValue = Mathf.Clamp(CurrentValue + value, 0, MaxValue);
+            //Debug.Log($"After{CurrentValue}");
         }
     }
 }

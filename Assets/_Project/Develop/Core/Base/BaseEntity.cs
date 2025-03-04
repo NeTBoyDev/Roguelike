@@ -20,8 +20,27 @@ public abstract class BaseEntity : IEntity
 
     public virtual void ApplyEffect(Effect effect)
     {
+        var addEffect = effect.Clone();
+        Effects.Add(addEffect); // УДАЛИТЬ ПРИ НЕОБХОДИМОСТИ
+        addEffect.OnApply(this);
+    }
+
+    public virtual void AddEffect(Effect effect)
+    {
         Effects.Add(effect);
-        effect.OnApply(this);
+    }
+
+    public virtual void RemoveEffect(Effect effect)
+    {
+        Effects.Remove(effect);
+    }
+    
+    public virtual void RemoveEffect(int index)
+    {
+        if (index < 0 || index >= Effects.Count)
+            return;
+        var effect = Effects[index];
+        RemoveEffect(effect);
     }
 
     public virtual void Update(float deltaTime)

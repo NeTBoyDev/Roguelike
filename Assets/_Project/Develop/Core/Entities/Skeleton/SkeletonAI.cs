@@ -50,6 +50,7 @@ public class SkeletonAI : MonoBehaviour
     void Update()
     {
         skeletonModel.Update(Time.deltaTime);
+        //print(skeletonModel.Effects.Count);
 
         currentState?.Execute();
 
@@ -293,7 +294,6 @@ public class TakeDamageState : IState
         skeleton.animator.SetTrigger($"Hit");
         skeleton.AIPath.canMove = false;
         staggerTimer = staggerDuration;
-        skeleton.hitEffect.Play();
     }
 
     public void Execute()

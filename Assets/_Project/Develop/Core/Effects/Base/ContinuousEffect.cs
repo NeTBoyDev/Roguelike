@@ -7,7 +7,7 @@ namespace _Project.Develop.Core.Effects.Base
     {
         protected float magnitude;
 
-        public ContinuousEffect(EffectType type, float magnitude, float duration = float.MaxValue)
+        public ContinuousEffect(EffectType type, float magnitude, float duration = float.MaxValue) : base(duration)
         {
             Type = type;
             this.magnitude = magnitude;

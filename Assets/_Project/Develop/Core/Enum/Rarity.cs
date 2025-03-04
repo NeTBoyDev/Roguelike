@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace _Project.Develop.Core.Enum
 {
-    public enum Rarity 
+    public enum Rarity : int
     {
         Common,
         Uncommon,
