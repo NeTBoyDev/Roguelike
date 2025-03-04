@@ -24,5 +24,11 @@ namespace _Project.Develop.Core.Base
             CurrentValue = Mathf.Clamp(CurrentValue + value, 0, MaxValue);
             //Debug.Log($"After{CurrentValue}");
         }
+        public void SetValue(float value)
+        {
+            //Debug.Log($"Before{CurrentValue}");
+            CurrentValue = Mathf.Clamp(value, 0, MaxValue);
+            //Debug.Log($"After{CurrentValue}");
+        }
     }
 }
