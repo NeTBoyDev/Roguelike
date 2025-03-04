@@ -17,11 +17,11 @@ public class RangeWeapon : Weapon
     public RangeWeapon(string id) : base(id)
     {
         Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
-        Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));
+        //Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));
 
         //Effects.Add(new ShotCount(10));
         //Effects.Add(new PoisonEffect(5,1,10));
-        //Effects.Add(new TrippleShot(10));
+        //Effects.Add(new TrippleShot(3));
         //Effects.Add(new AutoAim(5));
         
         Projectile[0][StatType.Strength].Modify(Projectile[0][StatType.Strength].CurrentValue * Effects.Count);

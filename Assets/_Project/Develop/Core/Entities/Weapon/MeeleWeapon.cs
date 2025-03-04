@@ -20,7 +20,7 @@ public class MeeleWeapon : Weapon
         Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));*/
         
         // Пример эффектов для ближнего боя
-        Effects.Add(new PoisonEffect(5, 1, 100)); // Дебафф: яд
+        //Effects.Add(new PoisonEffect(5, 1, 100)); // Дебафф: яд
         //Effects.Add(new ShotCount(5));
         
         

@@ -39,6 +39,9 @@ public class CombatSystem : MonoBehaviour
     public RectTransform Cross;
     public Vector2[] CrosshairStartPos;
     public TweenerCore<Vector3,Vector3,VectorOptions>[] Tweens;
+
+    [Space] [Header("Effects")] 
+    public ParticleSystem ChargeSpellEffect;
     void Start()
     {
         playerModel = new Creature("player1");
@@ -69,6 +72,7 @@ public class CombatSystem : MonoBehaviour
 
     private void OpenCrosshair(float time)
     {
+        ChargeSpellEffect.Play();
         for (int i = 0; i < Crosshair.Length; i++)
         {
             Vector2 direction = Vector2.zero;
@@ -97,6 +101,7 @@ public class CombatSystem : MonoBehaviour
 
     private void CloseCrosshair()
     {
+        ChargeSpellEffect.Stop();
         Cross.DOScale(Vector3.zero, .25f);
         for (int i = 0; i < Crosshair.Length; i++)
         {
