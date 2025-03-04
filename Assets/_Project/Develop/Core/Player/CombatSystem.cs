@@ -23,7 +23,7 @@ public class CombatSystem : MonoBehaviour
     private float lastAttackTime;
     private int currentAttackIndex = 0;
 
-    [SerializeField] private bool hasShield = true;
+    [SerializeField] private bool hasShield = true; //ДОБАВИТЬ ПРОВЕРКУ В ИНВЕНТАРЕ ЕСТЬ ЛИ ЩИТ
     private bool isBlocking = false;
     private bool isBlockStarting = false;
     private float blockStartTime;
@@ -42,6 +42,9 @@ public class CombatSystem : MonoBehaviour
 
     [Space] [Header("Effects")] 
     public ParticleSystem ChargeSpellEffect;
+    
+    
+    public MeshFilter WeaponMesh;
     void Start()
     {
         playerModel = new Creature("player1");
@@ -61,18 +64,27 @@ public class CombatSystem : MonoBehaviour
             CrosshairStartPos[i] = Crosshair[i].position;
         }
 
-        var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
+        
         /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);*/
-        SetWeapon(weapon.ContainedEntity as Weapon);
+        
     }
 
     public void SetWeapon(Weapon weapon)
     {
         equippedWeapon = weapon;
+        WeaponMesh.mesh = weapon.Mesh;
+        print(weapon.Effects.Count);
+        WeaponMesh.gameObject.SetActive(true);
+    }
+
+    public void RemoveWeapon()
+    {
+        equippedWeapon = null;
+        WeaponMesh.gameObject.SetActive(false);
     }
 
     private void OpenCrosshair(float time)
@@ -129,7 +141,7 @@ public class CombatSystem : MonoBehaviour
         // Ближний бой (ЛКМ)
         if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown)
         {
-            if (equippedWeapon == null || equippedWeapon is not RangeWeapon)
+            if (equippedWeapon != null && equippedWeapon is MeeleWeapon)
             {
                 PerformAttack(); // Ближний бой
             }

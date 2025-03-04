@@ -20,6 +20,7 @@ public class EntityContainer : MonoBehaviour
     public void SetEntity(BaseEntity entity)
     {
         ContainedEntity = entity;
+        ((Item)entity).Mesh = GetComponent<MeshFilter>().mesh;
 
         ConstraintSource source = new ConstraintSource
         {

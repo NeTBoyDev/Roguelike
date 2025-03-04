@@ -24366,6 +24366,7 @@ MonoBehaviour:
   Cross: {fileID: 8284910558902328663}
   CrosshairStartPos: []
   ChargeSpellEffect: {fileID: 2349527206218763071}
+  WeaponMesh: {fileID: 7630350262414462021}
 --- !u!1 &7451806119365463475
 GameObject:
   m_ObjectHideFlags: 0

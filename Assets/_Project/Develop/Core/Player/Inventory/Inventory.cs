@@ -2,8 +2,10 @@ using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using _Project.Develop.Core;
 using _Project.Develop.Core.Entities;
+using _Project.Develop.Core.Enum;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -29,15 +31,20 @@ public class Inventory : MonoBehaviour
     private InventorySlot _lastInteractSlot;
     [SerializeField] private int _selectedHotbarIndex = 0;
 
+    private CombatSystem CombatSystem;
+
     public static event Action<bool> OnInventoryStateChange;
 
     private void Start()
     {
         SubscribeEvents();
+        CombatSystem = GetComponentInChildren<CombatSystem>();
         //KitStart();
 
         _dragPreviewImage.gameObject.SetActive(false);
         SelectHotbarSlot(0);
+        var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
+        SetWeapon(weapon.ContainedEntity as Weapon);
     }
     private void Update()
     {
@@ -177,8 +184,20 @@ public class Inventory : MonoBehaviour
             container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
             container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*3,ForceMode.Impulse);
             RemoveItem(slot);
+
+            if (slot.SlotType == SlotType.Weapon)
+            {
+                CombatSystem.RemoveWeapon();
+            }
         }
         
+    }
+
+    public void SetWeapon(Weapon weapon)
+    {
+        var weaponSlot = _view.InventorySlots.First(s => s.SlotType == SlotType.Weapon);
+        weaponSlot.InitializeSlot(weapon);
+        CombatSystem.SetWeapon(weapon);
     }
     public void InventorySetAcitve(bool value, float delay = 0f) => _view.InventorySetActiveAsync(value, delay).Forget();
 
@@ -330,6 +349,19 @@ public class Inventory : MonoBehaviour
         {
             ResetDrag();
             return;
+        }
+
+        if (_dragableItem is MeeleWeapon || _dragableItem is RangeWeapon && targetSlot.SlotType == SlotType.Weapon)
+        {
+            CombatSystem.SetWeapon((Weapon)_dragableItem);
+        }
+        if (_lastInteractSlot.SlotType == SlotType.Weapon)
+        {
+            CombatSystem.RemoveWeapon();
+            if (targetSlot.Item is Weapon w)
+            {
+                CombatSystem.SetWeapon(w);
+            }
         }
 
 
