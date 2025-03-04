@@ -63,7 +63,7 @@ public class InventoryView
     public InventorySlot GetHotbarSlotWithItem(Item item) 
         => HotbarSlots.FirstOrDefault(s => !s.IsEmpty() && !string.IsNullOrWhiteSpace(s.Item?.Id) && s.Item.Id == item.Id);
 
-    public IEnumerable<InventorySlot> GetAllHotbarSlots() => InventorySlots.Where(s => s.IsHotBar);
+    public IEnumerable<InventorySlot> GetAllHotbarSlots() => InventorySlots.Where(s => s.SlotType == SlotType.Hotbar);
 
     #endregion
 }

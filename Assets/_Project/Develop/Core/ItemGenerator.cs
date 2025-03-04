@@ -2,6 +2,7 @@ using System;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects;
 using _Project.Develop.Core.Effects.SpellEffects;
+using _Project.Develop.Core.Entities;
 using _Project.Develop.Core.Enum;
 using UnityEditor;
 using UnityEngine;
@@ -54,6 +55,7 @@ namespace _Project.Develop.Core
         public GameObject[] Artifacts;
 
         public GameObject[] ModificatorObjects;
+        public GameObject[] UseableItems;
 
         public Effect[] MeleeEffects = new Effect[]
         {
@@ -81,6 +83,9 @@ namespace _Project.Develop.Core
                 case WeaponType.RangeWeapon:
                     weapon = Range[Random.Range(0, Range.Length)];
                     break;
+                case WeaponType.UseableItems:
+                    weapon = UseableItems[Random.Range(0, UseableItems.Length)];
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null);
             }
@@ -89,14 +94,7 @@ namespace _Project.Develop.Core
             Debug.Log(weapon.name);
         
             // Создаём модель оружия в зависимости от типа
-            BaseEntity weaponModel = weaponType switch
-            {
-                WeaponType.MeeleWeapon => new MeeleWeapon(weapon.name), // Предполагается, что MeleeWeapon существует
-                WeaponType.RangeWeapon => new RangeWeapon(weapon.name),// Предполагается, что MagicWeapon существует
-                _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
-            };
-            Debug.Log(((Weapon)weaponModel).Sprite);
-            weaponModel.Rarity = rarity;
+            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
 
             // Добавляем эффекты в зависимости от типа оружия
             Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
@@ -108,20 +106,18 @@ namespace _Project.Develop.Core
             weaponContainer.SetEntity(weaponModel);
             return weaponContainer;
         }
-        public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity)
+        public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name)
         {
-            
-        
-            // Создаём модель оружия в зависимости от типа
             BaseEntity weaponModel = weaponType switch
             {
-                WeaponType.MeeleWeapon => new MeeleWeapon("Weapon"), // Предполагается, что MeleeWeapon существует
-                WeaponType.RangeWeapon => new RangeWeapon("Weapon"),
+                WeaponType.MeeleWeapon => new MeeleWeapon(name),
+                WeaponType.RangeWeapon => new RangeWeapon(name),
+                WeaponType.UseableItems => new UseableItem(name),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
+
             weaponModel.Rarity = rarity;
 
-            // Добавляем эффекты в зависимости от типа оружия
             Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
             int effectCount = (int)rarity;
             for (int i = 0; i < effectCount; i++)
@@ -136,6 +132,7 @@ namespace _Project.Develop.Core
     public enum WeaponType
     {
         MeeleWeapon,
-        RangeWeapon
+        RangeWeapon,
+        UseableItems,
     }
 }

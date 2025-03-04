@@ -26,7 +26,7 @@ public class Inventory : MonoBehaviour
 
     private Item _dragableItem;
     private InventorySlot _lastInteractSlot;
-    [SerializeField]  private int _selectedHotbarIndex = -1; // -1 = ничего не выбрано
+    [SerializeField] private int _selectedHotbarIndex = 0;
 
     private void Start()
     {
@@ -45,6 +45,11 @@ public class Inventory : MonoBehaviour
         HandleHotbarSelection();
         
         CheckItemsForPickUp();
+
+        if (Input.GetKeyDown(UseItemKey))
+        {
+            Debug.Log($"Item = {_model.SelectedItem}, ItemCount = {(_model.SelectedItem != null ? _model.SelectedItem.Count : 0)}");
+        }
     }
 
     private void CheckItemsForPickUp()
@@ -89,7 +94,6 @@ public class Inventory : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel"); //CD
         if(scroll != 0)
         {
-            Debug.Log(scroll); 
             int direction = scroll > 0 ? -1 : 1;
             int newIndex = _selectedHotbarIndex + direction;
 
@@ -159,19 +163,11 @@ public class Inventory : MonoBehaviour
 
 
     #region Items
-    private void KitStart()
-    {
-
-        UpdateAllHotbarSlots();
-
-        SelectHotbarSlot(0);
-    }
-
     public void AddItem(Item item)
     {
         if (item == null || item.Count <= 0)
             return;
-        Debug.Log(item.Id);
+
         if (item.IsStackable)
         {
             int remainingCount = item.Count;
@@ -198,17 +194,15 @@ public class Inventory : MonoBehaviour
                 if(emptySlot == null)
                 {
                     Debug.Log($"Невозможно добавить {remainingCount} предметов типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
-                    DropItem(item, remainingCount);
+                    //ЛОгика выбрасывания предметов
                     break;
                 }
 
-                Item newItem = item.Clone(); //ТУТ КЛОУН, УБРАТЬ НАХУЙ
-                print(newItem is Weapon);
-                newItem.Count = Math.Min(remainingCount, item.MaxStackSize);
-                remainingCount -= newItem.Count;
+                item.Count = Math.Min(remainingCount, item.MaxStackSize);
+                remainingCount -= item.Count;
 
-                _model.AddItem(newItem);
-                emptySlot.InitializeSlot(newItem);
+                _model.AddItem(item);
+                emptySlot.InitializeSlot(item);
             }
         }
         else
@@ -220,7 +214,7 @@ public class Inventory : MonoBehaviour
                 if (emptySlot == null)
                 {
                     Debug.Log($"Невозможно добавить нестакуемый предмет типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
-                    DropItem(item);
+                    //ЛОгика выбрасывания предметов
                     break;
                 }
 
@@ -232,12 +226,6 @@ public class Inventory : MonoBehaviour
             }
         }
         UpdateAllHotbarSlots();
-    }
-
-    //После слияния веток сделать логику
-    public void DropItem(Item item, int amount = 1)
-    {
-
     }
 
     public void RemoveItem(Item item)
@@ -266,20 +254,47 @@ public class Inventory : MonoBehaviour
     }
     private void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot)
     {
-        if (_dragableItem is Weapon w)
+        bool IsValid(Item item1, InventorySlot targetSlot1)
         {
-            print("Я ВАШУ МАМУ ЕБАЛ");
+            Debug.Log($"type {targetSlot1.SlotType}. item ");
+
+            if ((targetSlot1.SlotType == SlotType.Hotbar && item1 is UseableItem)
+            || (targetSlot1.SlotType == SlotType.Weapon && item1 is Weapon)
+            || (targetSlot1.SlotType == SlotType.SecondaryWeapon && item1 is SecondaryWeapon)
+            || (targetSlot1.SlotType == SlotType.Artifact && item1 is Artifact)
+            || (targetSlot1.SlotType == SlotType.Default)
+            || item1 == null)
+            {
+                return true;
+            }
+
+            return false;
         }
+
         if (_dragableItem == null || _lastInteractSlot == null || targetSlot == _lastInteractSlot 
-            || (targetSlot.IsHotBar && _dragableItem is not UseableItem)
-            || (targetSlot.IsWeapon && _dragableItem is not Weapon)
-            || (targetSlot.IsSecondary && _dragableItem is not SecondaryWeapon)
-            || (targetSlot.IsArtifact && _dragableItem is not Artifact))
+            || (targetSlot.SlotType == SlotType.Hotbar && _dragableItem is not UseableItem)
+            || (targetSlot.SlotType == SlotType.Weapon && _dragableItem is not Weapon)
+            || (targetSlot.SlotType == SlotType.SecondaryWeapon && _dragableItem is not SecondaryWeapon)
+            || (targetSlot.SlotType == SlotType.Artifact && _dragableItem is not Artifact))
         {
             ResetDrag();
             return;
         }
-        
+        if (!IsValid(targetSlot.Item, _lastInteractSlot))
+        {
+            ResetDrag();
+            return;
+        }
+
+        //Добавить проверку на типы слотов
+        if (!IsValid(_lastInteractSlot.Item, targetSlot) && !IsValid(targetSlot.Item, _lastInteractSlot) || 
+            (!IsValid(_lastInteractSlot.Item, targetSlot)))
+        {
+            ResetDrag();
+            return;
+        }
+
+
         //Если слот пустой
         if (targetSlot.IsEmpty())
         {
@@ -289,6 +304,27 @@ public class Inventory : MonoBehaviour
         //Если предметы стакаются и одинаковые
         else if (_dragableItem.IsStackable && targetSlot.Item.Id == _dragableItem.Id)
         {
+            if(targetSlot.Item.Count == targetSlot.Item.MaxStackSize || _dragableItem.Count == _dragableItem.MaxStackSize)
+            {
+                var item1 = targetSlot.Item;
+                var item2 = _dragableItem;
+
+                var slot1 = targetSlot;
+                var slot2 = _lastInteractSlot;
+
+                slot1.InitializeSlot(item2);
+                slot2.InitializeSlot(item1);
+
+                slot1.UpdateVisual();
+                slot2.UpdateVisual();
+
+                if(slot1.SlotType == SlotType.Hotbar || slot2.SlotType == SlotType.Hotbar)
+                    SelectHotbarSlot(_selectedHotbarIndex);
+
+                ResetDrag();
+                return;
+            }
+
             int newStackCount = targetSlot.Item.Count + _dragableItem.Count;
             int overflow = Mathf.Max(0, newStackCount - targetSlot.Item.MaxStackSize);
 
@@ -314,23 +350,22 @@ public class Inventory : MonoBehaviour
             _lastInteractSlot.InitializeSlot(targetItem);
         }
 
-        if (_view.HotbarSlots.Contains(targetSlot))
-        {
-            if (_selectedHotbarIndex == _view.HotbarSlots.IndexOf(targetSlot))
-            {
-                SelectHotbarSlot(_selectedHotbarIndex);
-            }
-        }
-        else if(_view.HotbarSlots.Contains(_lastInteractSlot) && _lastInteractSlot.IsEmpty())
+        //Hotbar
+        if(_lastInteractSlot.SlotType == SlotType.Hotbar && _lastInteractSlot.IsEmpty())
         {
             int clearedIndex = _view.HotbarSlots.IndexOf(_lastInteractSlot);
             if(clearedIndex == _selectedHotbarIndex)
             {
-                _selectedHotbarIndex = -1;
+                //_selectedHotbarIndex = 0;
                 _model.SetSelectedItem(null);
             }
         }
-
+        Debug.Log($"target slot {_view.HotbarSlots.IndexOf(targetSlot)}, selected slot {_selectedHotbarIndex}");
+        if (targetSlot.SlotType == SlotType.Hotbar && _view.HotbarSlots.IndexOf(targetSlot) == _selectedHotbarIndex)
+        {
+            //Debug.Log($"put item in {_selectedHotbarIndex}, count {_dragableItem.Count}");
+            _model.SetSelectedItem(_dragableItem);
+        }
         ResetDrag();
     }
     private void ResetDrag()
@@ -353,36 +388,3 @@ public class Inventory : MonoBehaviour
     }
     #endregion
 }
-
-
-/*[Serializable]
-public class ItemTest
-{
-    [field: SerializeField] public string Id { get; private set; }
-    [field: SerializeField] public Sprite Sprite { get; private set; }
-
-    [field: SerializeField, ResizableTextArea, AllowNesting] 
-    public string Description {  get; private set; }
-
-    [field: SerializeField] public bool IsStackable { get; private set; }
-
-    [field: SerializeField, MinValue(1), AllowNesting]
-    public int Count { get;  set; } = 1;
-
-    [field: Tooltip("Для одинаковых предметов MaxStackSize должен быть одинаковым")]
-    [field: SerializeField, MinValue(1), MaxValue(1000), ShowIf(nameof(IsStackable)), AllowNesting] 
-    public int MaxStackSize { get; private set; } = 99;
-
-    public ItemTest Clone()
-    {
-        return new ItemTest
-        {
-            Id = this.Id,
-            Sprite = this.Sprite,
-            Description = this.Description,
-            IsStackable = this.IsStackable,
-            Count = this.Count,
-            MaxStackSize = this.MaxStackSize
-        };
-    }
-}*/

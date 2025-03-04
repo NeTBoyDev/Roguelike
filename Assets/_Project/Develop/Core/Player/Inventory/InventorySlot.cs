@@ -6,22 +6,28 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+public enum SlotType
+{
+    Default,
+    Hotbar,
+    Weapon,
+    SecondaryWeapon,
+    Artifact,
+}
+
 public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropHandler, IEndDragHandler
 {
+    [field: SerializeField] public SlotType SlotType {  get; private set; } = SlotType.Default;
     [field: SerializeField] public Item Item { get; private set; } = null;
     [field: SerializeField] public Image Image { get; private set; } = null;
     [field: SerializeField] public Sprite DefaultSprite { get; private set; } = null;
     [field: SerializeField] public TMP_Text CountText { get; private set; } = null;
 
     [field: Header("Hotbar")]
-    [field: SerializeField] public bool IsHotBar {  get; private set; } = false;
-    [field: SerializeField] public bool IsWeapon {  get; private set; } = false;
-    [field: SerializeField] public bool IsSecondary {  get; private set; } = false;
-    [field: SerializeField] public bool IsArtifact {  get; private set; } = false;
-    [field: SerializeField, Required, ShowIf(nameof(IsHotBar))] public Image OuterHotbarImage { get; private set; } = null;
-    [field: SerializeField, Required, ShowIf(nameof(IsHotBar))] public Image OuterHotbarIcon { get; private set; } = null;
-    [field: SerializeField, Required, ShowIf(nameof(IsHotBar))] public TMP_Text OuterHotbarCountText { get; private set; } = null;
-    [field: SerializeField, Required, ShowIf(nameof(IsHotBar))] public Image SelectionHighlight {  get; private set; } = null;
+    [field: SerializeField, Required, ShowIf(nameof(SlotType), SlotType.Hotbar)] public Image OuterHotbarImage { get; private set; } = null;
+    [field: SerializeField, Required, ShowIf(nameof(SlotType), SlotType.Hotbar)] public Image OuterHotbarIcon { get; private set; } = null;
+    [field: SerializeField, Required, ShowIf(nameof(SlotType), SlotType.Hotbar)] public TMP_Text OuterHotbarCountText { get; private set; } = null;
+    [field: SerializeField, Required, ShowIf(nameof(SlotType), SlotType.Hotbar)] public Image SelectionHighlight {  get; private set; } = null;
 
     public event Action<PointerEventData, Item, InventorySlot> onDrag;
     public event Action<PointerEventData, Item, InventorySlot> onDrop;
@@ -44,7 +50,7 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
 
     public void SetSelected(bool isSelected)
     {
-        if(IsHotBar && SelectionHighlight != null)
+        if(SlotType == SlotType.Hotbar && SelectionHighlight != null)
         {
             SelectionHighlight.enabled = isSelected;
         }
@@ -59,7 +65,7 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
             if (CountText != null)
                 CountText.text = "";
 
-            if (IsHotBar)
+            if (SlotType == SlotType.Hotbar)
             {
                 OuterHotbarIcon.color = new Color(0.8f, 0.8f, 0.8f, 1);
                 OuterHotbarIcon.sprite = DefaultSprite;
@@ -76,7 +82,7 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
             CountText.text = (Item.Count > 1) ? Item.Count.ToString() : "";
         }
 
-        if (IsHotBar)
+        if (SlotType == SlotType.Hotbar)
         {
             OuterHotbarIcon.sprite = Item == null ? DefaultSprite : Item.Sprite;
             OuterHotbarIcon.color = new Color(0.8f, 0.8f, 0.8f, 1);

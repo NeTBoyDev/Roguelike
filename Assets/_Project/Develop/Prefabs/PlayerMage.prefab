@@ -60,14 +60,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 1136072347903692303}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 5755336262636221846}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -5814,7 +5811,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 152.67004, y: -40.2949}
+  m_AnchoredPosition: {x: 152.67, y: -40.2949}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1607924960445216157
@@ -5837,14 +5834,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 1
   <Image>k__BackingField: {fileID: 2406076595744086658}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 8192547417821371847}
-  <IsHotBar>k__BackingField: 1
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 5728627021664704544}
   <OuterHotbarIcon>k__BackingField: {fileID: 3217730055825151953}
   <OuterHotbarCountText>k__BackingField: {fileID: 3653953740692897449}
@@ -6360,14 +6354,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 7598967567292163561}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 3266640463078703545}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -7755,14 +7746,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 4069276150741486875}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 3549160754416665278}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -7932,14 +7920,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 6663729858600041260}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 8536459579042251357}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -8034,14 +8019,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 7347766254552320233}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 7670831625123142188}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -8136,14 +8118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 3295975635491460483}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 4820365620453086635}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -8312,14 +8291,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 2
   <Image>k__BackingField: {fileID: 2155868893091359427}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 0}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 1
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -9640,14 +9616,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 135607153108844192}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 8947611714046236026}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -9910,14 +9883,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 8355276279579722801}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 1041259842841840762}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -15522,7 +15492,7 @@ GameObject:
   - component: {fileID: 8347594705712060897}
   - component: {fileID: 1923318196551977337}
   m_Layer: 5
-  m_Name: AdditionItemSlot
+  m_Name: SecondaryItemSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15568,14 +15538,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 3
   <Image>k__BackingField: {fileID: 7653160487870653806}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 0}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 1
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -16032,14 +15999,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 4
   <Image>k__BackingField: {fileID: 1333588948160190728}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 0}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 1
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -22948,14 +22912,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 0
   <Image>k__BackingField: {fileID: 4051767859512533322}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 7238984390890856357}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -23091,7 +23052,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50.890015, y: -40.2949}
+  m_AnchoredPosition: {x: 50.89001, y: -40.2949}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3417106626114658644
@@ -23114,14 +23075,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 1
   <Image>k__BackingField: {fileID: 6450168821019481493}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 690485264957564618}
-  <IsHotBar>k__BackingField: 1
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 9149972380169689445}
   <OuterHotbarIcon>k__BackingField: {fileID: 8443854115245789865}
   <OuterHotbarCountText>k__BackingField: {fileID: 3621379137586238112}
@@ -23826,14 +23784,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 4
   <Image>k__BackingField: {fileID: 308113594217082251}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 0}
-  <IsHotBar>k__BackingField: 0
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 1
   <OuterHotbarImage>k__BackingField: {fileID: 0}
   <OuterHotbarIcon>k__BackingField: {fileID: 0}
   <OuterHotbarCountText>k__BackingField: {fileID: 0}
@@ -25265,7 +25220,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 254.45007, y: -40.2949}
+  m_AnchoredPosition: {x: 254.4501, y: -40.2949}
   m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6984006595711407264
@@ -25288,14 +25243,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <SlotType>k__BackingField: 1
   <Image>k__BackingField: {fileID: 4299758725950437716}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
   <CountText>k__BackingField: {fileID: 6704240337322256252}
-  <IsHotBar>k__BackingField: 1
-  <IsWeapon>k__BackingField: 0
-  <IsSecondary>k__BackingField: 0
-  <IsArtifact>k__BackingField: 0
   <OuterHotbarImage>k__BackingField: {fileID: 1455512839074428422}
   <OuterHotbarIcon>k__BackingField: {fileID: 6648903234038860009}
   <OuterHotbarCountText>k__BackingField: {fileID: 5782055501770214874}
