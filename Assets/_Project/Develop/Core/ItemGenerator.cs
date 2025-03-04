@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects;
 using _Project.Develop.Core.Effects.SpellEffects;
@@ -73,6 +74,24 @@ namespace _Project.Develop.Core
 
         public EntityContainer GenerateWeaponGameobject(WeaponType weaponType, Rarity rarity)
         {
+            var weapon = GenerateContainer(weaponType, rarity);
+        
+            // Создаём модель оружия в зависимости от типа
+            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
+
+            // Добавляем эффекты в зависимости от типа оружия
+            Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
+            for (int i = 0; i < (int)rarity; i++)
+            {
+                weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
+            }
+
+            weapon.SetEntity(weaponModel);
+            return weapon;
+        }
+
+        public EntityContainer GenerateContainer(WeaponType weaponType, Rarity rarity)
+        {
             GameObject weapon = null;
 
             switch (weaponType)
@@ -91,21 +110,26 @@ namespace _Project.Develop.Core
             }
 
             var weaponContainer = Instantiate(weapon).AddComponent<EntityContainer>();
-            Debug.Log(weapon.name);
-        
-            // Создаём модель оружия в зависимости от типа
-            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
-
-            // Добавляем эффекты в зависимости от типа оружия
-            Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
-            for (int i = 0; i < (int)rarity; i++)
-            {
-                weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
-            }
-
-            weaponContainer.SetEntity(weaponModel);
+            weaponContainer.name = weapon.name;
             return weaponContainer;
         }
+        public EntityContainer GenerateContainer(Item weapon)
+        {
+            GameObject obj = null;
+            if(weapon is MeeleWeapon)
+                obj = Melee.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is RangeWeapon)
+                obj = Range.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is UseableItem)
+                obj = UseableItems.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            
+
+            var weaponContainer = Instantiate(obj).AddComponent<EntityContainer>();
+            weaponContainer.name = obj.name;
+            weaponContainer.SetEntity(weapon);
+            return weaponContainer;
+        }
+        
         public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name)
         {
             BaseEntity weaponModel = weaponType switch

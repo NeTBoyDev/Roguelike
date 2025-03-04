@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Core;
 using _Project.Develop.Core.Entities;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -28,9 +29,11 @@ public class Inventory : MonoBehaviour
     private InventorySlot _lastInteractSlot;
     [SerializeField] private int _selectedHotbarIndex = 0;
 
+    public static event Action<bool> OnInventoryStateChange;
+
     private void Start()
     {
-        SubscibeEvents();
+        SubscribeEvents();
         //KitStart();
 
         _dragPreviewImage.gameObject.SetActive(false);
@@ -134,6 +137,8 @@ public class Inventory : MonoBehaviour
 
             if (!enabled)
                 ResetDrag();
+            
+            OnInventoryStateChange?.Invoke(enabled);
         }
     }
 
@@ -145,19 +150,35 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    private void SubscibeEvents()
+    private void SubscribeEvents()
     {
         foreach (var slot in _view.InventorySlots)
         {
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
+            slot.onDrop += DropItemOutOfInventory;
+            
         }
 
         foreach (var slot in _view.HotbarSlots)
         {
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
+            slot.onDrop += DropItemOutOfInventory;
         }
+    }
+
+    private void DropItemOutOfInventory(PointerEventData data, Item item, InventorySlot slot)
+    {
+        
+        if (!RectTransformUtility.RectangleContainsScreenPoint(_view.Inventory.GetComponent<RectTransform>(),data.position))
+        {
+            var container = ItemGenerator.Instance.GenerateContainer(item);
+            container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
+            container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*3,ForceMode.Impulse);
+            RemoveItem(slot);
+        }
+        
     }
     public void InventorySetAcitve(bool value, float delay = 0f) => _view.InventorySetActiveAsync(value, delay).Forget();
 
@@ -191,9 +212,14 @@ public class Inventory : MonoBehaviour
             while(remainingCount > 0)
             {
                 var emptySlot = _view.GetFirstEmptySlot();
-                if(emptySlot == null)
+                if(emptySlot == null || !IsValid(item,emptySlot))
                 {
                     Debug.Log($"Невозможно добавить {remainingCount} предметов типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
+                    item.Count = remainingCount;
+                    var container = ItemGenerator.Instance.GenerateContainer(item);
+                    container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
+                    container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*3,ForceMode.Impulse);
+                    
                     //ЛОгика выбрасывания предметов
                     break;
                 }
@@ -211,10 +237,13 @@ public class Inventory : MonoBehaviour
             for (int i = 0; i < item.Count; i++)
             {
                 var emptySlot = _view.GetFirstEmptySlot();
-                if (emptySlot == null)
+                if (emptySlot == null || !IsValid(item,emptySlot))
                 {
                     Debug.Log($"Невозможно добавить нестакуемый предмет типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
                     //ЛОгика выбрасывания предметов
+                    var container = ItemGenerator.Instance.GenerateContainer(item);
+                    container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
+                    container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*3,ForceMode.Impulse);
                     break;
                 }
 
@@ -231,6 +260,14 @@ public class Inventory : MonoBehaviour
     public void RemoveItem(Item item)
     {
         var slot = _view.GetSlotWithItem(item);
+        _view.ClearSlot(slot);
+
+        _model.RemoveItem(item);
+    }
+    
+    public void RemoveItem(InventorySlot slot)
+    {
+        var item = slot.Item;
         _view.ClearSlot(slot);
 
         _model.RemoveItem(item);
@@ -252,24 +289,25 @@ public class Inventory : MonoBehaviour
         _dragPreviewImage.sprite = item.Sprite;
         _dragPreviewImage.gameObject.SetActive(true);
     }
-    private void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot)
+    bool IsValid(Item item1, InventorySlot targetSlot1)
     {
-        bool IsValid(Item item1, InventorySlot targetSlot1)
-        {
-            Debug.Log($"type {targetSlot1.SlotType}. item ");
+        Debug.Log($"type {targetSlot1.SlotType}. item ");
 
-            if ((targetSlot1.SlotType == SlotType.Hotbar && item1 is UseableItem)
+        if ((targetSlot1.SlotType == SlotType.Hotbar && item1 is UseableItem)
             || (targetSlot1.SlotType == SlotType.Weapon && item1 is Weapon)
             || (targetSlot1.SlotType == SlotType.SecondaryWeapon && item1 is SecondaryWeapon)
             || (targetSlot1.SlotType == SlotType.Artifact && item1 is Artifact)
             || (targetSlot1.SlotType == SlotType.Default)
             || item1 == null)
-            {
-                return true;
-            }
-
-            return false;
+        {
+            return true;
         }
+
+        return false;
+    }
+    private void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot)
+    {
+        
 
         if (_dragableItem == null || _lastInteractSlot == null || targetSlot == _lastInteractSlot 
             || (targetSlot.SlotType == SlotType.Hotbar && _dragableItem is not UseableItem)
@@ -336,6 +374,8 @@ public class Inventory : MonoBehaviour
 
             targetSlot.Item.Count = Mathf.Min(newStackCount, targetSlot.Item.MaxStackSize);
             targetSlot.UpdateVisual();
+            
+            
 
             if (overflow > 0)
             {
@@ -346,6 +386,8 @@ public class Inventory : MonoBehaviour
             {
                 _lastInteractSlot.ClearSlot();
             }
+            
+            
         }
         //Если слот занят и предметы разные - свап
         else if (!targetSlot.IsEmpty())
@@ -371,6 +413,11 @@ public class Inventory : MonoBehaviour
         {
             //Debug.Log($"put item in {_selectedHotbarIndex}, count {_dragableItem.Count}");
             _model.SetSelectedItem(_dragableItem);
+        }
+        if (targetSlot.SlotType == SlotType.Hotbar || _lastInteractSlot.SlotType == SlotType.Hotbar)
+        {
+            //SelectHotbarSlot( _view.HotbarSlots.IndexOf(targetSlot));
+            SelectHotbarSlot(_selectedHotbarIndex);
         }
         ResetDrag();
     }
