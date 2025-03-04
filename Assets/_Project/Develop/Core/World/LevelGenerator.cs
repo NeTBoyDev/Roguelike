@@ -63,7 +63,9 @@ public class LevelGenerator : MonoBehaviour
 
         GenerateStartRoom();
 
-        await GenerateFloor();
+        await GenerateFloorAsync().AttachExternalCancellation(_spawnSource.Token);
+
+        GenerateLastRoom();
 
         SpawnPlayer();
     }
@@ -96,7 +98,7 @@ public class LevelGenerator : MonoBehaviour
         Instantiate(playerPrefab, spawnpoint.position, Quaternion.identity);
     }
 
-    public async UniTask<LevelGenerator> GenerateFloor()
+    public async UniTask GenerateFloorAsync()
     {
         await Delay(StartSpawnDelay, _spawnSource.Token);
 
@@ -128,11 +130,9 @@ public class LevelGenerator : MonoBehaviour
 
             await Delay(RoomSpawnDelay, _spawnSource.Token);
         }
-        await Delay(LastRoomSpawnDelay, _spawnSource.Token);
-        GenerateLastRoom();
 
-        Debug.Log($"Генерация завершена. Пыталось создать: <color=cyan>{_currentRoomCount}</color> комнат. Успешно создано: <color=yellow>{SpawnedRooms.Count-1}</color>");
-        return this;
+        Debug.Log($"<color=yellow>[Генерация уровня]:</color> Пыталось создать комнат: <color=cyan>{_currentRoomCount}</color>. Успешно создано: <color=yellow>{SpawnedRooms.Count-1}</color>");
+        return;
     }
 
     private bool TryConnectRoomWithRotation(Room currentRoom)
@@ -152,7 +152,7 @@ public class LevelGenerator : MonoBehaviour
     }
 
 
-    public LevelGenerator GenerateStartRoom()
+    public void GenerateStartRoom()
     {
         var randomStartRoom = RoomPrefabs.Where(r => r != null && r.Type == RoomType.StartRoom)
             .OrderBy(_ => UnityEngine.Random.value)
@@ -161,17 +161,17 @@ public class LevelGenerator : MonoBehaviour
         if (randomStartRoom == null)
         {
             Debug.LogError("Не найдено стартовой комнаты!");
-            return this;
+            return;
         }
 
         SpawnRoom(randomStartRoom);
         _lastSpawnPosition = _offset;
-
-        return this;
     }
 
-    public LevelGenerator GenerateLastRoom()
+    public async UniTask GenerateLastRoom()
     {
+        await Delay(LastRoomSpawnDelay, _spawnSource.Token);
+
         var randomLastRoom = RoomPrefabs.Where(r => r != null && r.Type == RoomType.LastRoom)
             .OrderBy(_ => UnityEngine.Random.value)
             .FirstOrDefault();
@@ -179,12 +179,10 @@ public class LevelGenerator : MonoBehaviour
         if (randomLastRoom == null)
         {
             Debug.LogError("Не найдено финальной комнаты!");
-            return null;
+            return;
         }
 
         SpawnRoom(randomLastRoom);
-
-        return this;
     }
 
     public Room SpawnRoom(Room room)
@@ -291,17 +289,13 @@ public class LevelGenerator : MonoBehaviour
             return false;
         }
 
+        //Алгоритм спавна комнат
         var availableDoors = SpawnedRooms
             .Where(r => r != currentRoom)
             .SelectMany(r => r.Doors)
             .Where(d => !d.Connected)
             .OrderBy(d => Vector2.Distance(d.ConnectPoint.position, currentRandomDoor.ConnectPoint.position))
             .ToList();
-
-        var randomCorridor = RoomPrefabs
-            .Where(r => r.Type == RoomType.Corridor)
-            .OrderBy(_ => UnityEngine.Random.value)
-            .FirstOrDefault();
 
         if (availableDoors.Count == 0)
         {
