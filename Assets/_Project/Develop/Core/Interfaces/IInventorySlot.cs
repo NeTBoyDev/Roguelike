@@ -3,6 +3,6 @@ using UnityEngine.UI;
 public interface IInventorySlot
 {
     public Image Image { get; }
-    public void InitializeSlot(ItemTest item);
+    public void InitializeSlot(Item item);
     public void ClearSlot();
 }

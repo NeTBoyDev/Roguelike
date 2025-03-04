@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using _Project.Develop.Core.Entities;
 using UnityEngine;
 
 [Serializable]
 public class InventoryModel
 {
-    [field: SerializeField] public List<ItemTest> Items { get; private set; } = new(1);
-    [field: SerializeField] public ItemTest SelectedItem { get; private set; } = null;
+    [field: SerializeField] public List<Item> Items { get; private set; } = new(1);
+    [field: SerializeField] public Item SelectedItem { get; private set; } = null;
 
     #region Items
 
-    public void AddItem(ItemTest item)
+    public void AddItem(Item item)
     {
         if (Items.Contains(item))
             return;
@@ -19,7 +20,7 @@ public class InventoryModel
         Items.Add(item);
     }
 
-    public void RemoveItem(ItemTest item)
+    public void RemoveItem(Item item)
     {
         if (Items.Contains(item))
         {
@@ -29,10 +30,10 @@ public class InventoryModel
         }
     }
 
-    public bool ContainsItem(ItemTest item) => Items.Contains(item);
-    public ItemTest FindItem(string itemId) => Items.FirstOrDefault(i => i != null && i.Id == itemId);
+    public bool ContainsItem(Item item) => Items.Contains(item);
+    public Item FindItem(string itemId) => Items.FirstOrDefault(i => i != null && i.Id == itemId);
 
-    public void SetSelectedItem(ItemTest item) => SelectedItem = item;
+    public void SetSelectedItem(Item item) => SelectedItem = item;
 
     #endregion
 }

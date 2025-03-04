@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
+using _Project.Develop.Core.Entities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,23 +16,25 @@ public class Inventory : MonoBehaviour
     [HorizontalLine(2, EColor.Green)]
 
     [Header("Input Settings")]
-    public KeyCode OpenInventoryKey;
-    public KeyCode UseItemKey;
+    public KeyCode OpenInventoryKey = KeyCode.Tab;
+    public KeyCode UseItemKey = KeyCode.E;
+    public KeyCode PickItemKey = KeyCode.F;
 
     [Header("Kit start")]
-    public List<ItemTest> KitStartItems;
+    public List<Item> KitStartItems;
 
 
-    private ItemTest _dragableItem;
+    private Item _dragableItem;
     private InventorySlot _lastInteractSlot;
-    [SerializeField]  private int _selectedHotbarIndex = -1; // -1 = ничего не выбрано
+    [SerializeField]  private int _selectedHotbarIndex = -1; // -1 = РЅРёС‡РµРіРѕ РЅРµ РІС‹Р±СЂР°РЅРѕ
 
     private void Start()
     {
         SubscibeEvents();
-        KitStart();
+        //KitStart();
 
         _dragPreviewImage.gameObject.SetActive(false);
+        SelectHotbarSlot(0);
     }
     private void Update()
     {
@@ -40,6 +43,32 @@ public class Inventory : MonoBehaviour
         UpdatePreviewItem();
 
         HandleHotbarSelection();
+        
+        CheckItemsForPickUp();
+    }
+
+    private void CheckItemsForPickUp()
+    {
+        if (TryGetContainer(out var container) && Input.GetKeyDown(PickItemKey))
+        {
+            AddItem(container.ContainedEntity as Item);
+            Destroy(container.gameObject);
+        }
+    }
+
+    private bool TryGetContainer(out EntityContainer container)
+    {
+        var raycast = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
+            out RaycastHit hit, 5);
+        if (hit.collider != null && hit.collider.gameObject.TryGetComponent(out EntityContainer cont))
+        {
+            
+            container = cont;
+            return true;
+        }
+
+        container = null;
+        return false;
     }
 
     private void HandleHotbarSelection()
@@ -48,7 +77,7 @@ public class Inventory : MonoBehaviour
         if (hotbarSlots.Count <= 0)
             return;
 
-        for (int i = 0; i < hotbarSlots.Count && i < 9; i++) //Ограничение до 9 слотов
+        for (int i = 0; i < hotbarSlots.Count && i < 9; i++) //РћРіСЂР°РЅРёС‡РµРЅРёРµ РґРѕ 9 СЃР»РѕС‚РѕРІ
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
@@ -57,11 +86,11 @@ public class Inventory : MonoBehaviour
             }
         }
 
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        float scroll = Input.GetAxis("Mouse ScrollWheel"); //CD
         if(scroll != 0)
         {
-            Debug.Log(scroll);
-            int direction = scroll > 0 ? 1 : -1;
+            Debug.Log(scroll); 
+            int direction = scroll > 0 ? -1 : 1;
             int newIndex = _selectedHotbarIndex + direction;
 
             if (newIndex < 0) 
@@ -71,6 +100,7 @@ public class Inventory : MonoBehaviour
                 newIndex = 0;
 
             SelectHotbarSlot(newIndex);
+            
         }
     }
 
@@ -81,7 +111,7 @@ public class Inventory : MonoBehaviour
             return;
 
         _selectedHotbarIndex = index;
-        ItemTest selectedItem = hotbarSlots[index].Item;
+        Item selectedItem = hotbarSlots[index].Item;
 
         _model.SetSelectedItem(selectedItem);
         
@@ -131,21 +161,17 @@ public class Inventory : MonoBehaviour
     #region Items
     private void KitStart()
     {
-        foreach (var item in KitStartItems)
-        {
-            AddItem(item);
-        }
 
         UpdateAllHotbarSlots();
 
         SelectHotbarSlot(0);
     }
 
-    public void AddItem(ItemTest item)
+    public void AddItem(Item item)
     {
         if (item == null || item.Count <= 0)
             return;
-
+        Debug.Log(item.Id);
         if (item.IsStackable)
         {
             int remainingCount = item.Count;
@@ -165,18 +191,19 @@ public class Inventory : MonoBehaviour
                     remainingCount -= amountToAdd;
                 }
             }
-            //Если остались предметы, добавляем их в пустые слоты
+            //Р•СЃР»Рё РѕСЃС‚Р°Р»РёСЃСЊ РїСЂРµРґРјРµС‚С‹, РґРѕР±Р°РІР»СЏРµРј РёС… РІ РїСѓСЃС‚С‹Рµ СЃР»РѕС‚С‹
             while(remainingCount > 0)
             {
                 var emptySlot = _view.GetFirstEmptySlot();
                 if(emptySlot == null)
                 {
-                    Debug.Log($"Невозможно добавить {remainingCount} предметов типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
+                    Debug.Log($"РќРµРІРѕР·РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ {remainingCount} РїСЂРµРґРјРµС‚РѕРІ С‚РёРїР° <color=cyan>{item.Id}</color>. РРЅРІРµРЅС‚Р°СЂСЊ РїРѕР»РѕРЅ!");
                     DropItem(item, remainingCount);
                     break;
                 }
 
-                ItemTest newItem = item.Clone();
+                Item newItem = item.Clone(); //РўРЈРў РљР›РћРЈРќ, РЈР‘Р РђРўР¬ РќРђРҐРЈР™
+                print(newItem is Weapon);
                 newItem.Count = Math.Min(remainingCount, item.MaxStackSize);
                 remainingCount -= newItem.Count;
 
@@ -186,18 +213,18 @@ public class Inventory : MonoBehaviour
         }
         else
         {
-            //Логика для не стакуемых предметов
+            //Р›РѕРіРёРєР° РґР»СЏ РЅРµ СЃС‚Р°РєСѓРµРјС‹С… РїСЂРµРґРјРµС‚РѕРІ
             for (int i = 0; i < item.Count; i++)
             {
                 var emptySlot = _view.GetFirstEmptySlot();
                 if (emptySlot == null)
                 {
-                    Debug.Log($"Невозможно добавить нестакуемый предмет типа <color=cyan>{item.Id}</color>. Инвентарь полон!");
+                    Debug.Log($"РќРµРІРѕР·РјРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РЅРµСЃС‚Р°РєСѓРµРјС‹Р№ РїСЂРµРґРјРµС‚ С‚РёРїР° <color=cyan>{item.Id}</color>. РРЅРІРµРЅС‚Р°СЂСЊ РїРѕР»РѕРЅ!");
                     DropItem(item);
                     break;
                 }
 
-                ItemTest newItem = item.Clone();
+                Item newItem = item; // РўРЈРў Р‘Р«Р› РљР›РћРЈРќ
                 newItem.Count = 1;
 
                 _model.AddItem(newItem);
@@ -207,13 +234,13 @@ public class Inventory : MonoBehaviour
         UpdateAllHotbarSlots();
     }
 
-    //После слияния веток сделать логику
-    public void DropItem(ItemTest item, int amount = 1)
+    //РџРѕСЃР»Рµ СЃР»РёСЏРЅРёСЏ РІРµС‚РѕРє СЃРґРµР»Р°С‚СЊ Р»РѕРіРёРєСѓ
+    public void DropItem(Item item, int amount = 1)
     {
 
     }
 
-    public void RemoveItem(ItemTest item)
+    public void RemoveItem(Item item)
     {
         var slot = _view.GetSlotWithItem(item);
         _view.ClearSlot(slot);
@@ -221,12 +248,12 @@ public class Inventory : MonoBehaviour
         _model.RemoveItem(item);
     }
 
-    public ItemTest FindItem(string Id) => _model.FindItem(Id);
+    public Item FindItem(string Id) => _model.FindItem(Id);
     #endregion
 
     #region Drag&Drop
 
-    private void DragItem(PointerEventData eventData, ItemTest item, InventorySlot slot)
+    private void DragItem(PointerEventData eventData, Item item, InventorySlot slot)
     {
         if (item == null) 
             return;
@@ -237,21 +264,29 @@ public class Inventory : MonoBehaviour
         _dragPreviewImage.sprite = item.Sprite;
         _dragPreviewImage.gameObject.SetActive(true);
     }
-    private void DropItem(PointerEventData eventData, ItemTest item, InventorySlot targetSlot)
+    private void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot)
     {
-        if (_dragableItem == null || _lastInteractSlot == null || targetSlot == _lastInteractSlot)
+        if (_dragableItem is Weapon w)
+        {
+            print("РЇ Р’РђРЁРЈ РњРђРњРЈ Р•Р‘РђР›");
+        }
+        if (_dragableItem == null || _lastInteractSlot == null || targetSlot == _lastInteractSlot 
+            || (targetSlot.IsHotBar && _dragableItem is not UseableItem)
+            || (targetSlot.IsWeapon && _dragableItem is not Weapon)
+            || (targetSlot.IsSecondary && _dragableItem is not SecondaryWeapon)
+            || (targetSlot.IsArtifact && _dragableItem is not Artifact))
         {
             ResetDrag();
             return;
         }
         
-        //Если слот пустой
+        //Р•СЃР»Рё СЃР»РѕС‚ РїСѓСЃС‚РѕР№
         if (targetSlot.IsEmpty())
         {
             targetSlot.InitializeSlot(_dragableItem);
             _lastInteractSlot.ClearSlot();
         }
-        //Если предметы стакаются и одинаковые
+        //Р•СЃР»Рё РїСЂРµРґРјРµС‚С‹ СЃС‚Р°РєР°СЋС‚СЃСЏ Рё РѕРґРёРЅР°РєРѕРІС‹Рµ
         else if (_dragableItem.IsStackable && targetSlot.Item.Id == _dragableItem.Id)
         {
             int newStackCount = targetSlot.Item.Count + _dragableItem.Count;
@@ -270,10 +305,10 @@ public class Inventory : MonoBehaviour
                 _lastInteractSlot.ClearSlot();
             }
         }
-        //Если слот занят и предметы разные - свап
+        //Р•СЃР»Рё СЃР»РѕС‚ Р·Р°РЅСЏС‚ Рё РїСЂРµРґРјРµС‚С‹ СЂР°Р·РЅС‹Рµ - СЃРІР°Рї
         else if (!targetSlot.IsEmpty())
         {
-            ItemTest targetItem = targetSlot.Item;
+            Item targetItem = targetSlot.Item;
             targetSlot.InitializeSlot(_dragableItem);
 
             _lastInteractSlot.InitializeSlot(targetItem);
@@ -320,7 +355,7 @@ public class Inventory : MonoBehaviour
 }
 
 
-[Serializable]
+/*[Serializable]
 public class ItemTest
 {
     [field: SerializeField] public string Id { get; private set; }
@@ -334,7 +369,7 @@ public class ItemTest
     [field: SerializeField, MinValue(1), AllowNesting]
     public int Count { get;  set; } = 1;
 
-    [field: Tooltip("Для одинаковых предметов MaxStackSize должен быть одинаковым")]
+    [field: Tooltip("Р”Р»СЏ РѕРґРёРЅР°РєРѕРІС‹С… РїСЂРµРґРјРµС‚РѕРІ MaxStackSize РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕРґРёРЅР°РєРѕРІС‹Рј")]
     [field: SerializeField, MinValue(1), MaxValue(1000), ShowIf(nameof(IsStackable)), AllowNesting] 
     public int MaxStackSize { get; private set; } = 99;
 
@@ -350,4 +385,4 @@ public class ItemTest
             MaxStackSize = this.MaxStackSize
         };
     }
-}
+}*/

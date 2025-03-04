@@ -11,6 +11,8 @@ public abstract class BaseEntity : IEntity
     public Dictionary<StatType, Stat> Stats { get; private set; }
     public List<Effect> Effects { get; private set; }
 
+    public Rarity Rarity;
+
     protected BaseEntity(string id)
     {
         Id = id;

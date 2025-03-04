@@ -86,14 +86,17 @@ namespace _Project.Develop.Core
             }
 
             var weaponContainer = Instantiate(weapon).AddComponent<EntityContainer>();
+            Debug.Log(weapon.name);
         
             // Создаём модель оружия в зависимости от типа
             BaseEntity weaponModel = weaponType switch
             {
-                WeaponType.MeeleWeapon => new MeeleWeapon("Weapon"), // Предполагается, что MeleeWeapon существует
-                WeaponType.RangeWeapon => new RangeWeapon("Weapon"),// Предполагается, что MagicWeapon существует
+                WeaponType.MeeleWeapon => new MeeleWeapon(weapon.name), // Предполагается, что MeleeWeapon существует
+                WeaponType.RangeWeapon => new RangeWeapon(weapon.name),// Предполагается, что MagicWeapon существует
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
+            Debug.Log(((Weapon)weaponModel).Sprite);
+            weaponModel.Rarity = rarity;
 
             // Добавляем эффекты в зависимости от типа оружия
             Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
@@ -116,6 +119,7 @@ namespace _Project.Develop.Core
                 WeaponType.RangeWeapon => new RangeWeapon("Weapon"),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
+            weaponModel.Rarity = rarity;
 
             // Добавляем эффекты в зависимости от типа оружия
             Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;

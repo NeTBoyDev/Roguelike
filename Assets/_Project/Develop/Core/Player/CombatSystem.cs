@@ -61,8 +61,9 @@ public class CombatSystem : MonoBehaviour
             CrosshairStartPos[i] = Crosshair[i].position;
         }
 
-        var weapon = ItemGenerator.Instance.GenerateWeapon(WeaponType.RangeWeapon, Rarity.Common);
-        SetWeapon(weapon as Weapon);
+        var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+        SetWeapon(weapon.ContainedEntity as Weapon);
     }
 
     public void SetWeapon(Weapon weapon)

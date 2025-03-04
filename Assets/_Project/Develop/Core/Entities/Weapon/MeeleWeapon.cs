@@ -25,7 +25,6 @@ public class MeeleWeapon : Weapon
         
         
         //Effects.Add(new ShotCount());           // Выпуск снаряда
-
         foreach (var p in Projectile)
         {
             p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue * Effects.Count);

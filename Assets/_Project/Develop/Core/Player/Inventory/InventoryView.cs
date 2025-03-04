@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using _Project.Develop.Core.Entities;
 using UnityEngine;
 
 [Serializable]
@@ -18,7 +19,7 @@ public class InventoryView
         Inventory.SetActive(value);
     }
 
-    public InventorySlot AddItemToFirstEmptySLot(ItemTest item)
+    public InventorySlot AddItemToFirstEmptySLot(Item item)
     {
         var freeSlot = InventorySlots.FirstOrDefault(s => s.Item == null || string.IsNullOrWhiteSpace(s.Item.Id));
         if (freeSlot == null)
@@ -34,14 +35,14 @@ public class InventoryView
 
     public InventorySlot GetFirstEmptySlot()
     {
-        var slot = InventorySlots.FirstOrDefault(s => string.IsNullOrWhiteSpace(s.Item.Id));
+        var slot = InventorySlots.FirstOrDefault(s => s.IsEmpty());
         if (slot != null)
             return slot;
 
-        return HotbarSlots.FirstOrDefault(s => string.IsNullOrWhiteSpace(s.Item.Id));
+        return HotbarSlots.FirstOrDefault(s => s.IsEmpty());
     }
 
-    public InventorySlot GetSlotWithItem(ItemTest item)
+    public InventorySlot GetSlotWithItem(Item item)
     {
         var slot = InventorySlots.FirstOrDefault(s => s.Item?.Id == item.Id);
         if (slot != null)
@@ -50,16 +51,16 @@ public class InventoryView
         return HotbarSlots.FirstOrDefault(s => s.Item?.Id == item.Id);
     }
 
-    public InventorySlot GetSlotWithStackableItem(ItemTest item)
+    public InventorySlot GetSlotWithStackableItem(Item item)
     {
-        var slot = InventorySlots.FirstOrDefault(s => s.Item?.Id == item.Id && s.Item.IsStackable && s.Item.Count < s.Item.MaxStackSize);
+        var slot = InventorySlots.FirstOrDefault(s => s.Item?.Id == item.Id && s.Item.MaxStackSize > 1 && s.Item.Count < s.Item.MaxStackSize);
         if (slot != null)
             return slot;
 
-        return HotbarSlots.FirstOrDefault(s => s.Item?.Id == item.Id && s.Item.IsStackable && s.Item.Count < s.Item.MaxStackSize);
+        return HotbarSlots.FirstOrDefault(s => s.Item?.Id == item.Id && s.Item.MaxStackSize > 1 && s.Item.Count < s.Item.MaxStackSize);
     }
 
-    public InventorySlot GetHotbarSlotWithItem(ItemTest item) 
+    public InventorySlot GetHotbarSlotWithItem(Item item) 
         => HotbarSlots.FirstOrDefault(s => !s.IsEmpty() && !string.IsNullOrWhiteSpace(s.Item?.Id) && s.Item.Id == item.Id);
 
     public IEnumerable<InventorySlot> GetAllHotbarSlots() => InventorySlots.Where(s => s.IsHotBar);
