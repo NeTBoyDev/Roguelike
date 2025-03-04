@@ -64,8 +64,8 @@ public class CombatSystem : MonoBehaviour
         var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         SetWeapon(weapon.ContainedEntity as Weapon);
     }

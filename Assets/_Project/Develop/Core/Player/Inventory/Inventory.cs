@@ -177,7 +177,7 @@ public class Inventory : MonoBehaviour
                 if (remainingCount <= 0)
                     break;
 
-                if(!slot.IsEmpty() && slot.Item.Id == item.Id && slot.Item.Count < slot.Item.MaxStackSize)
+                if(!slot.IsEmpty() && slot.Item.Id == item.Id && slot.Item.Count < slot.Item.MaxStackSize && slot.Item.Rarity == item.Rarity)
                 {
                     int availableSpace = slot.Item.MaxStackSize - slot.Item.Count;
                     int amountToAdd = Mathf.Min(availableSpace, remainingCount);
@@ -304,22 +304,28 @@ public class Inventory : MonoBehaviour
         //Если предметы стакаются и одинаковые
         else if (_dragableItem.IsStackable && targetSlot.Item.Id == _dragableItem.Id)
         {
-            if(targetSlot.Item.Count == targetSlot.Item.MaxStackSize || _dragableItem.Count == _dragableItem.MaxStackSize)
+            if(targetSlot.Item.Count == targetSlot.Item.MaxStackSize || _dragableItem.Count == _dragableItem.MaxStackSize 
+                                                                     || _dragableItem.Rarity != targetSlot.Item.Rarity)
             {
                 var item1 = targetSlot.Item;
                 var item2 = _dragableItem;
 
                 var slot1 = targetSlot;
                 var slot2 = _lastInteractSlot;
+                
+                
 
                 slot1.InitializeSlot(item2);
                 slot2.InitializeSlot(item1);
 
                 slot1.UpdateVisual();
                 slot2.UpdateVisual();
-
-                if(slot1.SlotType == SlotType.Hotbar || slot2.SlotType == SlotType.Hotbar)
+                
+                if (slot1.SlotType == SlotType.Hotbar || slot2.SlotType == SlotType.Hotbar)
+                {
+                    //SelectHotbarSlot( _view.HotbarSlots.IndexOf(targetSlot));
                     SelectHotbarSlot(_selectedHotbarIndex);
+                }
 
                 ResetDrag();
                 return;
