@@ -50,7 +50,6 @@ namespace _Project.Develop.Core
         #endregion
 
         public GameObject[] Melee;
-        public GameObject[] Magic;
         public GameObject[] Range;
         public GameObject[] Artifacts;
 
@@ -81,9 +80,6 @@ namespace _Project.Develop.Core
                     break;
                 case WeaponType.RangeWeapon:
                     weapon = Range[Random.Range(0, Range.Length)];
-                    break;
-                case WeaponType.MagicWeapon:
-                    weapon = Magic[Random.Range(0, Magic.Length)];
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null);

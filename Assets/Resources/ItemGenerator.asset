@@ -16,9 +16,9 @@ MonoBehaviour:
   - {fileID: 919132149155446097, guid: b9aac7aea18e7ed41937fb4026efdc67, type: 3}
   - {fileID: 919132149155446097, guid: e0e59ce7338714b48a1475de9d4f9c9c, type: 3}
   - {fileID: 919132149155446097, guid: 32294f601f81d8740a429da7f1c0f199, type: 3}
-  Magic:
-  - {fileID: 919132149155446097, guid: bff8eb213ed747e4b910dec071278f3d, type: 3}
+  Magic: []
   Range:
   - {fileID: 919132149155446097, guid: a1ec3e66b50146e44bce958d173ffe93, type: 3}
+  - {fileID: 919132149155446097, guid: bff8eb213ed747e4b910dec071278f3d, type: 3}
   Artifacts: []
   ModificatorObjects: []
