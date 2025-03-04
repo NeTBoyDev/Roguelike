@@ -9,7 +9,7 @@ namespace _Project.Develop.Core.Effects.Base
         protected float timer;
         protected float magnitude;
 
-        public PeriodicEffect(EffectType type, float duration, float interval, float magnitude)
+        public PeriodicEffect(EffectType type, float duration, float interval, float magnitude) : base(duration)
         {
             Type = type;
             Duration = duration;

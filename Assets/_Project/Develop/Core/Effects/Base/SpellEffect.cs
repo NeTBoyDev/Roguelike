@@ -37,5 +37,9 @@ namespace _Project.Develop.Core.Effects.Base
             List<ProjectileObject> affectedObjects = new List<ProjectileObject> { target.GetComponent<ProjectileObject>() };
             Apply(target, ref affectedObjects);
         }
+
+        protected SpellEffect() : base(0)
+        {
+        }
     }
 }

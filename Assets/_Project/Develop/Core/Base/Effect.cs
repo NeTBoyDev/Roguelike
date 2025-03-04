@@ -1,11 +1,18 @@
+using System;
 using _Project.Develop.Core.Enum;
 
 namespace _Project.Develop.Core.Base
 {
-    public abstract class Effect
+    public class Effect 
     {
+        public Effect(float duration)
+        {
+            Duration = duration;
+            startDuration = duration;
+        }
         public EffectType Type { get; protected set; }
         public float Duration { get; protected set; }
+        protected float startDuration;
         public bool IsFinished => Duration <= 0 && Duration != float.MaxValue;
 
         public virtual void OnApply(IEntity target) { }
@@ -15,5 +22,7 @@ namespace _Project.Develop.Core.Base
                 Duration -= deltaTime;
         }
         public virtual void OnRemove(IEntity target) { }
+
+        public virtual Effect Clone() => new Effect(startDuration);
     }
 }

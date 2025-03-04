@@ -95,14 +95,17 @@ public class MeeleWeapon : Weapon
                 foreach (var effect in effectResults)
                 {
                     effect.SetDamage(originalObj.Damage);
-                    effect.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
+                    //effect.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
                 }
                 newObjects.AddRange(effectResults);
             }
 
             currentObjects = newObjects;
         }
-
+        foreach (var proj in currentObjects)
+        {
+            proj.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
+        }
         Debug.Log($"Total projectiles created: {currentObjects.Count}");
     }
     

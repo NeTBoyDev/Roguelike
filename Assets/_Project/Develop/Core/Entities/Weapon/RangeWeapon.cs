@@ -19,8 +19,8 @@ public class RangeWeapon : Weapon
         Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
         ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{Projectile[0].Id}").GetComponent<ProjectileObject>());
 
-        Effects.Add(new ShotCount());
-        Effects.Add(new PoisonEffect(5,1,100));
+        //Effects.Add(new ShotCount(10));
+        //Effects.Add(new PoisonEffect(5,1,10));
         //Effects.Add(new TrippleShot(10));
         //Effects.Add(new AutoAim(5));
         
@@ -46,12 +46,17 @@ public class RangeWeapon : Weapon
                 foreach (var effect in effectResults)
                 {
                     effect.SetDamage(originalObj.Damage);
-                    effect.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
+                    //effect.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
                 }
                 newObjects.AddRange(effectResults);
             }
 
             currentObjects = newObjects;
+        }
+
+        foreach (var proj in currentObjects)
+        {
+            proj.SetEffects(Effects.Where(e=> e is not SpellEffect).ToList());
         }
 
         Debug.Log($"Total projectiles created: {currentObjects.Count}");

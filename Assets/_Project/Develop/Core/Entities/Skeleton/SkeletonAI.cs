@@ -50,7 +50,7 @@ public class SkeletonAI : MonoBehaviour
     void Update()
     {
         skeletonModel.Update(Time.deltaTime);
-        print(skeletonModel.Effects.Count);
+        //print(skeletonModel.Effects.Count);
 
         currentState?.Execute();
 

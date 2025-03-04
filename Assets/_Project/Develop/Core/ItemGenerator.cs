@@ -95,8 +95,7 @@ namespace _Project.Develop.Core
             BaseEntity weaponModel = weaponType switch
             {
                 WeaponType.MeeleWeapon => new MeeleWeapon("Weapon"), // Предполагается, что MeleeWeapon существует
-                WeaponType.RangeWeapon => new RangeWeapon("Weapon"),
-                WeaponType.MagicWeapon => new RangeWeapon("Weapon"), // Предполагается, что MagicWeapon существует
+                WeaponType.RangeWeapon => new RangeWeapon("Weapon"),// Предполагается, что MagicWeapon существует
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -119,7 +118,6 @@ namespace _Project.Develop.Core
             {
                 WeaponType.MeeleWeapon => new MeeleWeapon("Weapon"), // Предполагается, что MeleeWeapon существует
                 WeaponType.RangeWeapon => new RangeWeapon("Weapon"),
-                WeaponType.MagicWeapon => new RangeWeapon("Weapon"), // Предполагается, что MagicWeapon существует
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -138,7 +136,6 @@ namespace _Project.Develop.Core
     public enum WeaponType
     {
         MeeleWeapon,
-        RangeWeapon,
-        MagicWeapon
+        RangeWeapon
     }
 }
