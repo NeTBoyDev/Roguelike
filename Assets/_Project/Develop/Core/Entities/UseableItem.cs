@@ -4,6 +4,8 @@ namespace _Project.Develop.Core.Entities
     {
         public UseableItem(string id) : base(id)
         {
+            MaxStackSize = 10;
+            Count = 8;
         }
     }
 }
