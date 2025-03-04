@@ -17,7 +17,7 @@ public class RangeWeapon : Weapon
     public RangeWeapon(string id) : base(id)
     {
         Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
-        ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{Projectile[0].Id}").GetComponent<ProjectileObject>());
+        Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));
 
         //Effects.Add(new ShotCount(10));
         //Effects.Add(new PoisonEffect(5,1,10));
@@ -27,6 +27,12 @@ public class RangeWeapon : Weapon
         Projectile[0][StatType.Strength].Modify(Projectile[0][StatType.Strength].CurrentValue * Effects.Count);
 
         Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
+        
+        foreach (var p in Projectile)
+        {
+            p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue * Effects.Count);
+            ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{p.Id}").GetComponent<ProjectileObject>());
+        }
     }
 
     public void ApplyEffects(ProjectileObject originalObj)
