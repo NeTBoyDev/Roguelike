@@ -10,7 +10,7 @@ public class BigSize : SpellEffect
         magnitude = additionalShots;
     }
 
-    public override void Apply(GameObject target, ref List<GameObject> affectedObjects)
+    public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)
     {
         foreach (var projectile in affectedObjects)
         {

@@ -196,10 +196,12 @@ public class CombatSystem : MonoBehaviour
                 {
                     float damage = playerModel[StatType.Strength].CurrentValue + equippedWeapon[StatType.Damage].CurrentValue;
                     enemy.TakeDamage(damage);
+                    ((MeeleWeapon)equippedWeapon).ApplyEffects(enemy.skeletonModel);
                     Debug.Log($"Player attacked {hit.name} for {damage} damage!");
                 }
             }
         }
+        ((MeeleWeapon)equippedWeapon).FireProjectile();
     }
 
     private void OnDrawGizmos()
@@ -246,21 +248,11 @@ public class CombatSystem : MonoBehaviour
             animator.SetTrigger("StopCharge");
             Debug.Log("Shot cancelled or partial charge!");
         }
-
-        
     }
 
     private void FireProjectile()
     {
-        var direction = Quaternion.LookRotation(Camera.main.transform.forward, Camera.main.transform.up);
-        var projectile = Instantiate(((RangeWeapon)equippedWeapon).ProjectileView, 
-            Camera.main.transform.position + Camera.main.transform.forward, 
-            direction);
-        
-        projectile.SetDamage(((RangeWeapon)equippedWeapon).Projectile[StatType.Strength].CurrentValue);
-        print(projectile.Damage);
-        
-        ((RangeWeapon)equippedWeapon).ApplyEffects(projectile.gameObject);
+        ((RangeWeapon)equippedWeapon).FireProjectile();
     }
 
     private void UpdateRangedChargeDuration()

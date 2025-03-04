@@ -11,9 +11,9 @@ namespace _Project.Develop.Core.Effects.SpellEffects
             magnitude = additionalShots * 2; 
         }
 
-        public override void Apply(GameObject target, ref List<GameObject> affectedObjects)
+        public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)
         {
-            List<GameObject> newObjects = new List<GameObject> { target }; 
+            List<ProjectileObject> newObjects = new List<ProjectileObject> { target }; 
 
             for (int i = 1; i <= magnitude / 2; i++)
             {

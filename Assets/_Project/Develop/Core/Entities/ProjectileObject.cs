@@ -1,17 +1,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Entities;
 using _Project.Develop.Core.Enum;
 using UnityEngine;
 
 public class ProjectileObject : MonoBehaviour
 {
-    public float Damage { get; private set; }
+    private float damage;
+    private List<Effect> effects = new List<Effect>();
 
-    public void SetDamage(float value)
+    public float Damage => damage;
+
+    public void SetDamage(float damageValue)
     {
-        Damage = value;
+        damage = damageValue;
+    }
+
+    public void SetEffects(List<Effect> weaponEffects)
+    {
+        print($"Set {weaponEffects.Count} effects");
+        effects = new List<Effect>(weaponEffects); // Копируем эффекты
+    }
+
+    void Update()
+    {
+        //transform.Translate(Vector3.forward * 5f * Time.deltaTime);
     }
 
     private void OnCollisionEnter(Collision other)
@@ -21,12 +36,14 @@ public class ProjectileObject : MonoBehaviour
             SkeletonAI enemy = other.gameObject.GetComponent<SkeletonAI>();
             if (enemy != null)
             {
-                enemy.TakeDamage(Damage);
+                enemy.TakeDamage(damage); // Наносим урон
+                foreach (var effect in effects)
+                {
+                    print("Apply");
+                    enemy.skeletonModel.ApplyEffect(effect); // Применяем все эффекты
+                }
             }
             Destroy(gameObject);
         }
-        OnHit?.Invoke();
     }
-
-    public event Action OnHit;
 }

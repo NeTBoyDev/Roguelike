@@ -21,7 +21,7 @@ public abstract class BaseEntity : IEntity
     public virtual void ApplyEffect(Effect effect)
     {
         Effects.Add(effect); // УДАЛИТЬ ПРИ НЕОБХОДИМОСТИ
-        effect.OnApply(this);
+        //effect.OnApply(this);
     }
 
     public virtual void AddEffect(Effect effect)

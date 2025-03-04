@@ -11,9 +11,9 @@ public class AutoAim : SpellEffect
         magnitude = additionalShots; // Радиус поиска и множитель масштаба
     }
 
-    public override void Apply(GameObject target, ref List<GameObject> affectedObjects)
+    public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)
     {
-        List<GameObject> newObjects = new List<GameObject>(affectedObjects);
+        List<ProjectileObject> newObjects = new List<ProjectileObject>(affectedObjects);
 
         foreach (var projectile in newObjects)
         {
@@ -23,7 +23,7 @@ public class AutoAim : SpellEffect
         affectedObjects = newObjects;
     }
 
-    private async UniTaskVoid HandleAutoAim(GameObject obj)
+    private async UniTaskVoid HandleAutoAim(ProjectileObject obj)
     {
         float rotationSpeed = 360f; 
         float searchInterval = 0.1f; 
