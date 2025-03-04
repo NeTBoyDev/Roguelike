@@ -79,13 +79,6 @@ namespace _Project.Develop.Core
             // Создаём модель оружия в зависимости от типа
             BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
 
-            // Добавляем эффекты в зависимости от типа оружия
-            Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
-            for (int i = 0; i < (int)rarity; i++)
-            {
-                weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
-            }
-
             weapon.SetEntity(weaponModel);
             return weapon;
         }
