@@ -56,7 +56,7 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
         }
     }
 
-    public void UpdateVisual(bool isHotbar = false)
+    public void UpdateVisual()
     {
         if(Item == null)
         {
