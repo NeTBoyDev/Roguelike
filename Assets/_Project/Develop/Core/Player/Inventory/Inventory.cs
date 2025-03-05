@@ -291,6 +291,8 @@ public class Inventory : MonoBehaviour
 
     private void CloseItemInfo()
     {
+        if (_itemInfoPanel == null)
+            return;
         _itemInfoPanel.gameObject.SetActive(false);
     }
 }
