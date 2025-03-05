@@ -236,9 +236,11 @@ MonoBehaviour:
   <RoomPrefabs>k__BackingField:
   - {fileID: 1898664814548399640, guid: b111af336960a9647b3d2ce05c5484af, type: 3}
   - {fileID: 1898664814548399640, guid: e0f150b5c625fdb4abbf909940116d82, type: 3}
-  - {fileID: 1898664814548399640, guid: e22213902f90b3c45a61fea73d11fad0, type: 3}
   - {fileID: 1898664814548399640, guid: 41c30ca69d18e144ba1c8a4270d1bc28, type: 3}
-  <MaxRoomCount>k__BackingField: 15
+  - {fileID: 1898664814548399640, guid: e22213902f90b3c45a61fea73d11fad0, type: 3}
+  - {fileID: 1898664814548399640, guid: 31b271db2993c92468a280793d1f32ff, type: 3}
+  - {fileID: 1898664814548399640, guid: ebb203b4711eb6c4faa5d3d2dd7658c9, type: 3}
+  <MaxRoomCount>k__BackingField: 10
   <StartSpawnDelay>k__BackingField: 0
   <RoomSpawnDelay>k__BackingField: 0.1
   <LastRoomSpawnDelay>k__BackingField: 0
