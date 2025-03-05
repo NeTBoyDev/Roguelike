@@ -44,6 +44,7 @@ namespace _Project.Develop.Core.Player
             }
             else
             {
+                _sources.Add(source);
                 source.loop = true;
                 source.Play();
             }
@@ -53,6 +54,7 @@ namespace _Project.Develop.Core.Player
         public void StopPlaying(AudioClip sound)
         {
             var source = _sources.FirstOrDefault(s => s.clip == sound);
+            _sources.Remove(source);
             if (source != null)
             {
                 _pool.Release(source);

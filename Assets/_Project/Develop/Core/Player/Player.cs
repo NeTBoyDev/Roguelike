@@ -54,7 +54,6 @@ public class Player : MonoBehaviour
                 /*Input.GetKey(KeyCode.LeftControl) ? CrouchInput.Press:*/ CrouchInput.None
             
         };
-        print(characterInput.Move.magnitude);
         if (characterInput.Move.magnitude > 0)
         {
             if (lastStepTime + stepCooldown < Time.time)
