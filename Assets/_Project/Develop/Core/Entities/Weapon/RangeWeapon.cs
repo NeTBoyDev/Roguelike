@@ -14,7 +14,7 @@ public class RangeWeapon : Weapon
 
     public RangeWeapon(string id) : base(id)
     {
-        Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
+        AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
         //Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));
 
         //Effects.Add(new ShotCount(10));
