@@ -363,7 +363,7 @@ public class CombatSystem : MonoBehaviour
         if (isBlocking)
         {
             animator.SetTrigger("BlockHit");
-            EndBlock();
+            //EndBlock();
             Debug.Log("Player blocked an attack!");
             _manager.ProduceSound(transform.position,BlockHit);
         }

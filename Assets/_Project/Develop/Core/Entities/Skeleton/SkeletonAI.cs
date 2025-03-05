@@ -70,9 +70,13 @@ public class SkeletonAI : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (currentState is not DeadState)
+        if (!(currentState is DeadState))
         {
             skeletonModel.Stats[StatType.Health].Modify(-damage);
+            if (currentState is AttackState attackState)
+            {
+                attackState.Interrupt(); // Прерываем текущее состояние атаки
+            }
             ChangeState(new TakeDamageState(this));
         }
     }
@@ -117,11 +121,11 @@ public class ApproachState : IState
         if (distance <= skeleton.AttackRange)
         {
             skeleton.ChangeState(new AttackState(skeleton));
-        }
+        }/*
         else if (distance > skeleton.RetreatDistance)
         {
             skeleton.ChangeState(new RetreatState(skeleton));
-        }
+        }*/
     }
 
     public void Exit()
@@ -213,6 +217,10 @@ public class KeepDistanceState : IState
 public class AttackState : IState
 {
     private SkeletonAI skeleton;
+    private bool isAttackCooldown; // Флаг кулдауна после атаки
+    private float attackCooldownTimer; // Таймер кулдауна
+    private bool isAnimationPlaying; // Флаг, показывающий, что анимация атаки ещё идёт
+    private bool isInterrupted; // Флаг прерывания (например, получение урона)
 
     public AttackState(SkeletonAI skeleton)
     {
@@ -221,63 +229,111 @@ public class AttackState : IState
 
     public void Enter()
     {
-        skeleton.animator.SetTrigger($"Attack{Random.Range(1,4)}");
         skeleton.AIPath.canMove = false;
+        isAttackCooldown = false;
+        attackCooldownTimer = 0f;
+        isAnimationPlaying = true; // Анимация начинается
+        isInterrupted = false; // Сбрасываем флаг прерывания
     }
 
     public void Execute()
     {
         float distance = skeleton.DistanceToTarget;
-        if (distance > skeleton.AttackRange)
+
+        // Проверяем, завершена ли анимация
+        AnimatorStateInfo stateInfo = skeleton.animator.GetCurrentAnimatorStateInfo(0);
+        if (stateInfo.IsName("Attack1") || stateInfo.IsName("Attack2") || stateInfo.IsName("Attack3"))
         {
-            skeleton.ChangeState(new ApproachState(skeleton));
+            if (stateInfo.normalizedTime >= 1f)
+            {
+                isAnimationPlaying = false; // Анимация завершена
+            }
+        }
+        else
+        {
+            isAnimationPlaying = false; // Если мы не в состоянии атаки, считаем анимацию завершённой
+        }
+
+        // Если анимация прервана (например, уроном), выходим сразу
+        if (isInterrupted)
+        {
+            ChooseNextState();
             return;
         }
 
-        if (Time.time - skeleton.LastAttackTime >= skeleton.AttackCooldown)
+        // Если кулдаун активен, ждём его окончания
+        if (isAttackCooldown)
         {
-            Vector3 attackDirection = skeleton.transform.forward;
-            Vector3 attackPoint = skeleton.transform.position + Vector3.up + attackDirection * 1.5f * 0.5f;
-
-            Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, 1.5f * 0.5f);
-            foreach (var hit in hitEnemies)
+            attackCooldownTimer -= Time.deltaTime;
+            if (attackCooldownTimer <= 0 && !isAnimationPlaying)
             {
-                if (hit.CompareTag("Player"))
-                {
-                    CombatSystem enemy = hit.GetComponent<CombatSystem>();
-                    if (enemy != null)
-                    {
-                        float damage = skeleton.skeletonModel[StatType.Strength].CurrentValue;
-                        enemy.TakeDamage(damage);
-                        Debug.Log($"Skeleton attacked {hit.name} for {damage} damage!");
-                    }
-                }
+                isAttackCooldown = false;
+                ChooseNextState(); // Выходим только после завершения анимации и кулдауна
             }
-            
-            Debug.Log("Skeleton attacks!");
-            skeleton.LastAttackTime = Time.time;
+            return;
+        }
 
-            int r = Random.Range(0, 3);
-            switch (r)
-            {
-                case 0:
-                    skeleton.ChangeState(new RetreatState(skeleton));
-                    break;
-                case 1:
-                    skeleton.ChangeState(new KeepDistanceState(skeleton));
-                    break;
-                case 2:
-                    skeleton.ChangeState(new ApproachState(skeleton));
-                    break;
-                default:
-                    break;
-            }
+        // Проверяем, можем ли атаковать
+        if (Time.time - skeleton.LastAttackTime >= skeleton.AttackCooldown && !isAnimationPlaying)
+        {
+            PerformAttack();
+            StartAttackCooldown();
         }
     }
 
-    public void Exit() { }
-}
+    private void PerformAttack()
+    {
+        Vector3 attackDirection = skeleton.transform.forward;
+        Vector3 attackPoint = skeleton.transform.position + Vector3.up + attackDirection * skeleton.AttackRange * 0.5f;
 
+        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, skeleton.AttackRange * 0.5f);
+        foreach (var hit in hitEnemies)
+        {
+            if (hit.CompareTag("Player"))
+            {
+                if (hit.TryGetComponent(out CombatSystem enemy))
+                {
+                    float damage = skeleton.skeletonModel[StatType.Strength].CurrentValue;
+                    enemy.TakeDamage(damage);
+                    Debug.Log($"Skeleton attacked {hit.name} for {damage} damage!");
+                }
+            }
+        }
+
+        skeleton.LastAttackTime = Time.time;
+        isAnimationPlaying = true; // Запускаем новую анимацию
+        skeleton.animator.Play($"Attack{Random.Range(1, 4)}");
+        Debug.Log("Skeleton attacks!");
+    }
+
+    private void StartAttackCooldown()
+    {
+        isAttackCooldown = true;
+        attackCooldownTimer = 1f; // Фиксированный кулдаун в 1 секунду
+    }
+
+    private void ChooseNextState()
+    {
+        int r = Random.Range(0, 3);
+        switch (r)
+        {
+            case 0: skeleton.ChangeState(new RetreatState(skeleton)); break;
+            case 1: skeleton.ChangeState(new KeepDistanceState(skeleton)); break;
+            case 2: skeleton.ChangeState(new ApproachState(skeleton)); break;
+        }
+    }
+
+    public void Exit()
+    {
+        skeleton.AIPath.canMove = true;
+    }
+
+    // Метод для внешнего прерывания состояния (например, при получении урона)
+    public void Interrupt()
+    {
+        isInterrupted = true;
+    }
+}
 public class TakeDamageState : IState
 {
     private SkeletonAI skeleton;
