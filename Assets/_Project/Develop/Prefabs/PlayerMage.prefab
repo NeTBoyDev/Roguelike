@@ -26222,6 +26222,17 @@ MonoBehaviour:
   ChargeSpellEffect: {fileID: 2349527206218763071}
   WeaponMesh: {fileID: 7630350262414462021}
   SecondaryWeaponMesh: {fileID: 2612089849715705035}
+  HitSounds:
+  - {fileID: 8300000, guid: 223b594c2d19ecb4394ab5042eab60de, type: 3}
+  - {fileID: 8300000, guid: e7cfab3af0659b74b81fe3ec12f63c39, type: 3}
+  - {fileID: 8300000, guid: 2c05ee3980fab4c44890cb77996ec60b, type: 3}
+  - {fileID: 8300000, guid: c35a6f6dfa7af934dac0c496f9102846, type: 3}
+  SwingSounds:
+  - {fileID: 8300000, guid: 43aef8efd4a21504d9ad5b5f42450984, type: 3}
+  - {fileID: 8300000, guid: 05b8be0903afef74f9629d3200ceee8f, type: 3}
+  SpellCast: {fileID: 8300000, guid: 7a80a7eca59a4a644b29e286fa2a5e04, type: 3}
+  SpellPrepare: {fileID: 8300000, guid: 327d8483f4681d24d9dc0ee8ac26c3da, type: 3}
+  BlockHit: {fileID: 8300000, guid: a07f1f1614d43d8439eb84b21a615997, type: 3}
 --- !u!1 &7451806119365463475
 GameObject:
   m_ObjectHideFlags: 0

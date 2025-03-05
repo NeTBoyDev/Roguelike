@@ -5,10 +5,12 @@ using _Project.Develop.Core;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using _Project.Develop.Core.Enum;
+using _Project.Develop.Core.Player;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class CombatSystem : MonoBehaviour
 {
@@ -47,6 +49,15 @@ public class CombatSystem : MonoBehaviour
     
     public MeshFilter WeaponMesh;
     public MeshFilter SecondaryWeaponMesh;
+
+    [Header("Audio")] 
+    [SerializeField] private AudioClip[] HitSounds;
+    [SerializeField] private AudioClip[] SwingSounds;
+    [SerializeField] private AudioClip SpellCast,SpellPrepare,BlockHit;
+
+    [SerializeField] private SoundManager _manager = new();
+
+    private bool mayAttack = true;
     void Start()
     {
         playerModel = new Creature("player1");
@@ -70,6 +81,8 @@ public class CombatSystem : MonoBehaviour
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare);
+
+        Inventory.OnInventoryStateChange += value => mayAttack = !value;
     }
 
     public void SetWeapon(Weapon weapon)
@@ -162,6 +175,9 @@ public class CombatSystem : MonoBehaviour
             ResetAttackCombo();
         }
 
+        if (!mayAttack)
+            return;
+
         // Ближний бой (ЛКМ)
         if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown)
         {
@@ -250,6 +266,8 @@ public class CombatSystem : MonoBehaviour
             }
         }
         ((MeeleWeapon)equippedWeapon).FireProjectile();
+        
+        _manager.ProduceSound(transform.position,SwingSounds[Random.Range(0,SwingSounds.Length)]);
     }
 
     private void OnDrawGizmos()
@@ -266,6 +284,7 @@ public class CombatSystem : MonoBehaviour
         rangedChargeTime = 0f;
         animator.SetBool("IsCharging", true);
         UpdateRangedChargeDuration(); // Обновляем время зарядки на случай смены оружия
+        _manager.ProduceSound(transform.position,SpellPrepare,true);
     }
 
     private void UpdateRangedCharge()
@@ -290,6 +309,7 @@ public class CombatSystem : MonoBehaviour
         {
             animator.SetTrigger("RangedShot"); // Анимация выстрела
             FireProjectile();
+            _manager.ProduceSound(transform.position,SpellCast);
             
         }
         else // Частичный заряд (пустой выстрел или ослабленный)
@@ -297,6 +317,7 @@ public class CombatSystem : MonoBehaviour
             animator.SetTrigger("StopCharge");
             Debug.Log("Shot cancelled or partial charge!");
         }
+        _manager.StopPlaying(SpellPrepare);
     }
 
     private void FireProjectile()
@@ -344,6 +365,7 @@ public class CombatSystem : MonoBehaviour
             animator.SetTrigger("BlockHit");
             EndBlock();
             Debug.Log("Player blocked an attack!");
+            _manager.ProduceSound(transform.position,BlockHit);
         }
     }
 
@@ -370,7 +392,7 @@ public class CombatSystem : MonoBehaviour
         {
             playerModel.Stats[StatType.Health].Modify(-value);
         }
-        
+        _manager.ProduceSound(transform.position,HitSounds[Random.Range(0,HitSounds.Length)]);
         
     }
 }
