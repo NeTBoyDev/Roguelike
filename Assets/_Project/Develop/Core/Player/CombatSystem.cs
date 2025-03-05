@@ -23,12 +23,13 @@ public class CombatSystem : MonoBehaviour
     private float lastAttackTime;
     private int currentAttackIndex = 0;
 
-    [SerializeField] private bool hasShield = true; //ДОБАВИТЬ ПРОВЕРКУ В ИНВЕНТАРЕ ЕСТЬ ЛИ ЩИТ
+    [SerializeField] private bool hasShield = false; //ДОБАВИТЬ ПРОВЕРКУ В ИНВЕНТАРЕ ЕСТЬ ЛИ ЩИТ
     private bool isBlocking = false;
     private bool isBlockStarting = false;
     private float blockStartTime;
 
     [SerializeField] private Weapon equippedWeapon; // Текущее оружие
+    [SerializeField] private Weapon secondaryWeapon; // Текущее оружие
     private bool isRangedCharging = false; // Флаг зарядки дальнобойного оружия
     private float rangedChargeTime = 0f;   // Текущее время зарядки
     private float rangedChargeDuration;    // Полное время зарядки из стата оружия
@@ -45,6 +46,7 @@ public class CombatSystem : MonoBehaviour
     
     
     public MeshFilter WeaponMesh;
+    public MeshFilter SecondaryWeaponMesh;
     void Start()
     {
         playerModel = new Creature("player1");
@@ -65,11 +67,11 @@ public class CombatSystem : MonoBehaviour
         }
 
         
-        /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);*/
         
     }
 
@@ -79,12 +81,37 @@ public class CombatSystem : MonoBehaviour
         WeaponMesh.mesh = weapon.Mesh;
         print(weapon.Effects.Count);
         WeaponMesh.gameObject.SetActive(true);
+        
+        animator.SetTrigger("StopCharge");
+        animator.SetBool("IsCharging", false);
+        animator.SetBool("IsCharged", false);
+        animator.ResetTrigger("RangedShot");
+        isRangedCharging = false;
+        rangedChargeTime = 0f;
+        CloseCrosshair();
+    }
+    public void SetSecondaryWeapon(SecondaryWeapon weapon)
+    {
+        secondaryWeapon = weapon;
+        SecondaryWeaponMesh.mesh = weapon.Mesh;
+        print(weapon.Effects.Count);
+        SecondaryWeaponMesh.gameObject.SetActive(true);
+
+        if (weapon is Shield)
+            hasShield = true;
     }
 
     public void RemoveWeapon()
     {
         equippedWeapon = null;
         WeaponMesh.gameObject.SetActive(false);
+            
+    }
+    public void RemoveSecondaryWeapon()
+    {
+        secondaryWeapon = null;
+        SecondaryWeaponMesh.gameObject.SetActive(false);
+        hasShield = false;
     }
 
     private void OpenCrosshair(float time)
@@ -130,7 +157,7 @@ public class CombatSystem : MonoBehaviour
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Q))
-            ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+            ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         playerModel.Update(Time.deltaTime);
 
         if (currentAttackIndex > 0 && Time.time - lastAttackTime > comboWindow)
@@ -150,22 +177,22 @@ public class CombatSystem : MonoBehaviour
         // Дальнобойное оружие (ПКМ для зарядки) МАГИЯ
         if (equippedWeapon != null && equippedWeapon is RangeWeapon)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse1) && !isBlocking && !isRangedCharging && Time.time - lastAttackTime >= attackCooldown)
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !isBlocking && !isRangedCharging && Time.time - lastAttackTime >= attackCooldown)
             {
                 StartRangedCharge();
                 OpenCrosshair(equippedWeapon[StatType.AttackSpeed].CurrentValue);
             }
-            else if (Input.GetKey(KeyCode.Mouse1) && isRangedCharging)
+            else if (Input.GetKey(KeyCode.Mouse0) && isRangedCharging)
             {
                 UpdateRangedCharge();
             }
-            else if (Input.GetKeyUp(KeyCode.Mouse1) && isRangedCharging)
+            else if (Input.GetKeyUp(KeyCode.Mouse0) && isRangedCharging)
             {
                 PerformRangedAttack();
                 CloseCrosshair();
             }
         }
-        else if (hasShield) // Блок для ближнего боя
+        if (hasShield) // Блок для ближнего боя
         {
             if (Input.GetMouseButtonDown(1) && !isBlocking)
             {
@@ -266,6 +293,7 @@ public class CombatSystem : MonoBehaviour
         {
             animator.SetTrigger("RangedShot"); // Анимация выстрела
             FireProjectile();
+            
         }
         else // Частичный заряд (пустой выстрел или ослабленный)
         {

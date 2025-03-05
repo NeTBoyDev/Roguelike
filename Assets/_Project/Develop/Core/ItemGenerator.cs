@@ -57,6 +57,7 @@ namespace _Project.Develop.Core
 
         public GameObject[] ModificatorObjects;
         public GameObject[] UseableItems;
+        public GameObject[] Shields,SpellBooks;
 
         public Effect[] MeleeEffects = new Effect[]
         {
@@ -98,6 +99,12 @@ namespace _Project.Develop.Core
                 case WeaponType.UseableItems:
                     weapon = UseableItems[Random.Range(0, UseableItems.Length)];
                     break;
+                case WeaponType.Shield:
+                    weapon = Shields[Random.Range(0, Shields.Length)];
+                    break;
+                case WeaponType.SpellBook:
+                    weapon = Shields[Random.Range(0, Shields.Length)];
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null);
             }
@@ -115,6 +122,10 @@ namespace _Project.Develop.Core
                 obj = Range.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is UseableItem)
                 obj = UseableItems.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is SecondaryWeapon && weapon is Shield)
+                obj = Shields.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is SecondaryWeapon && weapon is Spellbook)
+                obj = SpellBooks.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             
 
             var weaponContainer = Instantiate(obj).AddComponent<EntityContainer>();
@@ -130,6 +141,8 @@ namespace _Project.Develop.Core
                 WeaponType.MeeleWeapon => new MeeleWeapon(name),
                 WeaponType.RangeWeapon => new RangeWeapon(name),
                 WeaponType.UseableItems => new UseableItem(name),
+                WeaponType.Shield => new Shield(name),
+                WeaponType.SpellBook =>new Spellbook(name),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -151,5 +164,7 @@ namespace _Project.Develop.Core
         MeeleWeapon,
         RangeWeapon,
         UseableItems,
+        Shield,
+        SpellBook
     }
 }

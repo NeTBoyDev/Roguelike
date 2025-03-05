@@ -43,8 +43,8 @@ public class Inventory : MonoBehaviour
 
         _dragPreviewImage.gameObject.SetActive(false);
         SelectHotbarSlot(0);
-        var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
-        SetWeapon(weapon.ContainedEntity as Weapon);
+        /*var weapon = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Common);
+        SetWeapon(weapon.ContainedEntity as Weapon);*/
     }
     private void Update()
     {
@@ -199,6 +199,13 @@ public class Inventory : MonoBehaviour
         weaponSlot.InitializeSlot(weapon);
         CombatSystem.SetWeapon(weapon);
     }
+
+    public void SetSecondaryWeapon(SecondaryWeapon weapon)
+    {
+        var weaponSlot = _view.InventorySlots.First(s => s.SlotType == SlotType.SecondaryWeapon);
+        weaponSlot.InitializeSlot(weapon);
+        CombatSystem.SetSecondaryWeapon(weapon);
+    }
     public void InventorySetAcitve(bool value, float delay = 0f) => _view.InventorySetActiveAsync(value, delay).Forget();
 
 
@@ -310,10 +317,10 @@ public class Inventory : MonoBehaviour
     }
     bool IsValid(Item item1, InventorySlot targetSlot1)
     {
-        Debug.Log($"type {targetSlot1.SlotType}. item ");
+        Debug.Log($"type {targetSlot1.SlotType}. item {item1 is MeeleWeapon} ");
 
         if ((targetSlot1.SlotType == SlotType.Hotbar && item1 is UseableItem)
-            || (targetSlot1.SlotType == SlotType.Weapon && item1 is Weapon)
+            || (targetSlot1.SlotType == SlotType.Weapon && (item1 is MeeleWeapon || item1 is RangeWeapon))
             || (targetSlot1.SlotType == SlotType.SecondaryWeapon && item1 is SecondaryWeapon)
             || (targetSlot1.SlotType == SlotType.Artifact && item1 is Artifact)
             || (targetSlot1.SlotType == SlotType.Default)
@@ -330,7 +337,7 @@ public class Inventory : MonoBehaviour
 
         if (_dragableItem == null || _lastInteractSlot == null || targetSlot == _lastInteractSlot 
             || (targetSlot.SlotType == SlotType.Hotbar && _dragableItem is not UseableItem)
-            || (targetSlot.SlotType == SlotType.Weapon && _dragableItem is not Weapon)
+            || (targetSlot.SlotType == SlotType.Weapon && (_dragableItem is not Weapon && _dragableItem is not RangeWeapon))
             || (targetSlot.SlotType == SlotType.SecondaryWeapon && _dragableItem is not SecondaryWeapon)
             || (targetSlot.SlotType == SlotType.Artifact && _dragableItem is not Artifact))
         {
@@ -351,7 +358,7 @@ public class Inventory : MonoBehaviour
             return;
         }
 
-        if (_dragableItem is MeeleWeapon || _dragableItem is RangeWeapon && targetSlot.SlotType == SlotType.Weapon)
+        if ((_dragableItem is MeeleWeapon || _dragableItem is RangeWeapon) && targetSlot.SlotType == SlotType.Weapon)
         {
             CombatSystem.SetWeapon((Weapon)_dragableItem);
         }
@@ -361,6 +368,19 @@ public class Inventory : MonoBehaviour
             if (targetSlot.Item is Weapon w)
             {
                 CombatSystem.SetWeapon(w);
+            }
+        }
+        
+        if ((_dragableItem is Shield || _dragableItem is Spellbook) && targetSlot.SlotType == SlotType.SecondaryWeapon)
+        {
+            CombatSystem.SetSecondaryWeapon((SecondaryWeapon)_dragableItem);
+        }
+        if (_lastInteractSlot.SlotType == SlotType.SecondaryWeapon)
+        {
+            CombatSystem.RemoveSecondaryWeapon();
+            if (targetSlot.Item is SecondaryWeapon w)
+            {
+                CombatSystem.SetSecondaryWeapon(w);
             }
         }
 

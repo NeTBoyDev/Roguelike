@@ -21,3 +21,9 @@ MonoBehaviour:
   ModificatorObjects: []
   UseableItems:
   - {fileID: 4240378193073885370, guid: 0b38f2db129504d4788123aff1badf5a, type: 3}
+  Shields:
+  - {fileID: 919132149155446097, guid: 6ec906440c5ef824e8ea32711cac979c, type: 3}
+  - {fileID: 919132149155446097, guid: a31c18c2a88bfbc418f15397409d8b7d, type: 3}
+  SpellBooks:
+  - {fileID: 919132149155446097, guid: c5823ccfb4636d641b7d0d567d4502ce, type: 3}
+  - {fileID: 919132149155446097, guid: 6b724d72b3b9a2e418d0ad3651aad942, type: 3}
