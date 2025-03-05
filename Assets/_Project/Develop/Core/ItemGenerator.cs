@@ -154,8 +154,8 @@ namespace _Project.Develop.Core
             {
                 weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
             }
-            Debug.Log($"{effectCount}");
-            Debug.Log($"{weaponModel.Effects.Count}");
+            /*Debug.Log($"{effectCount}");
+            Debug.Log($"{weaponModel.Effects.Count}");*/
             return weaponModel;
         }
     }

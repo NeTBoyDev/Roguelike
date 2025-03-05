@@ -15,7 +15,7 @@ public class MeeleWeapon : Weapon
     
     public MeeleWeapon(string id) : base(id)
     {
-        Debug.Log($"Start damage is {Stats[StatType.Damage].CurrentValue} {Projectile.Count}");
+        //Debug.Log($"Start damage is {Stats[StatType.Damage].CurrentValue} {Projectile.Count}");
         /*Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
         Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));*/
         

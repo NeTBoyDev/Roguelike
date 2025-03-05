@@ -79,11 +79,9 @@ public class CombatSystem : MonoBehaviour
         }
 
         
-        var melee = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare);
-        ((MeeleWeapon)melee.ContainedEntity).AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
-        melee.ContainedEntity.AddEffect(new ShotCount());
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
     }
