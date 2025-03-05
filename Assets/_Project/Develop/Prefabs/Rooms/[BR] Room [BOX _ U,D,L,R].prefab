@@ -477,7 +477,7 @@ GameObject:
   - component: {fileID: 3560252698500186187}
   - component: {fileID: 1008251695905468482}
   m_Layer: 0
-  m_Name: '[BR] Room [BOX _ U,D,L,R] 1'
+  m_Name: '[BR] Room [BOX _ U,D,L,R]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

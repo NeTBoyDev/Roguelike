@@ -446,7 +446,7 @@ GameObject:
   - component: {fileID: 7674276850376312433}
   m_Layer: 0
   m_Name: EndBeacon
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -560,7 +560,7 @@ GameObject:
   - component: {fileID: 3560252698500186187}
   - component: {fileID: 1008251695905468482}
   m_Layer: 0
-  m_Name: '[LR] Room [BOX _ U,D,L,R] 3'
+  m_Name: '[LR] Room [BOX _ U,D,L,R]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -24497,7 +24497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dragPreviewImage: {fileID: 8506584755703301981}
-  _view:
+  <View>k__BackingField:
     Inventory: {fileID: 4728363505346877813}
     <InventorySlots>k__BackingField:
     - {fileID: 641873432084415148}
@@ -24520,7 +24520,6 @@ MonoBehaviour:
   OpenInventoryKey: 9
   UseItemKey: 101
   PickItemKey: 102
-  _selectedHotbarIndex: -1
 --- !u!1 &7539369705815728633
 GameObject:
   m_ObjectHideFlags: 0
