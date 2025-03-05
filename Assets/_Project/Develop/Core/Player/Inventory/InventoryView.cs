@@ -33,6 +33,7 @@ public class InventoryView
 
     #region Utilities
 
+    public IEnumerable<InventorySlot> ConcatAllInventorySlots() => InventorySlots.Concat(HotbarSlots);
     public InventorySlot GetFirstEmptySlot()
     {
         var slot = InventorySlots.FirstOrDefault(s => s.IsEmpty());
