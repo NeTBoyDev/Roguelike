@@ -40,9 +40,14 @@ public class MeeleWeapon : Weapon
         // Применяем эффекты к цели ближнего боя и собираем созданные снаряды
         foreach (var effect in Effects)
         {
-            if(effect is not SpellEffect)
+            Debug.Log($"Apply {effect.Name}");
+            if (effect is not SpellEffect)
+            {
+                target.ApplyEffect(effect);
+                //effect.OnApply(target);
+            }
             //List<ProjectileObject> effectResults = new List<ProjectileObject>();
-                effect.OnApply(target);
+                
             //spawnedProjectiles.AddRange(effectResults);
         }
 

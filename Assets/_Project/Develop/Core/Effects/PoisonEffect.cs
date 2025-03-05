@@ -23,7 +23,6 @@ namespace _Project.Develop.Core.Effects
         public override void OnApply(IEntity target)
         {
             //target.ApplyEffect(new PoisonEffect(duration, interval, damagePerTick)); // Применяем дебафф к врагу
-            
             base.OnApply(target);
         }
 

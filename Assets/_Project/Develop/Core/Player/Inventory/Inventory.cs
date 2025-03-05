@@ -282,7 +282,8 @@ public class Inventory : MonoBehaviour
         string effects = string.Empty;
         foreach (var effect in item.Effects)
         {
-            stats += $"{effect.Name}\n";
+            print(effect.Name);
+            effects += $"{effect.Name}\n";
         }
 
         _itemEffectText.text = effects;
