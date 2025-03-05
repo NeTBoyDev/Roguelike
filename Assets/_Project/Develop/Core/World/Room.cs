@@ -9,7 +9,6 @@ public enum RoomType
     BaseRoom,
     StartRoom,
     LastRoom,
-    Corridor,
 }
 
 [RequireComponent(typeof(Rigidbody))]
