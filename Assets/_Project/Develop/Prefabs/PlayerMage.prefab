@@ -26348,6 +26348,9 @@ MonoBehaviour:
   _cameraSpring: {fileID: 6087511602941945144}
   _cameraLean: {fileID: 432418333386573674}
   animator: {fileID: 4073801155610819798}
+  _stepClips:
+  - {fileID: 8300000, guid: 5c90f7ec244020f498778c416116ca71, type: 3}
+  - {fileID: 8300000, guid: bd3fab22ba35af2448585577d5d94562, type: 3}
 --- !u!114 &-1756355577968386675
 MonoBehaviour:
   m_ObjectHideFlags: 0

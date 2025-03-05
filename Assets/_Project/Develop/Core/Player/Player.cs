@@ -1,11 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using TMPro;
+using _Project.Develop.Core.Player;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +11,12 @@ public class Player : MonoBehaviour
     [SerializeField] private CameraLean _cameraLean;
 
     [SerializeField] private Animator animator;
+    [SerializeField] private AudioClip[] _stepClips;
+    private SoundManager _soundManager = new(0.65f);
+
+    private float lastStepTime;
+
+    private float stepCooldown = .65f;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +28,9 @@ public class Player : MonoBehaviour
         
         _cameraSpring.Initialize();
         _cameraLean.Initialize();
-        
+
+        lastStepTime = Time.time;
+
     }
 
 
@@ -52,7 +54,15 @@ public class Player : MonoBehaviour
                 /*Input.GetKey(KeyCode.LeftControl) ? CrouchInput.Press:*/ CrouchInput.None
             
         };
-       
+        print(characterInput.Move.magnitude);
+        if (characterInput.Move.magnitude > 0)
+        {
+            if (lastStepTime + stepCooldown < Time.time)
+            {
+                lastStepTime = Time.time;
+                _soundManager.ProduceSound(_playerCharacter.transform.position,_stepClips[Random.Range(0,_stepClips.Length)]);
+            }
+        }
         
         
         _playerCharacter.UpdateInput(characterInput);

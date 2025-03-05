@@ -6,6 +6,13 @@ namespace _Project.Develop.Core.Player
 {
     public class SoundManager
     {
+
+        public SoundManager(float volume = 1)
+        {
+            this.volume = volume;
+        }
+
+        private float volume;
         private List<AudioSource> _sources = new();
 
         public void ProduceSound(Vector3 position,AudioClip sound,bool infinite = false)
@@ -14,6 +21,7 @@ namespace _Project.Develop.Core.Player
             source.transform.position = position;
             source.pitch += Random.Range(-0.15f, 0.15f);
             source.clip = sound;
+            source.volume = volume;
             if (!infinite)
             {
                 source.PlayOneShot(sound);
