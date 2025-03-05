@@ -11,8 +11,6 @@ using UnityEngine;
 
 public class RangeWeapon : Weapon
 {
-    public List<Projectile> Projectile { get; private set; } = new();
-    public List<ProjectileObject> ProjectileView { get; private set; } = new();
 
     public RangeWeapon(string id) : base(id)
     {
@@ -24,15 +22,10 @@ public class RangeWeapon : Weapon
         //Effects.Add(new TrippleShot(3));
         //Effects.Add(new AutoAim(5));
         
-        Projectile[0][StatType.Strength].Modify(Projectile[0][StatType.Strength].CurrentValue * Effects.Count);
+        //Projectile[0][StatType.Strength].Modify(Projectile[0][StatType.Strength].CurrentValue * Effects.Count);
 
         Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
         
-        foreach (var p in Projectile)
-        {
-            p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue * Effects.Count);
-            ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{p.Id}").GetComponent<ProjectileObject>());
-        }
     }
 
     public void ApplyEffects(ProjectileObject originalObj)

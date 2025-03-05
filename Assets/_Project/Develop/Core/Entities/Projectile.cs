@@ -8,7 +8,6 @@ namespace _Project.Develop.Core.Entities
         public Projectile(string id) : base(id)
         {
             Stats[StatType.Strength] = new Stat(StatType.Strength, 10f);
-
         }
     }
 }

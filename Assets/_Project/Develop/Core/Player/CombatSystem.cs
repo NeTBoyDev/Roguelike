@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using _Project.Develop.Core;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
+using _Project.Develop.Core.Entities;
 using _Project.Develop.Core.Enum;
 using _Project.Develop.Core.Player;
 using DG.Tweening;
@@ -78,9 +79,11 @@ public class CombatSystem : MonoBehaviour
         }
 
         
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
+        var melee = ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare);
+        ((MeeleWeapon)melee.ContainedEntity).AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
+        melee.ContainedEntity.AddEffect(new ShotCount());
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
     }

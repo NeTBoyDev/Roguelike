@@ -11,8 +11,7 @@ using UnityEngine;
 
 public class MeeleWeapon : Weapon
 {
-    public List<Projectile> Projectile { get; private set; } = new();
-    public List<ProjectileObject> ProjectileView { get; private set; } = new();
+    
     
     public MeeleWeapon(string id) : base(id)
     {
@@ -26,11 +25,7 @@ public class MeeleWeapon : Weapon
         
         
         //Effects.Add(new ShotCount());           // Выпуск снаряда
-        foreach (var p in Projectile)
-        {
-            p[StatType.Damage].Modify(p[StatType.Damage].CurrentValue * Effects.Count);
-            ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{p.Id}").GetComponent<ProjectileObject>());
-        }
+        
     }
 
     public void ApplyEffects(BaseEntity target)
