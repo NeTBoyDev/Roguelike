@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Pathfinding;
 using UnityEngine;
 
 
@@ -14,7 +15,7 @@ public class LevelGenerator : MonoBehaviour
 
     [field: Header("Settings")]
 
-    [field: Tooltip("Не включая стартовую и финальную комнаты")]
+    [field: Tooltip("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     [field: MinValue(1), MaxValue(1000), SerializeField] public int MaxRoomCount { get; private set; } = 1;
     [field: MinValue(0), SerializeField] public float StartSpawnDelay { get; private set; } = 1;
     [field: MinValue(0), SerializeField] public float RoomSpawnDelay { get; private set; } = 0.1f;
@@ -37,6 +38,8 @@ public class LevelGenerator : MonoBehaviour
     {
         Initialize();
         StartGenerate();
+        
+        astarPath = FindObjectOfType<AstarPath>();
     }
 
     private void Initialize()
@@ -58,7 +61,7 @@ public class LevelGenerator : MonoBehaviour
     {
         if (RoomPrefabs.Count <= 0)
         {
-            Debug.LogError("Нет префабов комнат!");
+            Debug.LogError("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
             return;
         }
 
@@ -66,9 +69,14 @@ public class LevelGenerator : MonoBehaviour
 
         await GenerateFloorAsync().AttachExternalCancellation(_spawnSource.Token);
 
-        GenerateLastRoom().Forget();
+        await GenerateLastRoom();
+        
+        await Delay(1,_spawnSource.Token);
 
+        await SetupGraphDynamically();
+        
         SpawnPlayer();
+        
     }
 
     public async void SpawnPlayer()
@@ -123,12 +131,12 @@ public class LevelGenerator : MonoBehaviour
 
             if (!placedAnyRoom)
             {
-                Debug.LogWarning($"Не удалось разместить больше комнат. Текущее количество: {_currentRoomCount}/{MaxRoomCount}");
+                Debug.LogWarning($"пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {_currentRoomCount}/{MaxRoomCount}");
                 break;
             }
         }
 
-        Debug.Log($"<color=yellow>[Генерация уровня]:</color> Пыталось создать комнат: <color=cyan>{_currentRoomCount}</color>. Успешно создано: <color=yellow>{SpawnedRooms.Count - 1}</color>");
+        Debug.Log($"<color=yellow>[пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ]:</color> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: <color=cyan>{_currentRoomCount}</color>. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: <color=yellow>{SpawnedRooms.Count - 1}</color>");
         return;
     }
 
@@ -140,7 +148,7 @@ public class LevelGenerator : MonoBehaviour
 
         if (randomStartRoom == null)
         {
-            Debug.LogError("Не найдено стартовой комнаты!");
+            Debug.LogError("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
             return;
         }
 
@@ -158,7 +166,7 @@ public class LevelGenerator : MonoBehaviour
 
         if (randomLastRoom == null)
         {
-            Debug.LogError("Не найдено финальной комнаты!");
+            Debug.LogError("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
             return;
         }
 
@@ -181,7 +189,7 @@ public class LevelGenerator : MonoBehaviour
         }
 
         SpawnedRooms.Add(spawnedRoom);
-        _lastSpawnPosition += _offset;
+        //_lastSpawnPosition += _offset;
 
         return spawnedRoom;
     }
@@ -263,7 +271,7 @@ public class LevelGenerator : MonoBehaviour
                         spawnedRoom.transform.rotation,
                         out Vector3 direction, out float distance))
                     {
-                        //Debug.Log($"Коллизия: Комната {room.name} сталкивается с {spawnedRoom.name}, расстояние: {distance}");
+                        //Debug.Log($"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ {room.name} пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ {spawnedRoom.name}, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {distance}");
                         return true;
                     }
                 }
@@ -289,7 +297,7 @@ public class LevelGenerator : MonoBehaviour
             return false;
         }
 
-        //Алгоритм спавна комнат
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         var availableDoors = SpawnedRooms
             .Where(r => r != currentRoom)
             .SelectMany(r => r.Doors)
@@ -333,5 +341,41 @@ public class LevelGenerator : MonoBehaviour
     {
         _spawnSource?.Cancel();
         _spawnSource?.Dispose();
+    }
+    
+    private AstarPath astarPath;
+    public GameObject[] rooms; // РњР°СЃСЃРёРІ РІСЃРµС… РѕР±СЉРµРєС‚РѕРІ Room
+
+    private async UniTask SetupGraphDynamically()
+    {
+
+        // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РіСЂР°РЅРёС†С‹
+        Vector3 minBounds = Vector3.positiveInfinity;
+        Vector3 maxBounds = Vector3.negativeInfinity;
+
+        // РЎРѕР±РёСЂР°РµРј РіСЂР°РЅРёС†С‹ РІСЃРµС… РєРѕРјРЅР°С‚
+        foreach (var room in SpawnedRooms)
+        {
+            Bounds bounds = room.GetComponent<Collider>().bounds;
+            minBounds = Vector3.Min(minBounds, bounds.min);
+            maxBounds = Vector3.Max(maxBounds, bounds.max);
+        }
+
+        // Р”РѕР±Р°РІР»СЏРµРј РЅРµР±РѕР»СЊС€РѕР№ РѕС‚СЃС‚СѓРї
+        float padding = 25f;
+        minBounds -= Vector3.one * padding;
+        maxBounds += Vector3.one * padding;
+
+        // РќР°СЃС‚СЂР°РёРІР°РµРј Grid Graph
+        GridGraph gridGraph = astarPath.data.gridGraph;
+        gridGraph.center = (minBounds + maxBounds) / 2f; // Р¦РµРЅС‚СЂ РіСЂР°С„Р°
+        gridGraph.center = new Vector3(gridGraph.center.x, -10, gridGraph.center.z);
+        gridGraph.SetDimensions(
+            Mathf.CeilToInt((maxBounds.x - minBounds.x) / gridGraph.nodeSize),
+            Mathf.CeilToInt((maxBounds.z - minBounds.z) / gridGraph.nodeSize),
+            gridGraph.nodeSize
+        );
+
+        astarPath.Scan();
     }
 }
