@@ -29,7 +29,7 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private Vector3 _offset = new(100, 0, 0);
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private int _currentRoomCount = 0;
 
-    private readonly CancellationTokenSource _spawnSource = new();
+    private CancellationTokenSource _spawnSource = new();
     private Vector3 _lastSpawnPosition;
 
     #region Initialize
@@ -53,7 +53,7 @@ public class LevelGenerator : MonoBehaviour
     #endregion
 
     #region Generate
-
+   
     public async void StartGenerate()
     {
         if (RoomPrefabs.Count <= 0)
@@ -66,14 +66,9 @@ public class LevelGenerator : MonoBehaviour
 
         await GenerateFloorAsync().AttachExternalCancellation(_spawnSource.Token);
 
-        GenerateLastRoom();
+        GenerateLastRoom().Forget();
 
         SpawnPlayer();
-    }
-
-    public async UniTask Delay(float delay, CancellationToken token)
-    {
-        await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
     }
 
     public async void SpawnPlayer()
@@ -105,9 +100,10 @@ public class LevelGenerator : MonoBehaviour
 
         while (_currentRoomCount < MaxRoomCount)
         {
+            bool placedAnyRoom = false;
+
             var allBaseRooms = GetAllRandomBaseRooms().ToArray();
 
-            bool placedAnyRoom = false;
             foreach (var room in allBaseRooms)
             {
                 if (room == null)
@@ -120,6 +116,8 @@ public class LevelGenerator : MonoBehaviour
                 if (spawnedRoom != null)
                 {
                     placedAnyRoom = true;
+
+                    await Delay(RoomSpawnDelay, _spawnSource.Token);
                 }
             }
 
@@ -128,30 +126,11 @@ public class LevelGenerator : MonoBehaviour
                 Debug.LogWarning($"Не удалось разместить больше комнат. Текущее количество: {_currentRoomCount}/{MaxRoomCount}");
                 break;
             }
-
-            await Delay(RoomSpawnDelay, _spawnSource.Token);
         }
 
-        Debug.Log($"<color=yellow>[Генерация уровня]:</color> Пыталось создать комнат: <color=cyan>{_currentRoomCount}</color>. Успешно создано: <color=yellow>{SpawnedRooms.Count-1}</color>");
+        Debug.Log($"<color=yellow>[Генерация уровня]:</color> Пыталось создать комнат: <color=cyan>{_currentRoomCount}</color>. Успешно создано: <color=yellow>{SpawnedRooms.Count - 1}</color>");
         return;
     }
-
-    private bool TryConnectRoomWithRotation(Room currentRoom)
-    {
-        if (currentRoom == null)
-            return false;
-
-        currentRoom.transform.localRotation = GetRandomRotation();
-
-        if (TryConnectRoom(currentRoom))
-        {
-            return true;
-        }
-
-        RemoveRoom(currentRoom);
-        return false;
-    }
-
 
     public void GenerateStartRoom()
     {
@@ -186,7 +165,7 @@ public class LevelGenerator : MonoBehaviour
         SpawnRoom(randomLastRoom);
     }
 
-    public Room SpawnRoom(Room room)
+    public Room SpawnRoom(Room room, bool addRoomCount = true)
     {
         if (room == null || room.SpawnChance < UnityEngine.Random.value)
             return null;
@@ -195,7 +174,7 @@ public class LevelGenerator : MonoBehaviour
 
         var spawnedRoom = Instantiate(room, _lastSpawnPosition, rotation, LevelContainer.transform);
 
-        if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom))
+        if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom, addRoomCount))
         {
             Destroy(spawnedRoom.gameObject);
             return null;
@@ -210,6 +189,22 @@ public class LevelGenerator : MonoBehaviour
 
     #region Handlers
 
+    private bool TryConnectRoomWithRotation(Room currentRoom, bool addRoomCount = true)
+    {
+        if (currentRoom == null)
+            return false;
+
+        currentRoom.transform.localRotation = GetRandomRotation();
+
+        if (TryConnectRoom(currentRoom, addRoomCount))
+        {
+            return true;
+        }
+
+        RemoveRoom(currentRoom);
+        return false;
+    }
+    public async UniTask Delay(float delay, CancellationToken token) => await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
     private Quaternion GetRandomRotation()
     {
         int randomRotation = new int[] { 0, 90, 180, 270 }[UnityEngine.Random.Range(0, 4)];
@@ -241,6 +236,9 @@ public class LevelGenerator : MonoBehaviour
 
     public IEnumerable<Room> GetAllRandomBaseRooms()
         => RoomPrefabs.Where(r => r != null && r.Type == RoomType.BaseRoom).OrderBy(_ => UnityEngine.Random.value);
+    
+    public Room GetRandomCorridor()
+        => RoomPrefabs.OrderBy(_ => UnityEngine.Random.value).FirstOrDefault(r => r != null && r.Type == RoomType.Corridor);
 
     public Room GetStartRoom() => SpawnedRooms[0];
     public Room GetLastRoom() => SpawnedRooms[^1];
@@ -274,7 +272,8 @@ public class LevelGenerator : MonoBehaviour
 
         return false;
     }
-    private bool TryConnectRoom(Room currentRoom)
+
+    private bool TryConnectRoom(Room currentRoom, bool addRoomCount = true)
     {
         if (currentRoom == null)
             return false;
@@ -312,7 +311,9 @@ public class LevelGenerator : MonoBehaviour
             if (!IsCollided(currentRoom))
             {
                 currentRandomDoor.ConnectDoor(doorToConnect);
-                _currentRoomCount++;
+
+                if(addRoomCount)
+                    _currentRoomCount++;
                 return true;
             }
             else
