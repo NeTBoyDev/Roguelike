@@ -9,6 +9,7 @@ namespace _Project.Develop.Core.Effects.SpellEffects
         public TrippleShot(int additionalShots = 1)
         {
             magnitude = additionalShots * 2; 
+            Name = "Horizontal multishot";
         }
 
         public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace _Project.Develop.Core.Entities
@@ -14,6 +15,5 @@ namespace _Project.Develop.Core.Entities
         public int Count = 1;
         public int MaxStackSize;
         public bool IsStackable => MaxStackSize > 1;
-       
     }
 }

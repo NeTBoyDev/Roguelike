@@ -6,7 +6,7 @@ namespace _Project.Develop.Core.Effects
     public class HasteEffect : ContinuousEffect
     {
         public HasteEffect(float magnitude, float duration = float.MaxValue) 
-            : base(EffectType.Haste, magnitude, duration) { }
+            : base(EffectType.Haste, magnitude, duration) {Name = "Haste"; }
 
         public override void OnApply(IEntity target)
         {

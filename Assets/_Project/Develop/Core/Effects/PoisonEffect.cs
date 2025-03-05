@@ -17,7 +17,7 @@ namespace _Project.Develop.Core.Effects
             this.duration = duration;
             this.interval = interval;
             this.damagePerTick = damagePerTick;
-            
+            Name = "Poison";
         }
 
         public override void OnApply(IEntity target)

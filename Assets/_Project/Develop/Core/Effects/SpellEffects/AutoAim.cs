@@ -9,6 +9,7 @@ public class AutoAim : SpellEffect
     public AutoAim(float additionalShots = 1)
     {
         magnitude = additionalShots; // Радиус поиска и множитель масштаба
+        Name = "Auto aim";
     }
 
     public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)

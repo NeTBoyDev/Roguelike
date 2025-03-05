@@ -8,6 +8,7 @@ public class ShotCount : SpellEffect
     public ShotCount(int additionalShots = 1)
     {
         magnitude = additionalShots;
+        Name = "Vertical multishot";
     }
 
     public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)

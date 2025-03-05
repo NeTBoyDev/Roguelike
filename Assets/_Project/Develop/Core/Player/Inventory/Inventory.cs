@@ -8,10 +8,20 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
+using TMPro;
 
 public class Inventory : MonoBehaviour
 {
     [SerializeField] private Image _dragPreviewImage;
+    
+    [SerializeField] private RectTransform _itemInfoPanel;
+    [SerializeField] private TMP_Text _itemNameText;
+    [SerializeField] private TMP_Text _itemStatText;
+    [SerializeField] private TMP_Text _itemEffectText;
+    [SerializeField] private TMP_Text _itemDescriptionText;
+    
+    [SerializeField] private TMP_Text _playerStatsText;
+        
     [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public InventoryView View { get; private set; } = null;
     [field: SerializeField] public InventoryModel Model { get; private set; } = null;
@@ -25,6 +35,8 @@ public class Inventory : MonoBehaviour
     public InventorySlot LastInteractSlot { get; private set; } = null;
     public int SelectedHotbarIndex { get; private set; }  = 0;
     public CombatSystem CombatSystem { get; private set; } = null;
+
+    private bool InventoryState;
 
     public static event Action<bool> OnInventoryStateChange;
 
@@ -52,7 +64,16 @@ public class Inventory : MonoBehaviour
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
             slot.onDrop += DropItemOutOfInventory;
+            slot.onPointerEnter += ShowItemInfo;
+            slot.onPointerExit += CloseItemInfo;
         }
+
+        OnInventoryStateChange += value =>
+        {
+            InventoryState = value;
+            if (!value)
+                CloseItemInfo();
+        };
     }
     private void KitStart()
     {
@@ -73,7 +94,20 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) LogSelectedItem();
 
+        CheckForItem();
         HandleHotbarInput();
+    }
+
+    private void CheckForItem()
+    {
+        var raycast = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
+            out RaycastHit hit, 5);
+        if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
+        {
+            ShowItemInfo((Item)cont.ContainedEntity);
+        }
+        else if(!InventoryState)
+            CloseItemInfo();
     }
 
     private void TryPickUpItem()
@@ -232,6 +266,33 @@ public class Inventory : MonoBehaviour
         container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3, ForceMode.Impulse);
     }
     #endregion
+
+    private void ShowItemInfo(Item item)
+    {
+        _itemInfoPanel.gameObject.SetActive(true);
+        _itemNameText.text = item.Id;
+        string stats = string.Empty;
+        foreach (var stat in item.Stats)
+        {
+            stats += $"{stat.Key.ToString()}:{stat.Value.CurrentValue}\n";
+        }
+
+        _itemStatText.text = stats;
+        
+        string effects = string.Empty;
+        foreach (var effect in item.Effects)
+        {
+            stats += $"{effect.Name}\n";
+        }
+
+        _itemEffectText.text = effects;
+        _itemDescriptionText.text = "No description yet";
+    }
+
+    private void CloseItemInfo()
+    {
+        _itemInfoPanel.gameObject.SetActive(false);
+    }
 }
 
 
@@ -297,7 +358,7 @@ public static class InventoryItemManager
             var emptySlot = view.GetFirstEmptySlot();
             if (emptySlot == null || !IsValidForSlot(item, emptySlot))
             {
-                //Специальная обработка для Weapon и SecondaryWeapon при переполнении
+                //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Weapon пїЅ SecondaryWeapon пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 if (item is Weapon weapon)
                 {
                     DropExcessItem(weapon, 1);
@@ -308,7 +369,7 @@ public static class InventoryItemManager
                 }
                 else
                 {
-                    DropExcessItem(item, 1); //Новые типы (например, WallItem) выбрасываются без влияния на CombatSystem
+                    DropExcessItem(item, 1); //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, WallItem) пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ CombatSystem
                 }
                 break;
             }
@@ -319,14 +380,14 @@ public static class InventoryItemManager
             model.AddItem(newItem);
             emptySlot.InitializeSlot(newItem);
 
-            //Экипировка только для Weapon и SecondaryWeapon с зависимостью
+            //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Weapon пїЅ SecondaryWeapon пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if(item is Weapon w && emptySlot.SlotType == SlotType.Weapon)
             {
                 combatSystem.SetWeapon(w);
             }
             else if(item is SecondaryWeapon sw && emptySlot.SlotType == SlotType.SecondaryWeapon)
             {
-                combatSystem.SetSecondaryWeapon(sw); //Оставляем зависимость от CombatSystem
+                combatSystem.SetSecondaryWeapon(sw); //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ CombatSystem
             }
         }
     }
@@ -368,20 +429,20 @@ public static class InventoryDragDropHandler
 {
     public static void HandleDrop(PointerEventData eventData, Item item, InventorySlot targetSlot, Inventory inventory)
     {
-        //Проверяем валидность drop, если невалидно - сбрасываем и выходим
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ drop, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         if (!IsValidDrop(inventory.DragableItem, inventory.LastInteractSlot, targetSlot))
         {
             inventory.ResetDrag();
             return;
         }
 
-        //Обрабатываем специальные слоты (оружие, вторичное оружие)
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
-        //!!!!!!!!!!!!!!!!!!!!!////Добавить обработку нового типа (например артефакт) //!!!!!!!!!!!!!!!!!!!!!//
+        //!!!!!!!!!!!!!!!!!!!!!////пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) //!!!!!!!!!!!!!!!!!!!!!//
 
 
-        //Выполняем логику drop в зависимости от состояния слота
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ drop пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         if (targetSlot.IsEmpty())
         {
             HandleEmptySlotDrop(targetSlot, inventory);
@@ -395,12 +456,12 @@ public static class InventoryDragDropHandler
             HandleSwapDrop(targetSlot, inventory);
         }
 
-        //Обновляем выбор в хотбаре, если задействован
+        //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         HandleHotbarSelection(targetSlot, inventory);
         inventory.ResetDrag();
     }
 
-    //Проверка валидности Drop
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Drop
     private static bool IsValidDrop(Item dragableItem, InventorySlot lastSlot, InventorySlot targetSlot)
     {
         if (dragableItem == null || lastSlot == null || targetSlot == lastSlot ||
@@ -410,7 +471,7 @@ public static class InventoryDragDropHandler
         return true;
     }
 
-    //Проверки совместимости предмета со слотом
+    //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     public static bool IsValid(Item item, InventorySlot targetSlot)
     {
         if (item == null) return true;

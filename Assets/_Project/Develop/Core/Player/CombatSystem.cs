@@ -70,18 +70,6 @@ public class CombatSystem : MonoBehaviour
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
     }
 
     public void SetWeapon(Weapon weapon)
@@ -254,7 +242,7 @@ public class CombatSystem : MonoBehaviour
                 SkeletonAI enemy = hit.GetComponent<SkeletonAI>();
                 if (enemy != null)
                 {
-                    float damage = playerModel[StatType.Strength].CurrentValue + equippedWeapon[StatType.Damage].CurrentValue;
+                    float damage = (playerModel[StatType.Strength].CurrentValue / 10 + 1) * equippedWeapon[StatType.Damage].CurrentValue;
                     enemy.TakeDamage(damage);
                     ((MeeleWeapon)equippedWeapon).ApplyEffects(enemy.skeletonModel);
                     Debug.Log($"Player attacked {hit.name} for {damage} damage!");

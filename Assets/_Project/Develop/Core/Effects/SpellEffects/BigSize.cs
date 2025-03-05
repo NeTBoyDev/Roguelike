@@ -8,6 +8,7 @@ public class BigSize : SpellEffect
     public BigSize(float additionalShots = 1)
     {
         magnitude = additionalShots;
+        Name = "Big projectiles";
     }
 
     public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)

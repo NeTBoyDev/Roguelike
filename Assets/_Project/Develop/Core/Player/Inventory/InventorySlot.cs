@@ -15,7 +15,7 @@ public enum SlotType
     Artifact,
 }
 
-public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropHandler, IEndDragHandler
+public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropHandler, IEndDragHandler, IPointerEnterHandler,IPointerExitHandler
 {
     [field: SerializeField] public SlotType SlotType {  get; private set; } = SlotType.Default;
     [field: SerializeField] public Item Item { get; private set; } = null;
@@ -103,4 +103,17 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
     public void OnDrop(PointerEventData eventData) => onDrop?.Invoke(eventData, Item, this);
     public bool IsEmpty() => Item == null;
 
+    public event Action<Item> onPointerEnter;
+    public event Action onPointerExit;
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if(Item != null)
+            onPointerEnter?.Invoke(Item);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        onPointerExit?.Invoke();
+    }
 }

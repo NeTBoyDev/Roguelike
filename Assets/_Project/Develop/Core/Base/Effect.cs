@@ -14,6 +14,7 @@ namespace _Project.Develop.Core.Base
         public float Duration { get; protected set; }
         protected float startDuration;
         public bool IsFinished => Duration <= 0 && Duration != float.MaxValue;
+        public string Name { get; protected set; }
 
         public virtual void OnApply(IEntity target) { }
         public virtual void Update(IEntity target, float deltaTime)

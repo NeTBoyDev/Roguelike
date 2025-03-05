@@ -16,6 +16,7 @@ public class MeeleWeapon : Weapon
     
     public MeeleWeapon(string id) : base(id)
     {
+        Debug.Log($"Start damage is {Stats[StatType.Damage].CurrentValue} {Projectile.Count}");
         /*Projectile.Add(new Projectile("vfx_Projectile_SwordFire"));
         Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));*/
         
@@ -27,7 +28,7 @@ public class MeeleWeapon : Weapon
         //Effects.Add(new ShotCount());           // Выпуск снаряда
         foreach (var p in Projectile)
         {
-            p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue * Effects.Count);
+            p[StatType.Damage].Modify(p[StatType.Damage].CurrentValue * Effects.Count);
             ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{p.Id}").GetComponent<ProjectileObject>());
         }
     }

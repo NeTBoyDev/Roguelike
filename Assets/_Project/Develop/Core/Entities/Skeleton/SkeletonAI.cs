@@ -281,12 +281,16 @@ public class AttackState : IState
 public class TakeDamageState : IState
 {
     private SkeletonAI skeleton;
-    private float staggerDuration = 0.5f; 
+    private float staggerDuration = 1f; 
     private float staggerTimer;
+    private bool stun;
 
     public TakeDamageState(SkeletonAI skeleton)
     {
         this.skeleton = skeleton;
+        stun = Random.value > 0.5f;
+        if(stun)
+            Debug.Log("SKELETON STUN");
     }
 
     public void Enter()
@@ -299,7 +303,7 @@ public class TakeDamageState : IState
     public void Execute()
     {
         staggerTimer -= Time.deltaTime;
-        if (staggerTimer <= 0)
+        if (staggerTimer <= 0 || !stun)
         {
             skeleton.ChangeState(new ApproachState(skeleton));
         }
