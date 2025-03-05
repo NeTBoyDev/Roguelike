@@ -15,7 +15,7 @@ public class LevelGenerator : MonoBehaviour
 
     [field: Header("Settings")]
 
-    [field: Tooltip("�� ������� ��������� � ��������� �������")]
+    [field: Tooltip("MaxRoomCount exclude Start and Last room")]
     [field: MinValue(1), MaxValue(1000), SerializeField] public int MaxRoomCount { get; private set; } = 1;
     [field: MinValue(0), SerializeField] public float StartSpawnDelay { get; private set; } = 1;
     [field: MinValue(0), SerializeField] public float RoomSpawnDelay { get; private set; } = 0.1f;
@@ -32,6 +32,8 @@ public class LevelGenerator : MonoBehaviour
 
     private CancellationTokenSource _spawnSource = new();
     private Vector3 _lastSpawnPosition;
+
+    [field: SerializeField] public float OverlapDoorThreshold { get; private set; } = 0.1f;
 
     #region Initialize
     private void Start()
@@ -61,7 +63,7 @@ public class LevelGenerator : MonoBehaviour
     {
         if (RoomPrefabs.Count <= 0)
         {
-            Debug.LogError("��� �������� ������!");
+            Debug.LogError("RoomPrefabs count = 0");
             return;
         }
 
@@ -297,7 +299,6 @@ public class LevelGenerator : MonoBehaviour
             return false;
         }
 
-        //�������� ������ ������
         var availableDoors = SpawnedRooms
             .Where(r => r != currentRoom)
             .SelectMany(r => r.Doors)
@@ -320,6 +321,14 @@ public class LevelGenerator : MonoBehaviour
             {
                 currentRandomDoor.ConnectDoor(doorToConnect);
 
+                float distanceBetweenDoors = Vector3.Distance(currentRandomDoor.ConnectPoint.localPosition, doorToConnect.ConnectPoint.localPosition);
+
+                if(distanceBetweenDoors <= OverlapDoorThreshold)
+                {
+                    //Если двери стоят друг к другу отключаем любую из них //doorToConnect тоже подойдет
+                    doorToConnect.gameObject.SetActive(false);
+                }
+
                 if(addRoomCount)
                     _currentRoomCount++;
                 return true;
@@ -334,8 +343,7 @@ public class LevelGenerator : MonoBehaviour
         RemoveRoom(currentRoom);
         return false;
     }
-
-#endregion
+    #endregion
 
     private void OnDestroy()
     {
@@ -344,7 +352,6 @@ public class LevelGenerator : MonoBehaviour
     }
     
     private AstarPath astarPath;
-    public GameObject[] rooms; // Массив всех объектов Room
 
     private async UniTask SetupGraphDynamically()
     {

@@ -24,7 +24,7 @@ public class Room : MonoBehaviour
     [field: Header("Player Spawn settings")]
     [field: SerializeField, ShowIf(nameof(IsStartRoom))] public GameObject PlayerPrefab { get; private set; } = null;
     [field: SerializeField, ShowIf(nameof(IsStartRoom))] public Transform Spawnpoint { get; private set; } = null;
-
+    [field: SerializeField] public Collider RoomTriggerCollider { get; private set; } = null;
 
     [field: Header("Debug")]
     [field: SerializeField, ReadOnly] public Collider[] RoomColliders { get; private set; } = null;
@@ -39,4 +39,17 @@ public class Room : MonoBehaviour
     public float GetRoomSize() => GetComponent<SpriteRenderer>().bounds.size.x;
     public bool IsStartRoom() => Type == RoomType.StartRoom;
 
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out Player player) && IsRoomTriggerCollider(other))
+        {
+            Debug.Log($"Игрок вошёл в комнату {name} через RoomTriggerCollider!");
+            // Здесь добавьте ваши действия, например:
+            // - Активировать врагов
+            // - Включить свет
+            // - Запустить событие
+        }
+    }
+    private bool IsRoomTriggerCollider(Collider collider) => RoomTriggerCollider != null && collider == RoomTriggerCollider;
 }
