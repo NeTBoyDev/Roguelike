@@ -47,7 +47,7 @@ public class Inventory : MonoBehaviour
 
     private void SubscribeEvents()
     {
-        foreach (var slot in View.InventorySlots.Concat(View.HotbarSlots))
+        foreach (var slot in View.ConcatAllInventorySlots())
         {
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
@@ -72,6 +72,7 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) LogSelectedItem();
+
         HandleHotbarInput();
     }
 
@@ -233,6 +234,7 @@ public class Inventory : MonoBehaviour
     #endregion
 }
 
+
 public static class InventoryItemManager
 {
     public static void AddItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem)
@@ -248,7 +250,7 @@ public static class InventoryItemManager
             AddNonStackableItem(item, view, model, combatSystem);
         }
 
-        view.GetSlotWithItem(item).UpdateVisual();
+        view.GetSlotWithItem(item)?.UpdateVisual();
     }
 
     private static void AddStackableItem(Item item, InventoryView view, InventoryModel model)
@@ -295,7 +297,19 @@ public static class InventoryItemManager
             var emptySlot = view.GetFirstEmptySlot();
             if (emptySlot == null || !IsValidForSlot(item, emptySlot))
             {
-                DropExcessItem(item, 1);
+                //Специальная обработка для Weapon и SecondaryWeapon при переполнении
+                if (item is Weapon weapon)
+                {
+                    DropExcessItem(weapon, 1);
+                }
+                else if(item is SecondaryWeapon secondaryWeapon)
+                {
+                    DropExcessItem(secondaryWeapon, 1);
+                }
+                else
+                {
+                    DropExcessItem(item, 1); //Новые типы (например, WallItem) выбрасываются без влияния на CombatSystem
+                }
                 break;
             }
 
@@ -304,6 +318,16 @@ public static class InventoryItemManager
 
             model.AddItem(newItem);
             emptySlot.InitializeSlot(newItem);
+
+            //Экипировка только для Weapon и SecondaryWeapon с зависимостью
+            if(item is Weapon w && emptySlot.SlotType == SlotType.Weapon)
+            {
+                combatSystem.SetWeapon(w);
+            }
+            else if(item is SecondaryWeapon sw && emptySlot.SlotType == SlotType.SecondaryWeapon)
+            {
+                combatSystem.SetSecondaryWeapon(sw); //Оставляем зависимость от CombatSystem
+            }
         }
     }
 
@@ -344,15 +368,20 @@ public static class InventoryDragDropHandler
 {
     public static void HandleDrop(PointerEventData eventData, Item item, InventorySlot targetSlot, Inventory inventory)
     {
+        //Проверяем валидность drop, если невалидно - сбрасываем и выходим
         if (!IsValidDrop(inventory.DragableItem, inventory.LastInteractSlot, targetSlot))
         {
             inventory.ResetDrag();
             return;
         }
 
+        //Обрабатываем специальные слоты (оружие, вторичное оружие)
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
+        //!!!!!!!!!!!!!!!!!!!!!////Добавить обработку нового типа (например артефакт) //!!!!!!!!!!!!!!!!!!!!!//
 
+
+        //Выполняем логику drop в зависимости от состояния слота
         if (targetSlot.IsEmpty())
         {
             HandleEmptySlotDrop(targetSlot, inventory);
@@ -366,10 +395,12 @@ public static class InventoryDragDropHandler
             HandleSwapDrop(targetSlot, inventory);
         }
 
+        //Обновляем выбор в хотбаре, если задействован
         HandleHotbarSelection(targetSlot, inventory);
         inventory.ResetDrag();
     }
 
+    //Проверка валидности Drop
     private static bool IsValidDrop(Item dragableItem, InventorySlot lastSlot, InventorySlot targetSlot)
     {
         if (dragableItem == null || lastSlot == null || targetSlot == lastSlot ||
@@ -379,9 +410,11 @@ public static class InventoryDragDropHandler
         return true;
     }
 
+    //Проверки совместимости предмета со слотом
     public static bool IsValid(Item item, InventorySlot targetSlot)
     {
         if (item == null) return true;
+
         return targetSlot.SlotType switch
         {
             SlotType.Hotbar => item is UseableItem,
@@ -484,8 +517,10 @@ public static class InventoryDragDropHandler
     {
         var item1 = slot1.Item;
         var item2 = slot2.Item;
+
         slot1.InitializeSlot(item2);
         slot2.InitializeSlot(item1);
+
         slot1.UpdateVisual();
         slot2.UpdateVisual();
     }
