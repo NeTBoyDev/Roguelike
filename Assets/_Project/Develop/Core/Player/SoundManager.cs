@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -17,7 +18,11 @@ namespace _Project.Develop.Core.Player
         private float volume;
         private List<AudioSource> _sources = new();
         private static ObjectPool<AudioSource> _pool = new(()=>new GameObject("Sound").AddComponent<AudioSource>()
-            ,s=>s.enabled = true,
+            ,s=>
+            {
+                if(s != null)
+                    s.enabled = true;
+            },
             s=>s.enabled = false,
             s=> { Object.Destroy(s.gameObject); },
             true,

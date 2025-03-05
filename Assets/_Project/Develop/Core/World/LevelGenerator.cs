@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using Pathfinding;
 using UnityEngine;
+using System.Collections;
+using Cysharp.Threading.Tasks.Linq;
 
 
 public class LevelGenerator : MonoBehaviour
@@ -16,11 +18,16 @@ public class LevelGenerator : MonoBehaviour
     [field: Header("Settings")]
 
     [field: Tooltip("MaxRoomCount exclude Start and Last room")]
-    [field: MinValue(1), MaxValue(1000), SerializeField] public int MaxRoomCount { get; private set; } = 1;
+    [field: MinValue(1), MaxValue(100), SerializeField] public int MaxRoomCount { get; private set; } = 1;
+    [field: Tooltip("Threshold at which doors are not destroyed. The lower the value, the closer the door must be. <color=yellow>Recommended value = 1</color>")]
+    [field: SerializeField] public float OverlapDoorThreshold { get; private set; } = 1f;
+
+    [field: Header("Delays")]
     [field: MinValue(0), SerializeField] public float StartSpawnDelay { get; private set; } = 1;
     [field: MinValue(0), SerializeField] public float RoomSpawnDelay { get; private set; } = 0.1f;
     [field: MinValue(0), SerializeField] public float LastRoomSpawnDelay { get; private set; } = 1f;
     [field: MinValue(0), SerializeField] public float PlayerSpawnDelay { get; private set; } = 0f;
+
 
     [field: SerializeField] public bool DebugMode { get; private set; } = false;
 
@@ -30,10 +37,10 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private Vector3 _offset = new(100, 0, 0);
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private int _currentRoomCount = 0;
 
-    private CancellationTokenSource _spawnSource = new();
-    private Vector3 _lastSpawnPosition;
 
-    [field: SerializeField] public float OverlapDoorThreshold { get; private set; } = 0.1f;
+    private CancellationTokenSource _spawnSource = new();
+
+    private LevelGenerationPipeline _pipeline;
 
     #region Initialize
     private void Start()
@@ -67,24 +74,22 @@ public class LevelGenerator : MonoBehaviour
             return;
         }
 
-        GenerateStartRoom();
+        _pipeline = LevelGenerationPipeline.Create()
+            .AddStep(GenerateStartRoom)
+            .AddDelay(StartSpawnDelay)
+            .AddStep(GenerateFloorAsync)
+            .AddDelay(LastRoomSpawnDelay)
+            .AddStep(GenerateLastRoom)
+            .AddDelay(1)
+            .AddStep(SetupGraphDynamically)
+            .AddDelay(PlayerSpawnDelay)
+            .AddStep(SpawnPlayer);
 
-        await GenerateFloorAsync().AttachExternalCancellation(_spawnSource.Token);
-
-        await GenerateLastRoom();
-        
-        await Delay(1,_spawnSource.Token);
-
-        await SetupGraphDynamically();
-        
-        SpawnPlayer();
-        
+        await _pipeline.Execute();
     }
 
-    public async void SpawnPlayer()
+    public void SpawnPlayer()
     {
-        await Delay(PlayerSpawnDelay, _spawnSource.Token);
-
         var startRoom = GetStartRoom();
 
         var playerPrefab = startRoom.PlayerPrefab;
@@ -106,8 +111,6 @@ public class LevelGenerator : MonoBehaviour
 
     public async UniTask GenerateFloorAsync()
     {
-        await Delay(StartSpawnDelay, _spawnSource.Token);
-
         while (_currentRoomCount < MaxRoomCount)
         {
             bool placedAnyRoom = false;
@@ -133,12 +136,13 @@ public class LevelGenerator : MonoBehaviour
 
             if (!placedAnyRoom)
             {
-                Debug.LogWarning($"�� ������� ���������� ������ ������. ������� ����������: {_currentRoomCount}/{MaxRoomCount}");
+                Debug.LogWarning($"Cannot generate more rooms. Generated rooms: {_currentRoomCount}/{MaxRoomCount}");
                 break;
             }
         }
 
-        Debug.Log($"<color=yellow>[��������� ������]:</color> �������� ������� ������: <color=cyan>{_currentRoomCount}</color>. ������� �������: <color=yellow>{SpawnedRooms.Count - 1}</color>");
+        Debug.Log($"<color=yellow>[Level Creator]:</color> Attempted to create room: <color=cyan>{_currentRoomCount}</color>. Rooms created: <color=yellow>{SpawnedRooms.Count - 1}</color>");
+
         return;
     }
 
@@ -150,25 +154,22 @@ public class LevelGenerator : MonoBehaviour
 
         if (randomStartRoom == null)
         {
-            Debug.LogError("�� ������� ��������� �������!");
+            Debug.LogError("Failed to generate the room!");
             return;
         }
 
         SpawnRoom(randomStartRoom);
-        _lastSpawnPosition = _offset;
     }
 
-    public async UniTask GenerateLastRoom()
+    public void GenerateLastRoom()
     {
-        await Delay(LastRoomSpawnDelay, _spawnSource.Token);
-
         var randomLastRoom = RoomPrefabs.Where(r => r != null && r.Type == RoomType.LastRoom)
             .OrderBy(_ => UnityEngine.Random.value)
             .FirstOrDefault();
 
         if (randomLastRoom == null)
         {
-            Debug.LogError("�� ������� ��������� �������!");
+            Debug.LogError("Failed to generate the level!");
             return;
         }
 
@@ -182,7 +183,7 @@ public class LevelGenerator : MonoBehaviour
 
         var rotation = GetRandomRotation();
 
-        var spawnedRoom = Instantiate(room, _lastSpawnPosition, rotation, LevelContainer.transform);
+        var spawnedRoom = Instantiate(room, new Vector3(100, 0, 0), rotation, LevelContainer.transform);
 
         if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom, addRoomCount))
         {
@@ -191,7 +192,6 @@ public class LevelGenerator : MonoBehaviour
         }
 
         SpawnedRooms.Add(spawnedRoom);
-        //_lastSpawnPosition += _offset;
 
         return spawnedRoom;
     }
@@ -273,7 +273,7 @@ public class LevelGenerator : MonoBehaviour
                         spawnedRoom.transform.rotation,
                         out Vector3 direction, out float distance))
                     {
-                        //Debug.Log($"��������: ������� {room.name} ������������ � {spawnedRoom.name}, ����������: {distance}");
+                        //Debug.Log($"Warning: Room {room.name} collided with {spawnedRoom.name}, distance: {distance}");
                         return true;
                     }
                 }
@@ -325,7 +325,7 @@ public class LevelGenerator : MonoBehaviour
 
                 if(distanceBetweenDoors <= OverlapDoorThreshold)
                 {
-                    //Если двери стоят друг к другу отключаем любую из них //doorToConnect тоже подойдет
+                    //If the doors are adjacent to each other, disable one of them
                     doorToConnect.gameObject.SetActive(false);
                 }
 
@@ -343,24 +343,16 @@ public class LevelGenerator : MonoBehaviour
         RemoveRoom(currentRoom);
         return false;
     }
-    #endregion
 
-    private void OnDestroy()
-    {
-        _spawnSource?.Cancel();
-        _spawnSource?.Dispose();
-    }
-    
     private AstarPath astarPath;
 
-    private async UniTask SetupGraphDynamically()
+    private void SetupGraphDynamically()
     {
-
-        // Инициализируем границы
+        //Initialize boundaries
         Vector3 minBounds = Vector3.positiveInfinity;
         Vector3 maxBounds = Vector3.negativeInfinity;
 
-        // Собираем границы всех комнат
+        //Collect the boundaries of all rooms
         foreach (var room in SpawnedRooms)
         {
             Bounds bounds = room.GetComponent<Collider>().bounds;
@@ -368,14 +360,14 @@ public class LevelGenerator : MonoBehaviour
             maxBounds = Vector3.Max(maxBounds, bounds.max);
         }
 
-        // Добавляем небольшой отступ
+        //Add a small padding
         float padding = 25f;
         minBounds -= Vector3.one * padding;
         maxBounds += Vector3.one * padding;
 
-        // Настраиваем Grid Graph
+        //Configure the Grid Graph
         GridGraph gridGraph = astarPath.data.gridGraph;
-        gridGraph.center = (minBounds + maxBounds) / 2f; // Центр графа
+        gridGraph.center = (minBounds + maxBounds) / 2f; // Set graph center
         gridGraph.center = new Vector3(gridGraph.center.x, -10, gridGraph.center.z);
         gridGraph.SetDimensions(
             Mathf.CeilToInt((maxBounds.x - minBounds.x) / gridGraph.nodeSize),
@@ -384,5 +376,135 @@ public class LevelGenerator : MonoBehaviour
         );
 
         astarPath.Scan();
+
+        //For async method
+
+        //var enumerator = astarPath.ScanAsync().GetEnumerator();
+        //while (enumerator.MoveNext())
+        //{
+        //    await UniTask.Yield(PlayerLoopTiming.Update); // Уступаем управление Unity
+        //}
+
+        Debug.Log("Graph scanning completed!");
+    }
+
+
+    #endregion
+
+    private void OnDestroy()
+    {
+        _spawnSource?.Cancel();
+        _spawnSource?.Dispose();
+        _pipeline?.Cancel();
+    }
+}
+
+public class LevelGenerationPipeline
+{
+    private readonly List<Func<UniTask>> _steps = new();
+    private readonly CancellationTokenSource _cts = new();
+
+    private LevelGenerationPipeline() { }
+
+    public static LevelGenerationPipeline Create() => new();
+
+    public LevelGenerationPipeline AddStep(Func<UniTask> asyncStep)
+    {
+        _steps.Add(async () =>
+        {
+            if (_cts.Token.IsCancellationRequested) return;
+            await asyncStep().AttachExternalCancellation(_cts.Token);
+        });
+        return this;
+    }
+
+    //Coroutine support
+    public LevelGenerationPipeline AddStep(Func<IEnumerator> coroutineFunc, MonoBehaviour owner)
+    {
+        _steps.Add(async () =>
+        {
+            if (_cts.Token.IsCancellationRequested) return;
+
+            var tcs = new UniTaskCompletionSource();
+
+            owner.StartCoroutine(WrapCoroutine(coroutineFunc(), tcs));
+
+            await tcs.Task;
+        });
+        return this;
+    }
+    private IEnumerator WrapCoroutine(IEnumerator coroutine, UniTaskCompletionSource tcs)
+    {
+        yield return coroutine;
+        tcs.TrySetResult(); //Complete the UniTask when the coroutine finishes
+    }
+
+    public LevelGenerationPipeline AddStep(Action step)
+    {
+        _steps.Add(() =>
+        {
+            if (_cts.Token.IsCancellationRequested) return UniTask.CompletedTask;
+            step?.Invoke();
+            return UniTask.CompletedTask;
+        });
+        return this;
+    }
+
+    public LevelGenerationPipeline AddStep<T>(Func<T, UniTask> asyncStep, T param)
+    {
+        _steps.Add(async () =>
+        {
+            if (_cts.Token.IsCancellationRequested) return;
+            await asyncStep(param).AttachExternalCancellation(_cts.Token);
+        });
+        return this;
+    }
+
+    public LevelGenerationPipeline AddDelay(float seconds)
+    {
+        _steps.Add(async () =>
+        {
+            if (_cts.Token.IsCancellationRequested) return;
+            await UniTask.Delay(TimeSpan.FromSeconds(seconds), cancellationToken: _cts.Token);
+        });
+        return this;
+    }
+
+    public LevelGenerationPipeline AddDelay(int frameCount)
+    {
+        _steps.Add(async () =>
+        {
+            if (_cts.Token.IsCancellationRequested) return;
+            for (int i = 0; i < frameCount; i++)
+            {
+                if (_cts.Token.IsCancellationRequested) return;
+                await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token);
+            }
+        });
+        return this;
+    }
+
+    public async UniTask Execute()
+    {
+        try
+        {
+            foreach (var step in _steps)
+            {
+                if (_cts.Token.IsCancellationRequested) break;
+                await step();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            
+        }
+    }
+
+    public void Cancel()
+    {
+        if (!_cts.IsCancellationRequested)
+        {
+            _cts.Cancel();
+        }
     }
 }

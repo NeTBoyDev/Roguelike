@@ -345,7 +345,8 @@ MonoBehaviour:
   - {fileID: 1898664814548399640, guid: e0f150b5c625fdb4abbf909940116d82, type: 3}
   - {fileID: 1898664814548399640, guid: 41c30ca69d18e144ba1c8a4270d1bc28, type: 3}
   - {fileID: 1898664814548399640, guid: 41c30ca69d18e144ba1c8a4270d1bc28, type: 3}
-  <MaxRoomCount>k__BackingField: 25
+  <MaxRoomCount>k__BackingField: 15
+  <OverlapDoorThreshold>k__BackingField: 1
   <StartSpawnDelay>k__BackingField: 0
   <RoomSpawnDelay>k__BackingField: 0
   <LastRoomSpawnDelay>k__BackingField: 0
@@ -355,7 +356,6 @@ MonoBehaviour:
   <SpawnedRooms>k__BackingField: []
   _offset: {x: 100, y: 0, z: 0}
   _currentRoomCount: 0
-  <OverlapDoorThreshold>k__BackingField: 3
 --- !u!4 &942016803
 Transform:
   m_ObjectHideFlags: 0

@@ -100,8 +100,9 @@ public class Inventory : MonoBehaviour
 
     private void CheckForItem()
     {
-        var raycast = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
             out RaycastHit hit, 5);
+
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
             ShowItemInfo((Item)cont.ContainedEntity);
@@ -121,8 +122,9 @@ public class Inventory : MonoBehaviour
 
     private bool TryGetContainer(out EntityContainer container)
     {
-        var raycast = Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
             out RaycastHit hit, 5);
+
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
             container = cont;
@@ -238,7 +240,7 @@ public class Inventory : MonoBehaviour
         var hotbarSlots = View.HotbarSlots;
         for (int i = 0; i < hotbarSlots.Count; i++)
         {
-            hotbarSlots[i].UpdateVisual(true);
+            hotbarSlots[i].UpdateVisual();
             hotbarSlots[i].SetSelected(i == SelectedHotbarIndex);
         }
     }
@@ -247,7 +249,7 @@ public class Inventory : MonoBehaviour
     {
         if (!RectTransformUtility.RectangleContainsScreenPoint(View.Inventory.GetComponent<RectTransform>(), data.position))
         {
-            DropItemInWorld(item, slot);
+            DropItemInWorld(item);
             RemoveItem(slot);
             if (slot.SlotType == SlotType.Weapon)
                 CombatSystem.RemoveWeapon();
@@ -259,7 +261,7 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    private void DropItemInWorld(Item item, InventorySlot slot)
+    private void DropItemInWorld(Item item)
     {
         var container = ItemGenerator.Instance.GenerateContainer(item);
         container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
@@ -274,7 +276,7 @@ public class Inventory : MonoBehaviour
         string stats = string.Empty;
         foreach (var stat in item.Stats)
         {
-            stats += $"{stat.Key.ToString()}:{stat.Value.CurrentValue}\n";
+            stats += $"{stat.Key}:{stat.Value.CurrentValue}\n";
         }
 
         _itemStatText.text = stats;
@@ -361,7 +363,6 @@ public static class InventoryItemManager
             var emptySlot = view.GetFirstEmptySlot();
             if (emptySlot == null || !IsValidForSlot(item, emptySlot))
             {
-                //����������� ��������� ��� Weapon � SecondaryWeapon ��� ������������
                 if (item is Weapon weapon)
                 {
                     DropExcessItem(weapon, 1);
@@ -372,7 +373,7 @@ public static class InventoryItemManager
                 }
                 else
                 {
-                    DropExcessItem(item, 1); //����� ���� (��������, WallItem) ������������� ��� ������� �� CombatSystem
+                    DropExcessItem(item, 1);
                 }
                 break;
             }
@@ -383,14 +384,13 @@ public static class InventoryItemManager
             model.AddItem(newItem);
             emptySlot.InitializeSlot(newItem);
 
-            //���������� ������ ��� Weapon � SecondaryWeapon � ������������
             if(item is Weapon w && emptySlot.SlotType == SlotType.Weapon)
             {
                 combatSystem.SetWeapon(w);
             }
             else if(item is SecondaryWeapon sw && emptySlot.SlotType == SlotType.SecondaryWeapon)
             {
-                combatSystem.SetSecondaryWeapon(sw); //��������� ����������� �� CombatSystem
+                combatSystem.SetSecondaryWeapon(sw);
             }
         }
     }
@@ -432,20 +432,16 @@ public static class InventoryDragDropHandler
 {
     public static void HandleDrop(PointerEventData eventData, Item item, InventorySlot targetSlot, Inventory inventory)
     {
-        //��������� ���������� drop, ���� ��������� - ���������� � �������
         if (!IsValidDrop(inventory.DragableItem, inventory.LastInteractSlot, targetSlot))
         {
             inventory.ResetDrag();
             return;
         }
 
-        //������������ ����������� ����� (������, ��������� ������)
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
-        //!!!!!!!!!!!!!!!!!!!!!////�������� ��������� ������ ���� (�������� ��������) //!!!!!!!!!!!!!!!!!!!!!//
 
 
-        //��������� ������ drop � ����������� �� ��������� �����
         if (targetSlot.IsEmpty())
         {
             HandleEmptySlotDrop(targetSlot, inventory);
@@ -459,12 +455,11 @@ public static class InventoryDragDropHandler
             HandleSwapDrop(targetSlot, inventory);
         }
 
-        //��������� ����� � �������, ���� ������������
+
         HandleHotbarSelection(targetSlot, inventory);
         inventory.ResetDrag();
     }
 
-    //�������� ���������� Drop
     private static bool IsValidDrop(Item dragableItem, InventorySlot lastSlot, InventorySlot targetSlot)
     {
         if (dragableItem == null || lastSlot == null || targetSlot == lastSlot ||
@@ -474,7 +469,6 @@ public static class InventoryDragDropHandler
         return true;
     }
 
-    //�������� ������������� �������� �� ������
     public static bool IsValid(Item item, InventorySlot targetSlot)
     {
         if (item == null) return true;

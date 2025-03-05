@@ -1,5 +1,4 @@
 using NaughtyAttributes;
-using System;
 using UnityEngine;
 
 public class Door : MonoBehaviour
