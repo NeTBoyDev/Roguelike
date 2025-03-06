@@ -516,6 +516,7 @@ public class CombatSystem : MonoBehaviour
         isReloading = false;
         rangeWeapon.isReloaded = true; // Оружие заряжено
         animator.SetBool("IsReloading", false);
+        animator.ResetTrigger("RangedShot");
         _manager.StopPlaying(Reload);
         Debug.Log("Weapon reloaded!");
         
