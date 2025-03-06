@@ -1,5 +1,7 @@
 using _Project.Develop.Core.Entities;
+using _Project.Develop.Core.Enum;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -101,24 +103,63 @@ public class Vendor : MonoBehaviour
 
     private void ReturnAllItemsToPlayer()
     {
-        var itemsToReturn = new List<Item>(_vendorModel.Items);
+        if (_vendorModel.Items.Count == 0)
+        {
+            Debug.Log("Nothing to return!");
+            return;
+        }
+
+        var slots = _vendorView.GetAllConcatSlots();
+        var itemsToReturn = _vendorModel.Items.ToList();
 
         foreach (var item in itemsToReturn)
         {
             _playerInventory.AddItem(item);
             _vendorModel.RemoveItem(item);
-        }
 
-        foreach (var slot in _vendorView.GetAllConcatSlots())
-        {
-            if(!slot.IsEmpty())
+            var slot = slots.FirstOrDefault(s => s.Item == item);
+            if (slot != null && !slot.IsEmpty())
+            {
                 slot.ClearSlot();
+            }
+
+            LogReturnedItem(item);
         }
 
-        if(_vendorModel.Items.Count > 0)
+        if (_vendorModel.Items.Count > 0)
         {
             Debug.LogWarning("Vendor model still contains items after return. Clearing manually!");
             _vendorModel.RemoveAllItems();
+            ClearAllVendorSlots(slots);
+        }
+    }
+
+    private void LogReturnedItem(Item item)
+    {
+        string rarityColor = GetRarityColor(item.Rarity);
+        Debug.Log($"<color=yellow>[Returned item]</color>: <color=cyan>{item.Id}</color>, Count: <color=cyan>{item.Count}</color>, Rarity: <color={rarityColor}>{item.Rarity}</color>");
+    }
+
+    private string GetRarityColor(Rarity rarity)
+    {
+        return rarity switch
+        {
+            Rarity.Common => "white",
+            Rarity.Uncommon => "green",
+            Rarity.Rare => "cyan",
+            Rarity.Epic => "purple",
+            Rarity.Legendary => "orange",
+            _ => "gray"
+        };
+    }
+    private void ClearAllVendorSlots(IEnumerable<InventorySlot> slots)
+    {
+        foreach (var slot in slots)
+        {
+            if (!slot.IsEmpty())
+            {
+                slot.ClearSlot();
+            }
         }
     }
 
@@ -133,19 +174,20 @@ public class Vendor : MonoBehaviour
 
     private void OnVendorDrag(PointerEventData data, Item item, InventorySlot slot)
     {
-        if(item == null)
+        if(item == null || slot == null)
         {
             return;
         }
 
         _playerInventory.DragItem(data, item, slot);
     }
+
     private void OnVendorDrop(PointerEventData data, Item item, InventorySlot targetSlot)
     {
         Item draggedItem = _playerInventory.DragableItem;
-        var slot = _playerInventory.LastInteractSlot;
+        var sourceSlot = _playerInventory.LastInteractSlot;
 
-        if (draggedItem == null)
+        if (draggedItem == null || sourceSlot == null)
         {
             Debug.Log("No item being dragged");
 
@@ -156,6 +198,15 @@ public class Vendor : MonoBehaviour
             return;
         }
 
+        if (targetSlot == sourceSlot || targetSlot == null)
+        {
+            Debug.Log("Item dropped on itself or outside inventory - ignoring");
+            _playerInventory.ResetDrag();
+            return;
+        }
+
+        Debug.Log($"Dragging: {draggedItem}, Target: {targetSlot}, Source: {sourceSlot}");
+
         if (_currentMode == TradeMode.Buy)
         {
             HandleBuy(data, draggedItem, targetSlot);
@@ -165,17 +216,21 @@ public class Vendor : MonoBehaviour
             HandleSell(data, draggedItem, targetSlot);
         }
         
-        if (slot.SlotType == SlotType.Weapon)
+        if (sourceSlot.SlotType == SlotType.Weapon)
         {
             print("Remove from weapon");
             _playerInventory.RemoveWeapon();
         }
 
-        if (slot.SlotType == SlotType.SecondaryWeapon)
+        if (sourceSlot.SlotType == SlotType.SecondaryWeapon)
         {
             print("Remove from secondary");
             _playerInventory.RemoveSecondaryWeapon();
         }
+
+        UpdateTotalGoldText();
+        UpdateSellAllButtonState();
+        _playerInventory.ResetDrag();
     }
 
 
@@ -266,6 +321,14 @@ public class Vendor : MonoBehaviour
 
         InventorySlot sourceSlot = _playerInventory.LastInteractSlot;
 
+        if (targetSlot == null)
+        {
+            Debug.Log("Cannot sell: Item dropped outside of a valid slot!");
+            _playerInventory.ResetDrag();
+            return;
+        }
+
+
         if (!InventoryDragDropHandler.IsValid(item, targetSlot) ||
             !InventoryDragDropHandler.IsValid(targetSlot.Item, sourceSlot))
         {
@@ -294,13 +357,13 @@ public class Vendor : MonoBehaviour
             if (targetSlot.Item.Count == targetSlot.Item.MaxStackSize ||
                 item.Count == item.MaxStackSize)
             {
-                // Свап, если один из стаков полный
                 Item targetItem = targetSlot.Item;
                 targetSlot.InitializeSlot(item);
                 sourceSlot.InitializeSlot(targetItem);
 
                 _vendorModel.RemoveItem(targetItem);
                 _vendorModel.AddItem(item);
+
                 _playerInventory.Model.RemoveItem(item);
                 _playerInventory.Model.AddItem(targetItem);
 

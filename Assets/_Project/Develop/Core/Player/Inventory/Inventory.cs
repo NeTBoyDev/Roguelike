@@ -267,7 +267,16 @@ public class Inventory : MonoBehaviour
         View.InventorySetActiveAsync(value, delay).Forget();
     }
 
-    private void LogSelectedItem() => Debug.Log($"Item = {Model.SelectedItem}, ItemCount = {(Model.SelectedItem?.Count ?? 0)}");
+    private void LogSelectedItem()
+    {
+        if (Model.SelectedItem == null)
+        {
+            Debug.Log(Model.SelectedItem);
+            return;
+        }
+
+        Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
+    }
     #endregion
 
     #region Item Management

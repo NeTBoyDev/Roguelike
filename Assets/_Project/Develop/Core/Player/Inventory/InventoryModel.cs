@@ -22,12 +22,11 @@ public class InventoryModel
 
     public void RemoveItem(Item item)
     {
-        if (Items.Contains(item))
-        {
-            Items.Remove(item);
-            if (SelectedItem == item)
-                SelectedItem = null;
-        }
+        if (item == null || !Items.Remove(item))
+            return;
+
+        if (SelectedItem == item)
+            SelectedItem = null;
     }
 
     public bool ContainsItem(Item item) => Items.Contains(item);
