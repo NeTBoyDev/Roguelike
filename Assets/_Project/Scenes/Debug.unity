@@ -7823,6 +7823,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 343374071}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &348796488 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8489299106713056653, guid: bcd8cf2dc2a4070419c1842908868655,
+    type: 3}
+  m_PrefabInstance: {fileID: 5747076515357273066}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &348829097 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b887eecc09eaa0f478edf84b0dee5874,
@@ -38486,6 +38498,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -3275770135416983120, guid: dab1bfa80b988bb468d2d40d78658132, type: 3}
+--- !u!114 &1665651166 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6784985651554879450, guid: bcd8cf2dc2a4070419c1842908868655,
+    type: 3}
+  m_PrefabInstance: {fileID: 5747076515357273066}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1668021052
 GameObject:
   m_ObjectHideFlags: 0
@@ -48966,6 +48990,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -30.218658
       objectReference: {fileID: 0}
+    - target: {fileID: 4085831249987131921, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: preset
+      value: 
+      objectReference: {fileID: 11400000, guid: 62a432cc8d1418e4ba2412523953e02b,
+        type: 2}
+    - target: {fileID: 4085831249987131921, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: HpSlider
+      value: 
+      objectReference: {fileID: 1665651166}
+    - target: {fileID: 4085831249987131921, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: StaminaSlider
+      value: 
+      objectReference: {fileID: 348796488}
     - target: {fileID: 4144584489686843298, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -49832,7 +49872,7 @@ PrefabInstance:
     - target: {fileID: 4419769635141355163, guid: 8193e200e0a943b4589645434ca51b65,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4653977526287941599, guid: 8193e200e0a943b4589645434ca51b65,
         type: 3}

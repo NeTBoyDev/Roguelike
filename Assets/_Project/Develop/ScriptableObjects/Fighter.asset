@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24b46bd7b0dc9a344848d15268aadbdb, type: 3}
+  m_Name: Fighter
+  m_EditorClassIdentifier: 
+  Stats:
+  - <Type>k__BackingField: 3
+    <BaseValue>k__BackingField: 10
+    <CurrentValue>k__BackingField: 10
+    <MaxValue>k__BackingField: 200
+  - <Type>k__BackingField: 4
+    <BaseValue>k__BackingField: 100
+    <CurrentValue>k__BackingField: 100
+    <MaxValue>k__BackingField: 500
+  - <Type>k__BackingField: 5
+    <BaseValue>k__BackingField: 8
+    <CurrentValue>k__BackingField: 8
+    <MaxValue>k__BackingField: 200
+  - <Type>k__BackingField: 7
+    <BaseValue>k__BackingField: 100
+    <CurrentValue>k__BackingField: 100
+    <MaxValue>k__BackingField: 500
+  - <Type>k__BackingField: 6
+    <BaseValue>k__BackingField: 5
+    <CurrentValue>k__BackingField: 5
+    <MaxValue>k__BackingField: 200

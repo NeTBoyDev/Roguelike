@@ -12,7 +12,7 @@ public class Weapon : Item
     {
         Stats[StatType.Damage] = new Stat(StatType.Damage, 10f);
         Stats[StatType.AttackSpeed] = new Stat(StatType.AttackSpeed, 1f);
-        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 5f);
+        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 25f);
     }
 
     public void AddProjectile(Projectile p)

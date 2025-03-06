@@ -115,6 +115,12 @@
             
         }
 
+        public void SetSpeed(float value)
+        {
+            walkSpeed = value;
+            airSpeed = value;
+        }
+
         public void UpdateInput(CharacterInput input)
         {
             _requestedRotation = input.Rotation;

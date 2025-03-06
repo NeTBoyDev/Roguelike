@@ -70,7 +70,7 @@ public class RangeWeapon : Weapon
 
         Debug.Log($"Total projectiles created: {currentObjects.Count}");
     }
-    public void FireProjectile()
+    public void FireProjectile(float multiplyier = 1)
     {
         for (int i = 0; i < Projectile.Count; i++)
         {
@@ -79,7 +79,7 @@ public class RangeWeapon : Weapon
                 Camera.main.transform.position + Camera.main.transform.forward, 
                 direction);
         
-            projectile.SetDamage(Projectile[i][StatType.Strength].CurrentValue);
+            projectile.SetDamage(Projectile[i][StatType.Strength].CurrentValue * multiplyier);
         
             ApplyEffects(projectile);
         }

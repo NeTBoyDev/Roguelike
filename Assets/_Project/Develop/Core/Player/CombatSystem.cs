@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using _Project.Develop.Core;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
@@ -12,6 +13,7 @@ using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class CombatSystem : MonoBehaviour
@@ -62,9 +64,17 @@ public class CombatSystem : MonoBehaviour
 
     private bool mayAttack = true;
 
+    private PlayerCharacter character;
+    public StatPreset preset;
+
+    public Slider HpSlider;
+    public Slider StaminaSlider;
+    
+
     void Start()
     {
         playerModel = new Creature("player1");
+        character = GetComponent<PlayerCharacter>();
         currentMoveSpeed = baseMoveSpeed;
 
         // Инициализация дальнобойного оружия, если оно есть
@@ -83,9 +93,36 @@ public class CombatSystem : MonoBehaviour
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare, true);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare, false);
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
+        
+        InitializeStats();
+    }
+
+    private void InitializeStats()
+    {
+        var agility = playerModel.Stats[StatType.Agility];
+        agility.OnModify += (value) => character.SetSpeed(3 + value/5);
+        
+        var health = playerModel.Stats[StatType.Health];
+        health.OnModify += (value) => HpSlider.value = value;
+        HpSlider.maxValue = health.BaseValue;
+        
+        var stamina = playerModel.Stats[StatType.Stamina];
+        stamina.OnModify += (value) => StaminaSlider.value = value;
+        StaminaSlider.maxValue = stamina.BaseValue;
+        
+        foreach (var stat in playerModel.Stats)
+        {
+            stat.Value.SetValue(preset.Stats.First(s => s.Type == stat.Key).CurrentValue);
+        }
+    }
+
+    private void RegenStats()
+    {
+        playerModel.Stats[StatType.Health].Modify(Time.deltaTime * playerModel.Stats[StatType.Stamina].BaseValue/100);
+        playerModel.Stats[StatType.Stamina].Modify(Time.deltaTime * 5 * playerModel.Stats[StatType.Stamina].BaseValue/100);
     }
 
     public void SetWeapon(Weapon weapon)
@@ -234,7 +271,8 @@ public class CombatSystem : MonoBehaviour
         // Ближний бой (ЛКМ)
         if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown)
         {
-            if (equippedWeapon != null && equippedWeapon is MeeleWeapon)
+            if (equippedWeapon != null && equippedWeapon is MeeleWeapon 
+                                       && EnoughStamina)
             {
                 PerformAttack(); // Ближний бой
             }
@@ -243,7 +281,7 @@ public class CombatSystem : MonoBehaviour
         // Дальнобойное оружие (ЛКМ для выстрела или зарядки)
         if (equippedWeapon != null && equippedWeapon is RangeWeapon rangeWeapon)
         {
-            if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown)
+            if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown && EnoughStamina)
             {
                 if (rangeWeapon.isReloadable)
                 {
@@ -261,9 +299,9 @@ public class CombatSystem : MonoBehaviour
             {
                 UpdateRangedCharge();
             }
-            else if (Input.GetKeyUp(KeyCode.Mouse0) && isRangedCharging && !rangeWeapon.isReloadable)
+            else if (Input.GetKeyUp(KeyCode.Mouse0) && isRangedCharging && !rangeWeapon.isReloadable && EnoughStamina)
             {
-                PerformRangedAttack();
+                PerformRangedAttack(); //Атака магией
                 CloseCrosshair();
             }
         }
@@ -274,10 +312,12 @@ public class CombatSystem : MonoBehaviour
             {
                 StartBlock();
             }
-            else if (Input.GetMouseButtonUp(1) && isBlocking)
+            else if (Input.GetMouseButtonUp(1) && isBlocking || playerModel.Stats[StatType.Stamina].CurrentValue <
+                     secondaryWeapon.Stats[StatType.StaminaCost].CurrentValue)
             {
                 EndBlock();
             }
+            
         }
 
         if (isBlockStarting && Time.time - blockStartTime >= animator.GetCurrentAnimatorStateInfo(0).length / 2)
@@ -287,6 +327,14 @@ public class CombatSystem : MonoBehaviour
         }
 
         animator.SetBool("IsBlocking", isBlocking && !isBlockStarting);
+    }
+
+    private bool EnoughStamina => playerModel.Stats[StatType.Stamina].CurrentValue >
+                                  equippedWeapon.Stats[StatType.StaminaCost].CurrentValue;
+
+    private void LateUpdate()
+    {
+        RegenStats();
     }
 
     private void PerformAttack() // Ближний бой
@@ -322,9 +370,11 @@ public class CombatSystem : MonoBehaviour
                 }
             }
         }
-        ((MeeleWeapon)equippedWeapon).FireProjectile();
+        ((MeeleWeapon)equippedWeapon).FireProjectile(1 + playerModel[StatType.Strength].CurrentValue/10);
         
         _manager.ProduceSound(transform.position, SwingSounds[Random.Range(0, SwingSounds.Length)]);
+        
+        playerModel.Stats[StatType.Stamina].Modify(-equippedWeapon.Stats[StatType.StaminaCost].CurrentValue);
     }
 
     private void OnDrawGizmos()
@@ -364,7 +414,8 @@ public class CombatSystem : MonoBehaviour
         if (rangedChargeTime >= rangedChargeDuration) // Полный заряд
         {
             animator.SetTrigger("RangedShot");
-            FireProjectile();
+            
+            FireProjectile(1 + playerModel[StatType.Intelligence].CurrentValue/10);
             _manager.ProduceSound(transform.position, SpellCast);
         }
         else // Частичный заряд
@@ -373,13 +424,16 @@ public class CombatSystem : MonoBehaviour
             Debug.Log("Shot cancelled or partial charge!");
         }
         _manager.StopPlaying(SpellPrepare);
+        
+        playerModel.Stats[StatType.Stamina].Modify(-equippedWeapon.Stats[StatType.StaminaCost].CurrentValue);
     }
 
     private void PerformReloadableRangedAttack()
     {
         RangeWeapon rangeWeapon = (RangeWeapon)equippedWeapon;
         animator.SetTrigger("RangedShot");
-        FireProjectile();
+        FireProjectile(1 + playerModel[StatType.Agility].CurrentValue/10);
+        
         _manager.ProduceSound(transform.position, SpellCast);
 
         lastAttackTime = Time.time;
@@ -390,6 +444,8 @@ public class CombatSystem : MonoBehaviour
             await UniTask.Delay(1000);
             StartReload(); // Начинаем перезарядку
         });
+        
+        playerModel.Stats[StatType.Stamina].Modify(-equippedWeapon.Stats[StatType.StaminaCost].CurrentValue);
     }
 
     private void StartReload()
@@ -423,9 +479,10 @@ public class CombatSystem : MonoBehaviour
         }
     }
 
-    private void FireProjectile()
+    private void FireProjectile(float multiplyier)
     {
-        ((RangeWeapon)equippedWeapon).FireProjectile();
+        print($"MULTIPLYER {multiplyier}");
+        ((RangeWeapon)equippedWeapon).FireProjectile(multiplyier);
     }
 
     private void UpdateRangedChargeDuration()
@@ -468,6 +525,8 @@ public class CombatSystem : MonoBehaviour
             animator.SetTrigger("BlockHit");
             Debug.Log("Player blocked an attack!");
             _manager.ProduceSound(transform.position, BlockHit);
+            playerModel.Stats[StatType.Stamina].Modify(-secondaryWeapon.Stats[StatType.StaminaCost].CurrentValue);
+                
         }
     }
 
