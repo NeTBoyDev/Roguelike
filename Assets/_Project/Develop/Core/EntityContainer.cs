@@ -11,22 +11,16 @@ public class EntityContainer : MonoBehaviour
     private void Awake()
     {
         GetComponent<MeshCollider>().convex = true;
-        GetComponent<Rigidbody>().drag = 1;
+        
     }
 
     public BaseEntity ContainedEntity { get; private set; }
-    public GameObject View;
     private PositionConstraint effectConstraint;
 
-    public void SetEntity(BaseEntity entity, bool hasView = false)
+    public void SetEntity(BaseEntity entity)
     {
         ContainedEntity = entity;
-        if (hasView)
-            View = ((Item)entity).View;
-        else
-        {
-            ((Item)entity).View = View;
-        }
+        ((Item)entity).Mesh = GetComponent<MeshFilter>().mesh;
 
         ConstraintSource source = new ConstraintSource
         {

@@ -11,7 +11,7 @@ namespace _Project.Develop.Core.Entities
         }
 
         public Sprite Sprite;
-        public GameObject View;
+        public Mesh Mesh;
         public int Count = 1;
         public int MaxStackSize;
         public bool IsStackable => MaxStackSize > 1;

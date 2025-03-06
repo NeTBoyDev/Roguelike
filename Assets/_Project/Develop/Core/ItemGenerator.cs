@@ -51,24 +51,8 @@ namespace _Project.Develop.Core
 
         #endregion
 
-        //public GameObject[] Melee;
-
-        #region Melee
-
-        public GameObject[] Swords;
-        public GameObject[] Axes;
-        public GameObject[] Hammers;
-        public GameObject[] Daggers;
-
-        #endregion
-        
-        #region Range
-
-        public GameObject[] Staves;
-        public GameObject[] CrossBows;
-
-        #endregion
-        
+        public GameObject[] Melee;
+        public GameObject[] Range;
         public GameObject[] Artifacts;
 
         public GameObject[] ModificatorObjects;
@@ -91,54 +75,51 @@ namespace _Project.Develop.Core
 
         public EntityContainer GenerateWeaponGameobject(WeaponType weaponType, Rarity rarity, bool isReloadable = false)
         {
-            var weapon = GenerateContainer(weaponType,isReloadable);
+            var weapon = GenerateContainer(weaponType);
         
             // Создаём модель оружия в зависимости от типа
-            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
+            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name,isReloadable);
 
             weapon.SetEntity(weaponModel);
             return weapon;
         }
-        
 
-        public EntityContainer GenerateContainer(WeaponType weaponType,bool isReloadable)
+        public EntityContainer GenerateContainer(WeaponType weaponType)
         {
             GameObject weapon = null;
-            var value = Random.value;
-            
-            if (weaponType == WeaponType.MeeleWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.MeeleWeapon);
-            if (weaponType == WeaponType.RangeWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);
-            
-            weapon = weaponType switch
-            {
-                WeaponType.UseableItems => UseableItems[Random.Range(0,UseableItems.Length)],
-                WeaponType.Shield => Shields[Random.Range(0,Shields.Length)],
-                WeaponType.SpellBook =>SpellBooks[Random.Range(0,SpellBooks.Length)],
-                WeaponType.Sword => Swords[Random.Range(0,Swords.Length)],
-                WeaponType.Dagger => Daggers[Random.Range(0,Daggers.Length)],
-                WeaponType.Axe => Axes[Random.Range(0,Axes.Length)],
-                WeaponType.Staff => Staves[Random.Range(0,Staves.Length)],
-                WeaponType.Crossbow => CrossBows[Random.Range(0,CrossBows.Length)],
-                WeaponType.Hammer => Hammers[Random.Range(0,Hammers.Length)],
-                _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
-            };
 
-            var weaponObject = Instantiate(weapon);
-            var weaponContainer = weaponObject.AddComponent<EntityContainer>();
+            switch (weaponType)
+            {
+                case WeaponType.MeeleWeapon:
+                    weapon = Melee[Random.Range(0, Melee.Length)]; // Исправлено с Range на Melee
+                    break;
+                case WeaponType.RangeWeapon:
+                    weapon = Range[Random.Range(0, Range.Length)];
+                    break;
+                case WeaponType.UseableItems:
+                    weapon = UseableItems[Random.Range(0, UseableItems.Length)];
+                    break;
+                case WeaponType.Shield:
+                    weapon = Shields[Random.Range(0, Shields.Length)];
+                    break;
+                case WeaponType.SpellBook:
+                    weapon = Shields[Random.Range(0, Shields.Length)];
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null);
+            }
+
+            var weaponContainer = Instantiate(weapon).AddComponent<EntityContainer>();
             weaponContainer.name = weapon.name;
-            weaponContainer.View = weapon;
             return weaponContainer;
         }
-        public EntityContainer GenerateContainer(Item weapon,bool hasView = false)
+        public EntityContainer GenerateContainer(Item weapon)
         {
-            Debug.Log($"Generate drop item with view {weapon.View.name}");
             GameObject obj = null;
             if(weapon is MeeleWeapon)
-                obj = Swords.Concat(Axes).Concat(Hammers).Concat(Daggers).FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+                obj = Melee.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is RangeWeapon)
-                obj = Staves.Concat(CrossBows).FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+                obj = Range.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is UseableItem)
                 obj = UseableItems.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is SecondaryWeapon && weapon is Shield)
@@ -146,23 +127,15 @@ namespace _Project.Develop.Core
             if(weapon is SecondaryWeapon && weapon is Spellbook)
                 obj = SpellBooks.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             
-            var weaponContainer = Instantiate(weapon.View).AddComponent<EntityContainer>();
+
+            var weaponContainer = Instantiate(obj).AddComponent<EntityContainer>();
             weaponContainer.name = obj.name;
-            weaponContainer.SetEntity(weapon,hasView);
-            Debug.Log($"Generate drop item with view {weapon == null}");
-            Debug.Log($"Generate drop item with view {weapon.View == null}");
+            weaponContainer.SetEntity(weapon);
             return weaponContainer;
         }
         
         public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name)
         {
-            //Добавить смену типа рандомную если тип ближнее или дальнее оружие
-
-            if (weaponType == WeaponType.MeeleWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.MeeleWeapon);
-            if (weaponType == WeaponType.RangeWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);
-            
             BaseEntity weaponModel = weaponType switch
             {
                 WeaponType.MeeleWeapon => new MeeleWeapon(name),
@@ -170,12 +143,6 @@ namespace _Project.Develop.Core
                 WeaponType.UseableItems => new UseableItem(name),
                 WeaponType.Shield => new Shield(name),
                 WeaponType.SpellBook =>new Spellbook(name),
-                WeaponType.Sword => new Sword(name),
-                WeaponType.Dagger => new Dagger(name),
-                WeaponType.Axe => new Axe(name),
-                WeaponType.Staff => new Staff(name),
-                WeaponType.Crossbow => new Crossbow(name),
-                WeaponType.Hammer => new Hammer(name),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -191,21 +158,15 @@ namespace _Project.Develop.Core
             Debug.Log($"{weaponModel.Effects.Count}");*/
             return weaponModel;
         }
-        /*public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name, bool isReloadable = false)
+        public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name, bool isReloadable = false)
         {
             BaseEntity weaponModel = weaponType switch
             {
                 WeaponType.MeeleWeapon => new MeeleWeapon(name),
-                WeaponType.RangeWeapon => new RangeWeapon(name),
+                WeaponType.RangeWeapon => new RangeWeapon(name,isReloadable),
                 WeaponType.UseableItems => new UseableItem(name),
                 WeaponType.Shield => new Shield(name),
                 WeaponType.SpellBook =>new Spellbook(name),
-                WeaponType.Sword => new Sword(name),
-                WeaponType.Dagger => new Dagger(name),
-                WeaponType.Axe => new Axe(name),
-                WeaponType.Staff => new Staff(name),
-                WeaponType.Crossbow => new Crossbow(name),
-                WeaponType.Hammer => new Hammer(name),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -218,37 +179,16 @@ namespace _Project.Develop.Core
                 weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
             }
             /*Debug.Log($"{effectCount}");
-            Debug.Log($"{weaponModel.Effects.Count}");#1#
+            Debug.Log($"{weaponModel.Effects.Count}");*/
             return weaponModel;
-        }*/
-        static WeaponType GetRandomFlagFromGroup(WeaponType group)
-        {
-            
-            // Получаем все возможные флаги из enum
-            var allFlags = System.Enum.GetValues(typeof(WeaponType))
-                .Cast<WeaponType>()
-                .Where(f =>(group & f) == f) // Фильтруем по группе
-                .ToArray();
-
-            // Выбираем случайный флаг
-            return allFlags[Random.Range(0, allFlags.Length)];
         }
     }
-    [Flags]
     public enum WeaponType
     {
-        
-        UseableItems = 1,
-        Shield = 2,
-        SpellBook = 4,
-        Sword = 8,
-        Dagger = 16,
-        Axe = 32,
-        Hammer = 64,
-        Staff = 128,
-        Crossbow = 256,
-        RangeWeapon = Crossbow | Staff ,
-        MeeleWeapon = Sword | Dagger | Axe | Hammer,
-        
+        MeeleWeapon,
+        RangeWeapon,
+        UseableItems,
+        Shield,
+        SpellBook
     }
 }

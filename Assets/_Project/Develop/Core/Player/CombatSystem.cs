@@ -18,7 +18,6 @@ using Random = UnityEngine.Random;
 
 public class CombatSystem : MonoBehaviour
 {
-    [SerializeField] private AnimationOverrideManager _overrideManager;
     public Creature playerModel { get; private set; }
     [SerializeField] private Animator animator;
 
@@ -53,11 +52,8 @@ public class CombatSystem : MonoBehaviour
     [Space] [Header("Effects")] 
     public ParticleSystem ChargeSpellEffect;
     
-    public Transform WeaponParent;
-    public Transform SecondaryWeaponParent;
-
-    private GameObject WeaponView;
-    private GameObject SecondaryWeaponView;
+    public MeshFilter WeaponMesh;
+    public MeshFilter SecondaryWeaponMesh;
 
     [Header("Audio")] 
     [SerializeField] private AudioClip[] HitSounds;
@@ -100,13 +96,9 @@ public class CombatSystem : MonoBehaviour
             CrosshairStartPos[i] = Crosshair[i].position;
         }
 
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Axe, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.MeeleWeapon, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Crossbow, Rarity.Rare, false);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Staff, Rarity.Rare, false);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.RangeWeapon, Rarity.Rare, false);
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
         
@@ -135,16 +127,14 @@ public class CombatSystem : MonoBehaviour
     private void RegenStats()
     {
         playerModel.Stats[StatType.Health].Modify(Time.deltaTime * playerModel.Stats[StatType.Stamina].BaseValue/100);
-        playerModel.Stats[StatType.Stamina].Modify(Time.deltaTime * 10 * playerModel.Stats[StatType.Stamina].BaseValue/100);
+        playerModel.Stats[StatType.Stamina].Modify(Time.deltaTime * 5 * playerModel.Stats[StatType.Stamina].BaseValue/100);
     }
 
     public void SetWeapon(Weapon weapon)
     {
-        if(equippedWeapon!= null)
-            RemoveWeapon();
         equippedWeapon = weapon;
-        WeaponView = Instantiate(weapon.View, WeaponParent);
-        WeaponView.transform.localPosition = Vector3.zero;
+        WeaponMesh.mesh = weapon.Mesh;
+        WeaponMesh.gameObject.SetActive(true);
         print(weapon.Effects.Count);
 
         animator.SetTrigger("StopCharge");
@@ -165,37 +155,13 @@ public class CombatSystem : MonoBehaviour
                 OpenCrosshair(.25f);
             }
         }
-
-        ClearWeaponBooleans();
-        
-        if(weapon is Sword)
-            animator.SetBool("Sword",true);
-        if(weapon is Dagger)
-            animator.SetBool("Dagger",true);
-        if(weapon is Hammer)
-            animator.SetBool("Hammer",true);
-        if(weapon is Axe)
-            animator.SetBool("Axe",true);
-
-        attackCooldown = 0.5f / equippedWeapon[StatType.AttackSpeed].CurrentValue;
-        animator.SetFloat("AttackSpeed",equippedWeapon[StatType.AttackSpeed].CurrentValue);
-    }
-
-    private void ClearWeaponBooleans()
-    {
-        animator.SetBool("Sword",false);
-        animator.SetBool("Axe",false);
-        animator.SetBool("Dagger",false);
-        animator.SetBool("Hammer",false);
     }
 
     public void SetSecondaryWeapon(SecondaryWeapon weapon)
     {
-        if(secondaryWeapon!= null)
-            RemoveSecondaryWeapon();
         secondaryWeapon = weapon;
-        SecondaryWeaponView = Instantiate(weapon.View, SecondaryWeaponParent);
-        SecondaryWeaponView.transform.localPosition = Vector3.zero;
+        SecondaryWeaponMesh.mesh = weapon.Mesh;
+        SecondaryWeaponMesh.gameObject.SetActive(true);
         print(weapon.Effects.Count);
 
         if (weapon is Shield)
@@ -205,7 +171,7 @@ public class CombatSystem : MonoBehaviour
     public void RemoveWeapon()
     {
         equippedWeapon = null;
-        Destroy(WeaponView);
+        WeaponMesh.gameObject.SetActive(false);
 
         if (isReloading)
         {
@@ -232,7 +198,7 @@ public class CombatSystem : MonoBehaviour
     public void RemoveSecondaryWeapon()
     {
         secondaryWeapon = null;
-        Destroy(SecondaryWeaponView);
+        SecondaryWeaponMesh.gameObject.SetActive(false);
         hasShield = false;
     }
 
@@ -293,7 +259,8 @@ public class CombatSystem : MonoBehaviour
             ResetAttackCombo();
         }
 
-        
+        if (!mayAttack)
+            return;
 
         // Обработка перезарядки
         if (isReloading)
@@ -306,9 +273,6 @@ public class CombatSystem : MonoBehaviour
             return; // Перезарядка не прерывается
         }
 
-        if (!mayAttack)
-            return;
-        
         // Ближний бой (ЛКМ)
         if (Input.GetMouseButtonDown(0) && !isBlocking && Time.time - lastAttackTime >= attackCooldown)
         {
