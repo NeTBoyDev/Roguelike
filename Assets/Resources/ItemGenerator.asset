@@ -65,8 +65,8 @@ MonoBehaviour:
   CrossBows:
   - {fileID: 919132149155446097, guid: be22e49d6b42f2345bcb14ecccfe366f, type: 3}
   - {fileID: 919132149155446097, guid: bcdd9bc606c2d21459db5c2b16192c63, type: 3}
-  - {fileID: 919132149155446097, guid: 152c2dca478b6294b860354829a28e9b, type: 3}
-  - {fileID: 919132149155446097, guid: 561a82c680953af458f670cf1b1f6eec, type: 3}
+  - {fileID: 5241086215509125177, guid: 54e932fa3e901cd478c71eb5c25d8765, type: 3}
+  - {fileID: 2316293436293309229, guid: 0ddf9b25bab8e6f44af123287ef13ebd, type: 3}
   - {fileID: 9022426563081864837, guid: d088f26fb4f35c944a01e156e0ac07e0, type: 3}
   Artifacts: []
   ModificatorObjects: []
