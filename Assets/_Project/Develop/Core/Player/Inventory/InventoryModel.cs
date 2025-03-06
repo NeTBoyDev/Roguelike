@@ -35,5 +35,13 @@ public class InventoryModel
 
     public void SetSelectedItem(Item item) => SelectedItem = item;
 
+    public void RemoveAllItems()
+    {
+        if (Items.Count <= 0)
+            return;
+
+        Items.Clear();
+    }
+
     #endregion
 }

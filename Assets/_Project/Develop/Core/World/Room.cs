@@ -21,9 +21,6 @@ public class Room : MonoBehaviour
     [field: Header("Room object settings")]
 
     [field: SerializeField] public float SpawnChance { get; private set; } = 1;
-
-    [field: Header("Player Spawn settings")]
-    [field: SerializeField, ShowIf(nameof(IsStartRoom))] public GameObject PlayerPrefab { get; private set; } = null;
     [field: SerializeField, ShowIf(nameof(IsStartRoom))] public Transform Spawnpoint { get; private set; } = null;
 
     [field: Header("Debug")]
