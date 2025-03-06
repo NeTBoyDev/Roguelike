@@ -29,6 +29,11 @@ public class LevelGenerator : MonoBehaviour
     [field: MinValue(0), SerializeField] public float PlayerSpawnDelay { get; private set; } = 0f;
 
 
+    [field: Header("Object Spawn settings")]
+    [field: SerializeField] public GameObject PlayerPrefab { get; private set; } = null;
+    [field: SerializeField] public GameObject VendorPrefab { get; private set; } = null;
+
+
     [field: SerializeField] public bool DebugMode { get; private set; } = false;
 
     [field: Header("Debug")]
@@ -80,10 +85,12 @@ public class LevelGenerator : MonoBehaviour
             .AddStep(GenerateFloorAsync)
             .AddDelay(LastRoomSpawnDelay)
             .AddStep(GenerateLastRoom)
-            .AddDelay(1)
+            .AddDelay(2)
             .AddStep(SetupGraphDynamically)
             .AddDelay(PlayerSpawnDelay)
-            .AddStep(SpawnPlayer);
+            .AddStep(SpawnPlayer)
+            .AddDelay(1)
+            .AddStep(SpawnVendor);
 
         await _pipeline.Execute();
     }
@@ -92,21 +99,28 @@ public class LevelGenerator : MonoBehaviour
     {
         var startRoom = GetStartRoom();
 
-        var playerPrefab = startRoom.PlayerPrefab;
-        var spawnpoint = startRoom.Spawnpoint;
 
-        if(playerPrefab == null)
+        if(PlayerPrefab == null)
         {
             Debug.LogError("Player prefab is null!");
             return;
         }
-        if(spawnpoint == null)
+        if(startRoom.Spawnpoint == null)
         {
             Debug.LogError("Spawnpoint is null!");
             return;
         }
 
-        Instantiate(playerPrefab, spawnpoint.position, Quaternion.identity);
+        Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
+    }
+    public void SpawnVendor()
+    {
+        var randomRoom = SpawnedRooms.Where(r => r.Type == RoomType.StartRoom && r.Type != RoomType.LastRoom).FirstOrDefault();
+        if(randomRoom != null)
+        {
+            var spawnPosition = randomRoom.RoomColliders[0].bounds.center;
+            Instantiate(VendorPrefab, spawnPosition, Quaternion.identity);
+        }
     }
 
     public async UniTask GenerateFloorAsync()

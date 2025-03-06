@@ -26393,6 +26393,9 @@ MonoBehaviour:
   OpenInventoryKey: 9
   UseItemKey: 101
   PickItemKey: 102
+  CloseKey: 27
+  <InteractionDistance>k__BackingField: 4
+  _currentVendor: {fileID: 0}
 --- !u!1 &7539369705815728633
 GameObject:
   m_ObjectHideFlags: 0
