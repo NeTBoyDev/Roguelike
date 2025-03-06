@@ -239,7 +239,7 @@ public class CombatSystem : MonoBehaviour
 
     private void OpenCrosshair(float time)
     {
-        ChargeSpellEffect.Play();
+        
         for (int i = 0; i < Crosshair.Length; i++)
         {
             Vector2 direction = Vector2.zero;
@@ -442,6 +442,7 @@ public class CombatSystem : MonoBehaviour
         animator.SetBool("IsCharging", true);
         UpdateRangedChargeDuration();
         _manager.ProduceSound(transform.position, SpellPrepare, true);
+        ChargeSpellEffect.Play();
         OpenCrosshair(equippedWeapon[StatType.AttackSpeed].CurrentValue);
     }
 
