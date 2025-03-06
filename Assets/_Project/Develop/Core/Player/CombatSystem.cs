@@ -502,6 +502,7 @@ public class CombatSystem : MonoBehaviour
 
     private void StartReload()
     {
+        CloseCrosshair(0);
         RangeWeapon rangeWeapon = (RangeWeapon)equippedWeapon;
         isReloading = true;
         reloadTimer = 1f / rangeWeapon.Stats[StatType.AttackSpeed].CurrentValue; // Время перезарядки зависит от AttackSpeed
