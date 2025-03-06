@@ -18,7 +18,7 @@ public class Inventory : MonoBehaviour
     [SerializeField] private TMP_Text _itemNameText;
     [SerializeField] private TMP_Text _itemStatText;
     [SerializeField] private TMP_Text _itemEffectText;
-    [SerializeField] private TMP_Text _itemDescriptionText;
+    [SerializeField] public TMP_Text _itemDescriptionText;
     
     [SerializeField] private TMP_Text _playerStatsText;
         
@@ -29,7 +29,8 @@ public class Inventory : MonoBehaviour
     [Header("Input Settings")]
     public KeyCode OpenInventoryKey = KeyCode.Tab;
     public KeyCode UseItemKey = KeyCode.E;
-    public KeyCode PickItemKey = KeyCode.F;
+    public KeyCode PickItemKey = KeyCode.F; //And open vendorPanel
+    public KeyCode CloseKey = KeyCode.Escape;
 
     public Item DragableItem { get; private set; } = null;
     public InventorySlot LastInteractSlot { get; private set; } = null;
@@ -39,6 +40,10 @@ public class Inventory : MonoBehaviour
     private bool InventoryState;
 
     public static event Action<bool> OnInventoryStateChange;
+
+    [field: Tooltip("Item pickup & vendor interact distance")]
+    [field: SerializeField] public float InteractionDistance { get; private set; } = 5f;
+    [SerializeField,ReadOnly] private Vendor _currentVendor = null;
 
     #region Initialize
     private void Start()
@@ -59,11 +64,12 @@ public class Inventory : MonoBehaviour
 
     private void SubscribeEvents()
     {
-        foreach (var slot in View.ConcatAllInventorySlots())
+        foreach (var slot in View.GetAllConcatSlots())
         {
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
             slot.onDrop += DropItemOutOfInventory;
+
             slot.onPointerEnter += ShowItemInfo;
             slot.onPointerExit += CloseItemInfo;
         }
@@ -94,14 +100,39 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) LogSelectedItem();
 
+        if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null) CloseVendorInterface();
+
+        TryOpenVendor();
+
         CheckForItem();
         HandleHotbarInput();
     }
 
+    private void TryOpenVendor()
+    {
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
+
+        if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Vendor vendor))
+        {
+            if (_currentVendor == vendor)
+            {
+                CloseVendorInterface();
+            }
+            else
+            {
+                OpenVendorInterface(vendor, Vendor.TradeMode.Sell);
+            }
+        }
+        else if (_currentVendor != null && Vector3.Distance(transform.GetChild(0).position, _currentVendor.transform.position) > _currentVendor.VendorCloseDistance)
+        {
+            CloseVendorInterface();
+        }
+    }
+
     private void CheckForItem()
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
-            out RaycastHit hit, 5);
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
+
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
@@ -118,12 +149,12 @@ public class Inventory : MonoBehaviour
             AddItem(container.ContainedEntity as Item);
             Destroy(container.gameObject);
         }
+
     }
 
     private bool TryGetContainer(out EntityContainer container)
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward,
-            out RaycastHit hit, 5);
+        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
@@ -179,6 +210,9 @@ public class Inventory : MonoBehaviour
     {
         bool enabled = !View.Inventory.activeInHierarchy;
 
+        if (_currentVendor != null)
+            return;
+
         InventorySetAcitve(enabled);
         UpdateCursorState(enabled);
         ResetDragIfClosing(!enabled);
@@ -186,7 +220,7 @@ public class Inventory : MonoBehaviour
         OnInventoryStateChange?.Invoke(enabled);
     }
 
-    private void UpdateCursorState(bool enabled)
+    public void UpdateCursorState(bool enabled)
     {
         Cursor.visible = enabled;
         Cursor.lockState = enabled ? CursorLockMode.None : CursorLockMode.Locked;
@@ -197,7 +231,12 @@ public class Inventory : MonoBehaviour
         if (DragableItem != null)
             _dragPreviewImage.transform.position = Input.mousePosition;
     }
-    public void InventorySetAcitve(bool value, float delay = 0f) => View.InventorySetActiveAsync(value, delay).Forget();
+    public void InventorySetAcitve(bool value, float delay = 0f)
+    {
+        if (View.Inventory.activeInHierarchy == value) return;
+
+        View.InventorySetActiveAsync(value, delay).Forget();
+    }
 
     private void LogSelectedItem() => Debug.Log($"Item = {Model.SelectedItem}, ItemCount = {(Model.SelectedItem?.Count ?? 0)}");
     #endregion
@@ -210,7 +249,7 @@ public class Inventory : MonoBehaviour
     #endregion
 
     #region Drag & Drop
-    private void DragItem(PointerEventData eventData, Item item, InventorySlot slot)
+    public void DragItem(PointerEventData eventData, Item item, InventorySlot slot)
     {
         if (item == null) return;
 
@@ -220,7 +259,7 @@ public class Inventory : MonoBehaviour
         _dragPreviewImage.gameObject.SetActive(true);
     }
 
-    private void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot) =>
+    public void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot) =>
         InventoryDragDropHandler.HandleDrop(eventData, item, targetSlot, this);
 
     public void ResetDrag()
@@ -247,10 +286,17 @@ public class Inventory : MonoBehaviour
 
     private void DropItemOutOfInventory(PointerEventData data, Item item, InventorySlot slot)
     {
-        if (!RectTransformUtility.RectangleContainsScreenPoint(View.Inventory.GetComponent<RectTransform>(), data.position))
+        if (!RectTransformUtility.RectangleContainsScreenPoint(View.Inventory.GetComponent<RectTransform>(), data.position) &&
+            !VendorIsActive())
         {
             DropItemInWorld(item);
             RemoveItem(slot);
+
+            if (slot.SlotType == SlotType.Hotbar && View.HotbarSlots.IndexOf(slot) == SelectedHotbarIndex)
+            {
+                Model.SetSelectedItem(null);
+            }
+
             if (slot.SlotType == SlotType.Weapon)
                 CombatSystem.RemoveWeapon();
             else if (slot.SlotType == SlotType.SecondaryWeapon)
@@ -258,8 +304,11 @@ public class Inventory : MonoBehaviour
             //etc.
 
             ResetDrag();
+            UpdateAllHotbarSlots();
         }
     }
+
+    private bool VendorIsActive() => _currentVendor != null && _currentVendor.IsVendorOpen();
 
     private void DropItemInWorld(Item item)
     {
@@ -269,7 +318,7 @@ public class Inventory : MonoBehaviour
     }
     #endregion
 
-    private void ShowItemInfo(Item item)
+    public void ShowItemInfo(Item item)
     {
         _itemInfoPanel.gameObject.SetActive(true);
         _itemNameText.text = item.Id;
@@ -292,14 +341,41 @@ public class Inventory : MonoBehaviour
         _itemDescriptionText.text = "No description yet";
     }
 
-    private void CloseItemInfo()
+    public void CloseItemInfo()
     {
         if (_itemInfoPanel == null)
             return;
         _itemInfoPanel.gameObject.SetActive(false);
     }
-}
 
+    public void OpenVendorInterface(Vendor vendor, Vendor.TradeMode mode)
+    {
+        if(_currentVendor != null && _currentVendor != vendor)
+        {
+            CloseVendorInterface();
+        }
+        _currentVendor = vendor;
+        _currentVendor.OpenVendor(mode);
+
+        InventorySetAcitve(true);
+        UpdateCursorState(true);
+
+        OnInventoryStateChange?.Invoke(true);
+    }
+    public void CloseVendorInterface()
+    {
+        if (_currentVendor != null)
+        {
+            _currentVendor.CloseVendor();
+            _currentVendor = null;
+
+            InventorySetAcitve(false);
+            UpdateCursorState(false);
+
+            OnInventoryStateChange?.Invoke(false);
+        }
+    }
+}
 
 public static class InventoryItemManager
 {
