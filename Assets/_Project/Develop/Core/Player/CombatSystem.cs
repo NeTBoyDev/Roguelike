@@ -18,7 +18,7 @@ using Random = UnityEngine.Random;
 
 public class CombatSystem : MonoBehaviour
 {
-    private Creature playerModel;
+    public Creature playerModel { get; private set; }
     [SerializeField] private Animator animator;
 
     [SerializeField] private float baseMoveSpeed = 5f;
@@ -69,11 +69,15 @@ public class CombatSystem : MonoBehaviour
 
     public Slider HpSlider;
     public Slider StaminaSlider;
-    
+
+    private void Awake()
+    {
+        playerModel = new Creature("player1");
+    }
 
     void Start()
     {
-        playerModel = new Creature("player1");
+        
         character = GetComponent<PlayerCharacter>();
         currentMoveSpeed = baseMoveSpeed;
 

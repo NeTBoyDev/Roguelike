@@ -35,8 +35,8 @@ public class Vendor : MonoBehaviour
     [SerializeField] private string[] _greetings = { "Welcome, traveler!", "Good to see you!", "What do you seek today?" };
     [SerializeField] private string[] _farewells = { "Farewell!", "Come back soon!", "Safe travels!" };
     [SerializeField] private string[] _buyPhrases = { "A fine purchase!", "Enjoy your new item!", "Good choice!" };
-    [SerializeField] private string[] _noMoneyPhrases = { "Not enough gold!", "You’re short on coin!", "Come back with more gold!" };
-    [SerializeField] private string[] _sellPhrases = { "Thanks for the goods!", "A fair trade!", "I’ll take that off your hands!" };
+    [SerializeField] private string[] _noMoneyPhrases = { "Not enough gold!", "YouвЂ™re short on coin!", "Come back with more gold!" };
+    [SerializeField] private string[] _sellPhrases = { "Thanks for the goods!", "A fair trade!", "IвЂ™ll take that off your hands!" };
     #endregion
 
     private void Start()
@@ -138,6 +138,7 @@ public class Vendor : MonoBehaviour
     private void OnVendorDrop(PointerEventData data, Item item, InventorySlot targetSlot)
     {
         Item draggedItem = _playerInventory.DragableItem;
+        var slot = _playerInventory.LastInteractSlot;
 
         if (draggedItem == null)
         {
@@ -157,6 +158,18 @@ public class Vendor : MonoBehaviour
         else
         {
             HandleSell(data, draggedItem, targetSlot);
+        }
+        
+        if (slot.SlotType == SlotType.Weapon)
+        {
+            print("Remove from weapon");
+            _playerInventory.RemoveWeapon();
+        }
+
+        if (slot.SlotType == SlotType.SecondaryWeapon)
+        {
+            print("Remove from secondary");
+            _playerInventory.RemoveSecondaryWeapon();
         }
     }
 
@@ -276,7 +289,7 @@ public class Vendor : MonoBehaviour
             if (targetSlot.Item.Count == targetSlot.Item.MaxStackSize ||
                 item.Count == item.MaxStackSize)
             {
-                // Свап, если один из стаков полный
+                // РЎРІР°Рї, РµСЃР»Рё РѕРґРёРЅ РёР· СЃС‚Р°РєРѕРІ РїРѕР»РЅС‹Р№
                 Item targetItem = targetSlot.Item;
                 targetSlot.InitializeSlot(item);
                 sourceSlot.InitializeSlot(targetItem);
@@ -326,7 +339,7 @@ public class Vendor : MonoBehaviour
                 Debug.Log($"Added stackable item to vendor inventory: {item.Id}");
             }
         }
-        else // Простой свап для нестакаемых предметов
+        else // РџСЂРѕСЃС‚РѕР№ СЃРІР°Рї РґР»СЏ РЅРµСЃС‚Р°РєР°РµРјС‹С… РїСЂРµРґРјРµС‚РѕРІ
         {
             Item targetItem = targetSlot.Item;
             targetSlot.InitializeSlot(item);

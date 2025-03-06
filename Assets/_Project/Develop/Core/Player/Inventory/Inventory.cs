@@ -8,6 +8,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
+using _Project.Develop.Core.Enum;
 using TMPro;
 
 public class Inventory : MonoBehaviour
@@ -46,9 +47,15 @@ public class Inventory : MonoBehaviour
     [SerializeField,ReadOnly] private Vendor _currentVendor = null;
 
     #region Initialize
-    private void Start()
+
+    private void Awake()
     {
         CombatSystem = GetComponentInChildren<CombatSystem>();
+    }
+
+    private void Start()
+    {
+       
         Initialize();
 
         KitStart();
@@ -69,9 +76,16 @@ public class Inventory : MonoBehaviour
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
             slot.onDrop += DropItemOutOfInventory;
+            slot.onDrop += (a,b,c) =>
+            {
+                UpdateStatsText();
+            };
 
             slot.onPointerEnter += ShowItemInfo;
             slot.onPointerExit += CloseItemInfo;
+            print(CombatSystem.playerModel is null);
+            CombatSystem.playerModel.Stats[StatType.Health].OnModify += a=> UpdateStatsText();
+            CombatSystem.playerModel.Stats[StatType.Stamina].OnModify += a=> UpdateStatsText();
         }
 
         OnInventoryStateChange += value =>
@@ -79,7 +93,17 @@ public class Inventory : MonoBehaviour
             InventoryState = value;
             if (!value)
                 CloseItemInfo();
+            UpdateStatsText();
         };
+    }
+    
+    public void RemoveWeapon()
+    {
+        CombatSystem.RemoveWeapon();
+    }
+    public void RemoveSecondaryWeapon()
+    {
+        CombatSystem.RemoveSecondaryWeapon();
     }
     private void KitStart()
     {
@@ -308,6 +332,17 @@ public class Inventory : MonoBehaviour
         }
     }
 
+    public void UpdateStatsText()
+    {
+        string effects = string.Empty;
+        foreach (var stat in CombatSystem.playerModel.Stats)
+        {
+            effects += $"{stat.Value.Type.ToString()} : {(int)stat.Value.CurrentValue}\n";
+        }
+
+        _playerStatsText.text = effects;
+    }
+
     private bool VendorIsActive() => _currentVendor != null && _currentVendor.IsVendorOpen();
 
     private void DropItemInWorld(Item item)
@@ -500,6 +535,8 @@ public static class InventoryItemManager
             model.RemoveItem(slot.Item);
         }
     }
+
+    
 
     private static bool IsValidForSlot(Item item, InventorySlot slot) => InventoryDragDropHandler.IsValid(item, slot);
 }
