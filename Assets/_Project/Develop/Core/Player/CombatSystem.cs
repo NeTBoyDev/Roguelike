@@ -394,10 +394,15 @@ public class CombatSystem : MonoBehaviour
             case 3: animator.SetTrigger("Attack3"); break;
         }
 
+        
+    }
+
+    public void HandleAttack() //Для вызова из анимаций
+    {
         Vector3 attackDirection = transform.forward;
         Vector3 attackPoint = transform.position + Vector3.up + attackDirection * attackRange * 0.5f;
 
-        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, attackRange * 0.5f);
+        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, equippedWeapon[StatType.AttackRange].CurrentValue);
         foreach (var hit in hitEnemies)
         {
             if (hit.CompareTag("Enemy"))
@@ -417,13 +422,17 @@ public class CombatSystem : MonoBehaviour
         _manager.ProduceSound(transform.position, SwingSounds[Random.Range(0, SwingSounds.Length)]);
         
         playerModel.Stats[StatType.Stamina].Modify(-equippedWeapon.Stats[StatType.StaminaCost].CurrentValue);
-    }
+    } 
 
     private void OnDrawGizmos()
     {
-        Vector3 attackDirection = transform.forward;
-        Vector3 attackPoint = transform.position + Vector3.up + attackDirection * attackRange * 0.5f;
-        Gizmos.DrawSphere(attackPoint, attackRange * 0.5f);
+        if (equippedWeapon != null)
+        {
+            Vector3 attackDirection = transform.forward;
+            Vector3 attackPoint = transform.position + Vector3.up + attackDirection * attackRange * 0.5f;
+            Gizmos.DrawSphere(attackPoint, equippedWeapon[StatType.AttackRange].CurrentValue);
+        }
+        
     }
 
     private void StartRangedCharge()
