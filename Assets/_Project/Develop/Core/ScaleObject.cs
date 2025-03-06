@@ -9,8 +9,9 @@ public class ScaleObject : MonoBehaviour
     
     void Start()
     {
-        DOTween.Sequence(transform.DOScale(new Vector3(1.5f, 1.5f, 1.5f), interval/2).SetEase(Ease.OutBack))
-            .Append(transform.DOScale(new Vector3(1f, 1f, 1f), interval).SetEase(Ease.Linear))
+        DOTween.Sequence()
+            .Append(DOTween.To(() => transform.localScale, x => transform.localScale = x, new Vector3(1.1f, 1.1f, 1.1f), interval/2).SetEase(Ease.OutBack))
+            .Append(DOTween.To(() => transform.localScale, x => transform.localScale = x, new Vector3(1f, 1f, 1f), interval).SetEase(Ease.Linear))
             .SetLoops(-1, LoopType.Restart);
     }
 }
