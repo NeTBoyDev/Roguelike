@@ -10,5 +10,6 @@ public class Hammer : MeeleWeapon
         Stats[StatType.AttackSpeed].SetValue(0.5f);
         Stats[StatType.AttackRange].SetValue(1.25f);
         Stats[StatType.Damage].SetValue(20);
+        Stats[StatType.StaminaCost].SetValue(35);
     }
 }

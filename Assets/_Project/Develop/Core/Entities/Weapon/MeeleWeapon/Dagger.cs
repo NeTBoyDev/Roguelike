@@ -9,5 +9,6 @@ public class Dagger : MeeleWeapon
     {
         Stats[StatType.AttackSpeed].SetValue(1.25f);
         Stats[StatType.AttackRange].SetValue(0.5f);
+        Stats[StatType.StaminaCost].SetValue(13);
     }
 }
