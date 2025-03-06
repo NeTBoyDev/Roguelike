@@ -114,16 +114,15 @@ public class Vendor : MonoBehaviour
 
         foreach (var item in itemsToReturn)
         {
-            _playerInventory.AddItem(item);
-            _vendorModel.RemoveItem(item);
-
-            var slot = slots.FirstOrDefault(s => s.Item == item);
-            if (slot != null && !slot.IsEmpty())
+            var slot = slots.FirstOrDefault(s => s.Item != null && s.Item.Id == item.Id && !s.IsEmpty());
+            if (slot != null)
             {
-                slot.ClearSlot();
-            }
+                _playerInventory.AddItem(item);
+                _vendorModel.RemoveItem(item);
 
-            LogReturnedItem(item);
+                slot.ClearSlot();
+                LogReturnedItem(item);
+            }
         }
 
         if (_vendorModel.Items.Count > 0)
@@ -189,12 +188,12 @@ public class Vendor : MonoBehaviour
 
         if (draggedItem == null || sourceSlot == null)
         {
-            Debug.Log("No item being dragged");
-
             UpdateTotalGoldText();
             UpdateSellAllButtonState();
 
             _playerInventory.ResetDrag();
+
+            Debug.Log("test1");
             return;
         }
 
@@ -339,6 +338,7 @@ public class Vendor : MonoBehaviour
 
         if (targetSlot.IsEmpty())
         {
+            Debug.Log("test");
             targetSlot.InitializeSlot(item);
             _vendorModel.AddItem(item);
             _playerInventory.RemoveItem(sourceSlot);
@@ -415,6 +415,7 @@ public class Vendor : MonoBehaviour
 
             _vendorModel.RemoveItem(targetItem);
             _vendorModel.AddItem(item);
+
             _playerInventory.Model.RemoveItem(item);
             _playerInventory.Model.AddItem(targetItem);
 

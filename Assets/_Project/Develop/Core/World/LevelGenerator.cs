@@ -12,8 +12,12 @@ using Cysharp.Threading.Tasks.Linq;
 
 public class LevelGenerator : MonoBehaviour
 {
+    [field: HorizontalLine(2, EColor.Green)]
+    [field: SerializeField] public List<Room> StartRooms { get; private set; } = null;
+    [field: SerializeField] public List<Room> LastRooms { get; private set; } = null;
+    [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public List<Room> RoomPrefabs { get; private set; } = null;
-
+    [field: HorizontalLine(2, EColor.Green)]
 
     [field: Header("Settings")]
 
@@ -43,9 +47,10 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private int _currentRoomCount = 0;
 
 
-    private CancellationTokenSource _spawnSource = new();
+    private readonly CancellationTokenSource _spawnSource = new();
 
     private LevelGenerationPipeline _pipeline;
+    private Dictionary<Room, bool> _spawnedOnceRooms = new();
 
     #region Initialize
     private void Start()
@@ -59,13 +64,7 @@ public class LevelGenerator : MonoBehaviour
     private void Initialize()
     {
         LevelContainer = GetLevelContainer();
-        foreach (var room in RoomPrefabs)
-        {
-            if (room == null)
-            {
-                RoomPrefabs.Remove(room);
-            }
-        }
+        RoomPrefabs.RemoveAll(room => room == null);
     }
     #endregion
 
@@ -80,8 +79,9 @@ public class LevelGenerator : MonoBehaviour
         }
 
         _pipeline = LevelGenerationPipeline.Create()
-            .AddStep(GenerateStartRoom)
             .AddDelay(StartSpawnDelay)
+            .AddStep(GenerateStartRoom)
+            .AddDelay(RoomSpawnDelay)
             .AddStep(GenerateFloorAsync)
             .AddDelay(LastRoomSpawnDelay)
             .AddStep(GenerateLastRoom)
@@ -100,25 +100,26 @@ public class LevelGenerator : MonoBehaviour
         var startRoom = GetStartRoom();
 
 
-        if(PlayerPrefab == null)
-        {
-            Debug.LogError("Player prefab is null!");
-            return;
-        }
-        if(startRoom.Spawnpoint == null)
-        {
-            Debug.LogError("Spawnpoint is null!");
-            return;
-        }
+        CheckNull(PlayerPrefab, "Player prefab is null!");
+        CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
+        CheckNull(VendorPrefab, "Vendor prefab is null!");
 
         Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
     }
+    private void CheckNull(object obj, string errorMessage)
+    {
+        if (obj == null)
+        {
+            Debug.LogError(errorMessage, this);
+            throw new System.ArgumentNullException();
+        }
+    }
     public void SpawnVendor()
     {
-        var randomRoom = SpawnedRooms.Where(r => r.Type == RoomType.StartRoom && r.Type != RoomType.LastRoom).FirstOrDefault();
-        if(randomRoom != null)
+        var startRoom = GetStartRoom();
+        if(startRoom != null)
         {
-            var spawnPosition = randomRoom.RoomColliders[0].bounds.center;
+            var spawnPosition = startRoom.RoomColliders[0].bounds.center - Vector3.one;
             Instantiate(VendorPrefab, spawnPosition, Quaternion.identity);
         }
     }
@@ -130,6 +131,12 @@ public class LevelGenerator : MonoBehaviour
             bool placedAnyRoom = false;
 
             var allBaseRooms = GetAllRandomBaseRooms().ToArray();
+
+            if (allBaseRooms.Length == 0 && _currentRoomCount < MaxRoomCount)
+            {
+                Debug.LogWarning($"No available rooms to spawn at count {_currentRoomCount}. Possible range restrictions or all unique rooms used.");
+                break;
+            }
 
             foreach (var room in allBaseRooms)
             {
@@ -143,9 +150,13 @@ public class LevelGenerator : MonoBehaviour
                 if (spawnedRoom != null)
                 {
                     placedAnyRoom = true;
-
                     await Delay(RoomSpawnDelay, _spawnSource.Token);
                 }
+            }
+            if (!placedAnyRoom && _currentRoomCount < MaxRoomCount)
+            {
+                Debug.LogWarning($"No rooms placed in this iteration. Current: {_currentRoomCount}/{MaxRoomCount}. Continuing...");
+                continue;
             }
 
             if (!placedAnyRoom)
@@ -155,14 +166,12 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log($"<color=yellow>[Level Creator]:</color> Attempted to create room: <color=cyan>{_currentRoomCount}</color>. Rooms created: <color=yellow>{SpawnedRooms.Count - 1}</color>");
-
-        return;
+        Debug.Log($"<color=yellow>[Level Creator]:</color> Attempted to create room: <color=cyan>{_currentRoomCount}</color>. Rooms created: <color=yellow>{SpawnedRooms.Count}</color>");
     }
 
     public void GenerateStartRoom()
     {
-        var randomStartRoom = RoomPrefabs.Where(r => r != null && r.Type == RoomType.StartRoom)
+        var randomStartRoom = StartRooms
             .OrderBy(_ => UnityEngine.Random.value)
             .FirstOrDefault();
 
@@ -173,13 +182,15 @@ public class LevelGenerator : MonoBehaviour
         }
 
         SpawnRoom(randomStartRoom);
+        _currentRoomCount++;
     }
 
     public void GenerateLastRoom()
     {
-        var randomLastRoom = RoomPrefabs.Where(r => r != null && r.Type == RoomType.LastRoom)
+        var randomLastRoom = LastRooms
             .OrderBy(_ => UnityEngine.Random.value)
             .FirstOrDefault();
+
 
         if (randomLastRoom == null)
         {
@@ -195,8 +206,20 @@ public class LevelGenerator : MonoBehaviour
         if (room == null || room.SpawnChance < UnityEngine.Random.value)
             return null;
 
-        var rotation = GetRandomRotation();
+        if (room.SpawnOnlyOnce && _spawnedOnceRooms.ContainsKey(room) && _spawnedOnceRooms[room])
+        {
+            Debug.Log($"<color=darkred>The room has already been spawned.</color>");
+            return null;
+        }
 
+        if (!CanRoomSpawnBasedOnRange(room))
+        {
+            Debug.Log($"<color=red>The room {room} is out of range!</color>");
+            return null;
+        }
+
+
+        var rotation = GetRandomRotation();
         var spawnedRoom = Instantiate(room, new Vector3(100, 0, 0), rotation, LevelContainer.transform);
 
         if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom, addRoomCount))
@@ -207,12 +230,16 @@ public class LevelGenerator : MonoBehaviour
 
         SpawnedRooms.Add(spawnedRoom);
 
+        if (room.SpawnOnlyOnce)
+        {
+            _spawnedOnceRooms[room] = true;
+        }
+
         return spawnedRoom;
     }
     #endregion
 
     #region Handlers
-
     private bool TryConnectRoomWithRotation(Room currentRoom, bool addRoomCount = true)
     {
         if (currentRoom == null)
@@ -241,7 +268,7 @@ public class LevelGenerator : MonoBehaviour
         SpawnedRooms.Remove(currentRoom);
         Destroy(currentRoom.gameObject);
 
-        --_currentRoomCount;
+        _currentRoomCount = Mathf.Clamp(_currentRoomCount--, 0, 100);
     }
     private GameObject CreateLevelContainer()
     {
@@ -259,11 +286,20 @@ public class LevelGenerator : MonoBehaviour
     }
 
     public IEnumerable<Room> GetAllRandomBaseRooms()
-        => RoomPrefabs.Where(r => r != null && r.Type == RoomType.BaseRoom).OrderBy(_ => UnityEngine.Random.value);
-    
-    public Room GetRandomCorridor()
-        => RoomPrefabs.OrderBy(_ => UnityEngine.Random.value).FirstOrDefault(r => r != null && r.Type == RoomType.Corridor);
+    {
+        return RoomPrefabs
+            .Where(r => r != null && r.Type == RoomType.BaseRoom)
+            .Where(r => !r.SpawnOnlyOnce || !_spawnedOnceRooms.ContainsKey(r) || !_spawnedOnceRooms[r])
+            .OrderBy(_ => UnityEngine.Random.value);
+    }
+    private bool CanRoomSpawnBasedOnRange(Room room)
+    {
+        int currentRoomIndex = _currentRoomCount;
+        float minSpawn = room.SpawnRange.x;
+        float maxSpawn = room.SpawnRange.y;
 
+        return currentRoomIndex >= minSpawn && currentRoomIndex <= maxSpawn;
+    }
     public Room GetStartRoom() => SpawnedRooms[0];
     public Room GetLastRoom() => SpawnedRooms[^1];
 
@@ -317,7 +353,8 @@ public class LevelGenerator : MonoBehaviour
             .Where(r => r != currentRoom)
             .SelectMany(r => r.Doors)
             .Where(d => !d.Connected)
-            .OrderBy(d => Vector2.Distance(d.ConnectPoint.position, currentRandomDoor.ConnectPoint.position))
+            //.OrderBy(d => UnityEngine.Random.value)
+            .OrderBy(d => Vector3.Distance(d.ConnectPoint.position, currentRandomDoor.ConnectPoint.position) <= 20)
             .ToList();
 
         if (availableDoors.Count == 0)
@@ -335,15 +372,23 @@ public class LevelGenerator : MonoBehaviour
             {
                 currentRandomDoor.ConnectDoor(doorToConnect);
 
-                float distanceBetweenDoors = Vector3.Distance(currentRandomDoor.ConnectPoint.localPosition, doorToConnect.ConnectPoint.localPosition);
+                float distanceBetweenDoors = Vector3.Distance(currentRandomDoor.ConnectPoint.position, doorToConnect.ConnectPoint.position);
 
-                if(distanceBetweenDoors <= OverlapDoorThreshold)
+                if (DebugMode)
                 {
-                    //If the doors are adjacent to each other, disable one of them
-                    doorToConnect.gameObject.SetActive(false);
+                    Debug.Log($"Расстояние между дверями: {distanceBetweenDoors} (порог: {OverlapDoorThreshold})");
                 }
 
-                if(addRoomCount)
+                if (distanceBetweenDoors <= OverlapDoorThreshold)
+                {
+                    doorToConnect.gameObject.SetActive(false);
+                    if (DebugMode)
+                    {
+                        Debug.Log($"Дверь {currentRandomDoor.name} отключена (расстояние: {distanceBetweenDoors})", currentRandomDoor);
+                    }
+                }
+
+                if (addRoomCount)
                     _currentRoomCount++;
                 return true;
             }
