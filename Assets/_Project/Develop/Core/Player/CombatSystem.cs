@@ -69,6 +69,7 @@ public class CombatSystem : MonoBehaviour
 
     public Slider HpSlider;
     public Slider StaminaSlider;
+    public Image HitImage;
 
     private void Awake()
     {
@@ -557,5 +558,12 @@ public class CombatSystem : MonoBehaviour
             playerModel.Stats[StatType.Health].Modify(-value);
         }
         _manager.ProduceSound(transform.position, HitSounds[Random.Range(0, HitSounds.Length)]);
+        HitEffect();
+    }
+
+    private void HitEffect()
+    {
+        HitImage.color = new Color(1, 1, 1, 1);
+        DOTween.To(() => HitImage.color, x => HitImage.color = x, new Color(1, 1, 1, 0), .75f);
     }
 }
