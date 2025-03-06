@@ -62,7 +62,7 @@ public class CombatSystem : MonoBehaviour
     [Header("Audio")] 
     [SerializeField] private AudioClip[] HitSounds;
     [SerializeField] private AudioClip[] SwingSounds;
-    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit;
+    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit,Reload,Shot;
 
     [SerializeField] private SoundManager _manager = new();
 
@@ -224,6 +224,7 @@ public class CombatSystem : MonoBehaviour
             animator.SetBool("IsCharged", false);
             animator.SetTrigger("StopCharge");
             _manager.StopPlaying(SpellPrepare);
+            _manager.StopPlaying(Reload);
         }
 
         CloseCrosshair(0f);
@@ -475,7 +476,7 @@ public class CombatSystem : MonoBehaviour
         animator.SetTrigger("RangedShot");
         FireProjectile(1 + playerModel[StatType.Agility].CurrentValue/10);
         
-        _manager.ProduceSound(transform.position, SpellCast);
+        _manager.ProduceSound(transform.position, Shot);
 
         lastAttackTime = Time.time;
         rangeWeapon.isReloaded = false; // Сбрасываем состояние заряженности
@@ -495,7 +496,7 @@ public class CombatSystem : MonoBehaviour
         isReloading = true;
         reloadTimer = 1f / rangeWeapon.Stats[StatType.AttackSpeed].CurrentValue; // Время перезарядки зависит от AttackSpeed
         animator.SetBool("IsReloading", true); // Предполагается, что есть анимация перезарядки
-        _manager.ProduceSound(transform.position, SpellPrepare, true); // Звук перезарядки
+        _manager.ProduceSound(transform.position, Reload, true); // Звук перезарядки
         OpenCrosshair(equippedWeapon[StatType.AttackSpeed].CurrentValue);
     }
 
@@ -505,7 +506,7 @@ public class CombatSystem : MonoBehaviour
         isReloading = false;
         rangeWeapon.isReloaded = true; // Оружие заряжено
         animator.SetBool("IsReloading", false);
-        _manager.StopPlaying(SpellPrepare);
+        _manager.StopPlaying(Reload);
         Debug.Log("Weapon reloaded!");
         
         if(rangeWeapon.isReloadable)

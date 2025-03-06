@@ -361,7 +361,7 @@ public class Inventory : MonoBehaviour
 
     private void DropItemInWorld(Item item)
     {
-        var container = ItemGenerator.Instance.GenerateContainer(item);
+        var container = ItemGenerator.Instance.GenerateContainer(item,true);
         container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
         container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3, ForceMode.Impulse);
     }

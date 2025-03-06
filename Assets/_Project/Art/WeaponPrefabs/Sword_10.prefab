@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3729163152887622014}
   - component: {fileID: 7466718051973152976}
   - component: {fileID: 3682853662139374752}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Sword_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}

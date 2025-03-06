@@ -59,9 +59,9 @@ namespace _Project.Develop.Core.Player
         public void StopPlaying(AudioClip sound)
         {
             var source = _sources.FirstOrDefault(s => s.clip == sound);
-            _sources.Remove(source);
             if (source != null)
             {
+                _sources.Remove(source);
                 _pool.Release(source);
             }
         }
