@@ -481,7 +481,6 @@ public class CombatSystem : MonoBehaviour
 
     private void FireProjectile(float multiplyier)
     {
-        print($"MULTIPLYER {multiplyier}");
         ((RangeWeapon)equippedWeapon).FireProjectile(multiplyier);
     }
 
