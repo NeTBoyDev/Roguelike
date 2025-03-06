@@ -44,6 +44,7 @@ public class Inventory : MonoBehaviour
 
     [field: Tooltip("Item pickup & vendor interact distance")]
     [field: SerializeField] public float InteractionDistance { get; private set; } = 5f;
+    [field: SerializeField] public TMP_Text GoldText { get; private set; } = null;
     [SerializeField,ReadOnly] private Vendor _currentVendor = null;
 
     #region Initialize
@@ -55,10 +56,16 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-       
         Initialize();
 
         KitStart();
+
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
     }
 
     private void Initialize()
@@ -76,14 +83,13 @@ public class Inventory : MonoBehaviour
             slot.onDrag += DragItem;
             slot.onDrop += DropItem;
             slot.onDrop += DropItemOutOfInventory;
-            slot.onDrop += (a,b,c) =>
-            {
-                UpdateStatsText();
-            };
+            slot.onDrop += (a, b, c) => UpdateStatsText();
+
+            slot.onRightClick += QuickMoveItem;
 
             slot.onPointerEnter += ShowItemInfo;
             slot.onPointerExit += CloseItemInfo;
-            print(CombatSystem.playerModel is null);
+
             CombatSystem.playerModel.Stats[StatType.Health].OnModify += a=> UpdateStatsText();
             CombatSystem.playerModel.Stats[StatType.Stamina].OnModify += a=> UpdateStatsText();
         }
@@ -117,7 +123,6 @@ public class Inventory : MonoBehaviour
         HandleInput();
         UpdatePreviewItem();
     }
-
     private void HandleInput()
     {
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
@@ -353,6 +358,149 @@ public class Inventory : MonoBehaviour
     }
     #endregion
 
+    #region QuickMove logic
+
+    private void QuickMoveItem(PointerEventData eventData, Item item, InventorySlot sourceSlot)
+    {
+        if (item == null || eventData.button != PointerEventData.InputButton.Right) return;
+
+        InventorySlot targetSlot = FindQuickMoveTargetSlot(item);
+
+        if (targetSlot == null)
+        {
+            Debug.Log($"No suitable slot found for quick move of {item.Id}");
+            return;
+        }
+
+        bool sourceWasSelected = sourceSlot.SlotType == SlotType.Hotbar &&
+                                View.HotbarSlots.IndexOf(sourceSlot) == SelectedHotbarIndex;
+
+        if (item.IsStackable && targetSlot.SlotType == SlotType.Hotbar)
+        {
+            InventorySlot stackableSlot = FindStackableSlotInHotbar(item);
+            if (stackableSlot != null)
+            {
+                targetSlot = stackableSlot;
+            }
+        }
+
+        if (item.IsStackable && targetSlot.SlotType == SlotType.Hotbar &&
+            !targetSlot.IsEmpty() && targetSlot.Item.Id == item.Id && targetSlot.Item.Rarity == item.Rarity)
+        {
+            HandleStackableQuickMove(item, sourceSlot, targetSlot, sourceWasSelected);
+        }
+        else if (targetSlot.IsEmpty())
+        {
+            targetSlot.InitializeSlot(item);
+            sourceSlot.ClearSlot();
+            HandleQuickMoveEquip(item, targetSlot);
+
+            if (sourceWasSelected)
+            {
+                Model.SetSelectedItem(null);
+            }
+        }
+        else
+        {
+            Item targetItem = targetSlot.Item;
+            targetSlot.InitializeSlot(item);
+            sourceSlot.InitializeSlot(targetItem);
+            HandleQuickMoveEquip(item, targetSlot);
+
+            if (sourceWasSelected)
+            {
+                Model.SetSelectedItem(targetItem);
+            }
+        }
+
+        targetSlot.UpdateVisual();
+        sourceSlot.UpdateVisual();
+
+        UpdateAllHotbarSlots();
+        UpdateStatsText();
+    }
+
+    private InventorySlot FindStackableSlotInHotbar(Item item)
+    {
+        return View.HotbarSlots.FirstOrDefault(s => !s.IsEmpty() &&
+                                                   s.Item.Id == item.Id &&
+                                                   s.Item.Rarity == item.Rarity &&
+                                                   s.Item.Count < s.Item.MaxStackSize);
+    }
+
+    private void HandleStackableQuickMove(Item item, InventorySlot sourceSlot, InventorySlot targetSlot, bool sourceWasSelected)
+    {
+        int newStackCount = targetSlot.Item.Count + item.Count;
+        int maxStackSize = item.MaxStackSize;
+
+        if (newStackCount <= maxStackSize)
+        {
+            targetSlot.Item.Count = newStackCount;
+            sourceSlot.ClearSlot();
+
+            if (sourceWasSelected)
+            {
+                Model.SetSelectedItem(null);
+            }
+        }
+        else
+        {
+            int amountToAdd = maxStackSize - targetSlot.Item.Count;
+            targetSlot.Item.Count = maxStackSize;
+            item.Count -= amountToAdd;
+
+            if (sourceWasSelected && View.HotbarSlots.IndexOf(targetSlot) == SelectedHotbarIndex)
+            {
+                Model.SetSelectedItem(targetSlot.Item);
+            }
+        }
+
+        HandleQuickMoveEquip(targetSlot.Item, targetSlot);
+    }
+    private InventorySlot FindQuickMoveTargetSlot(Item item)
+    {
+        if (item is MeeleWeapon || item is RangeWeapon)
+        {
+            return View.InventorySlots.FirstOrDefault(s => s.SlotType == SlotType.Weapon);
+        }
+        else if (item is SecondaryWeapon)
+        {
+            return View.InventorySlots.FirstOrDefault(s => s.SlotType == SlotType.SecondaryWeapon);
+        }
+        else if (item is UseableItem)
+        {
+            // »щем первый пустой слот в хотбаре или возвращаем текущий выбранный
+            return View.HotbarSlots.FirstOrDefault(s => s.IsEmpty()) ??
+                   View.HotbarSlots[SelectedHotbarIndex];
+        }
+        else if (item is Artifact)
+        {
+            return View.InventorySlots.FirstOrDefault(s => s.SlotType == SlotType.Artifact);
+        }
+
+        return null;
+    }
+    private void HandleQuickMoveEquip(Item item, InventorySlot targetSlot)
+    {
+        if (targetSlot.SlotType == SlotType.Weapon && item is Weapon weapon)
+        {
+            CombatSystem.SetWeapon(weapon);
+        }
+        else if (targetSlot.SlotType == SlotType.SecondaryWeapon && item is SecondaryWeapon secWeapon)
+        {
+            CombatSystem.SetSecondaryWeapon(secWeapon);
+        }
+        else if (targetSlot.SlotType == SlotType.Hotbar)
+        {
+            int targetIndex = View.HotbarSlots.IndexOf(targetSlot);
+            if (targetIndex == SelectedHotbarIndex)
+            {
+                Model.SetSelectedItem(item);
+            }
+        }
+    }
+    #endregion
+
     public void ShowItemInfo(Item item)
     {
         _itemInfoPanel.gameObject.SetActive(true);
@@ -409,290 +557,5 @@ public class Inventory : MonoBehaviour
 
             OnInventoryStateChange?.Invoke(false);
         }
-    }
-}
-
-public static class InventoryItemManager
-{
-    public static void AddItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem)
-    {
-        if (item == null || item.Count <= 0) return;
-
-        if (item.IsStackable)
-        {
-            AddStackableItem(item, view, model);
-        }
-        else
-        {
-            AddNonStackableItem(item, view, model, combatSystem);
-        }
-
-        view.GetSlotWithItem(item)?.UpdateVisual();
-    }
-
-    private static void AddStackableItem(Item item, InventoryView view, InventoryModel model)
-    {
-        int remainingCount = item.Count;
-
-        foreach (var slot in view.InventorySlots.Where(s => !s.IsEmpty() &&
-            s.Item.Id == item.Id &&
-            s.Item.Count < s.Item.MaxStackSize &&
-            s.Item.Rarity == item.Rarity))
-        {
-            if (remainingCount <= 0) break;
-
-            int amountToAdd = Mathf.Min(slot.Item.MaxStackSize - slot.Item.Count, remainingCount);
-            slot.Item.Count += amountToAdd;
-
-            slot.UpdateVisual();
-            remainingCount -= amountToAdd;
-        }
-
-        while (remainingCount > 0)
-        {
-            var emptySlot = view.GetFirstEmptySlot();
-            if (emptySlot == null || !IsValidForSlot(item, emptySlot))
-            {
-                DropExcessItem(item, remainingCount);
-                break;
-            }
-
-            int countToAdd = Math.Min(remainingCount, item.MaxStackSize);
-            item.Count = countToAdd;
-
-            remainingCount -= countToAdd;
-
-            model.AddItem(item);
-            emptySlot.InitializeSlot(item);
-        }
-    }
-
-    private static void AddNonStackableItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem)
-    {
-        for (int i = 0; i < item.Count; i++)
-        {
-            var emptySlot = view.GetFirstEmptySlot();
-            if (emptySlot == null || !IsValidForSlot(item, emptySlot))
-            {
-                if (item is Weapon weapon)
-                {
-                    DropExcessItem(weapon, 1);
-                }
-                else if(item is SecondaryWeapon secondaryWeapon)
-                {
-                    DropExcessItem(secondaryWeapon, 1);
-                }
-                else
-                {
-                    DropExcessItem(item, 1);
-                }
-                break;
-            }
-
-            Item newItem = item;
-            newItem.Count = 1;
-
-            model.AddItem(newItem);
-            emptySlot.InitializeSlot(newItem);
-
-            if(item is Weapon w && emptySlot.SlotType == SlotType.Weapon)
-            {
-                combatSystem.SetWeapon(w);
-            }
-            else if(item is SecondaryWeapon sw && emptySlot.SlotType == SlotType.SecondaryWeapon)
-            {
-                combatSystem.SetSecondaryWeapon(sw);
-            }
-        }
-    }
-
-    private static void DropExcessItem(Item item, int count)
-    {
-        item.Count = count;
-
-        var container = ItemGenerator.Instance.GenerateContainer(item);
-        container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
-        container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3, ForceMode.Impulse);
-
-        Debug.Log($"Cannot add {count} items of type <color=cyan>{item.Id}</color>. Inventory full!");
-    }
-
-    public static void RemoveItem(Item item, InventoryView view, InventoryModel model)
-    {
-        var slot = view.GetSlotWithItem(item);
-        if (slot != null)
-        {
-            view.ClearSlot(slot);
-            model.RemoveItem(item);
-        }
-    }
-
-    public static void RemoveItem(InventorySlot slot, InventoryView view, InventoryModel model)
-    {
-        if (slot.Item != null)
-        {
-            view.ClearSlot(slot);
-            model.RemoveItem(slot.Item);
-        }
-    }
-
-    
-
-    private static bool IsValidForSlot(Item item, InventorySlot slot) => InventoryDragDropHandler.IsValid(item, slot);
-}
-
-public static class InventoryDragDropHandler
-{
-    public static void HandleDrop(PointerEventData eventData, Item item, InventorySlot targetSlot, Inventory inventory)
-    {
-        if (!IsValidDrop(inventory.DragableItem, inventory.LastInteractSlot, targetSlot))
-        {
-            inventory.ResetDrag();
-            return;
-        }
-
-        HandleWeaponSlots(inventory, targetSlot);
-        HandleSecondaryWeaponSlots(inventory, targetSlot);
-
-
-        if (targetSlot.IsEmpty())
-        {
-            HandleEmptySlotDrop(targetSlot, inventory);
-        }
-        else if (IsStackableDrop(targetSlot, inventory))
-        {
-            HandleStackableDrop(targetSlot, inventory);
-        }
-        else
-        {
-            HandleSwapDrop(targetSlot, inventory);
-        }
-
-
-        HandleHotbarSelection(targetSlot, inventory);
-        inventory.ResetDrag();
-    }
-
-    private static bool IsValidDrop(Item dragableItem, InventorySlot lastSlot, InventorySlot targetSlot)
-    {
-        if (dragableItem == null || lastSlot == null || targetSlot == lastSlot ||
-            !IsValid(dragableItem, targetSlot) || !IsValid(targetSlot.Item, lastSlot))
-            return false;
-
-        return true;
-    }
-
-    public static bool IsValid(Item item, InventorySlot targetSlot)
-    {
-        if (item == null) return true;
-
-        return targetSlot.SlotType switch
-        {
-            SlotType.Hotbar => item is UseableItem,
-            SlotType.Weapon => item is MeeleWeapon || item is RangeWeapon,
-            SlotType.SecondaryWeapon => item is SecondaryWeapon,
-            SlotType.Artifact => item is Artifact,
-            SlotType.Default => true,
-            _ => false
-        };
-    }
-
-    private static void HandleWeaponSlots(Inventory inventory, InventorySlot targetSlot)
-    {
-        if (inventory.DragableItem is Weapon weapon && targetSlot.SlotType == SlotType.Weapon)
-            inventory.CombatSystem.SetWeapon(weapon);
-
-        if (inventory.LastInteractSlot.SlotType == SlotType.Weapon)
-        {
-            inventory.CombatSystem.RemoveWeapon();
-            if (targetSlot.Item is Weapon w)
-                inventory.CombatSystem.SetWeapon(w);
-        }
-    }
-
-    private static void HandleSecondaryWeaponSlots(Inventory inventory, InventorySlot targetSlot)
-    {
-        if (inventory.DragableItem is SecondaryWeapon secWeapon && targetSlot.SlotType == SlotType.SecondaryWeapon)
-            inventory.CombatSystem.SetSecondaryWeapon(secWeapon);
-
-        if (inventory.LastInteractSlot.SlotType == SlotType.SecondaryWeapon)
-        {
-            inventory.CombatSystem.RemoveSecondaryWeapon();
-            if (targetSlot.Item is SecondaryWeapon w)
-                inventory.CombatSystem.SetSecondaryWeapon(w);
-        }
-    }
-
-    private static void HandleEmptySlotDrop(InventorySlot targetSlot, Inventory inventory)
-    {
-        targetSlot.InitializeSlot(inventory.DragableItem);
-        inventory.LastInteractSlot.ClearSlot();
-    }
-
-    private static bool IsStackableDrop(InventorySlot targetSlot, Inventory inventory) =>
-        inventory.DragableItem.IsStackable &&
-        targetSlot.Item.Id == inventory.DragableItem.Id &&
-        targetSlot.Item.Rarity == inventory.DragableItem.Rarity;
-
-    private static void HandleStackableDrop(InventorySlot targetSlot, Inventory inventory)
-    {
-        if (targetSlot.Item.Count == targetSlot.Item.MaxStackSize ||
-            inventory.DragableItem.Count == inventory.DragableItem.MaxStackSize)
-        {
-            SwapItems(targetSlot, inventory.LastInteractSlot);
-            return;
-        }
-
-        int newStackCount = targetSlot.Item.Count + inventory.DragableItem.Count;
-        int overflow = Mathf.Max(0, newStackCount - targetSlot.Item.MaxStackSize);
-
-        targetSlot.Item.Count = Mathf.Min(newStackCount, targetSlot.Item.MaxStackSize);
-        targetSlot.UpdateVisual();
-
-        if (overflow > 0)
-        {
-            inventory.DragableItem.Count = overflow;
-            inventory.LastInteractSlot.UpdateVisual();
-        }
-        else
-            inventory.LastInteractSlot.ClearSlot();
-    }
-
-    private static void HandleSwapDrop(InventorySlot targetSlot, Inventory inventory)
-    {
-        Item targetItem = targetSlot.Item;
-        targetSlot.InitializeSlot(inventory.DragableItem);
-        inventory.LastInteractSlot.InitializeSlot(targetItem);
-    }
-
-    private static void HandleHotbarSelection(InventorySlot targetSlot, Inventory inventory)
-    {
-        if (inventory.LastInteractSlot.SlotType == SlotType.Hotbar && inventory.LastInteractSlot.IsEmpty())
-        {
-            int clearedIndex = inventory.View.HotbarSlots.IndexOf(inventory.LastInteractSlot);
-            if (clearedIndex == inventory.SelectedHotbarIndex)
-                inventory.Model.SetSelectedItem(null);
-        }
-
-        if (targetSlot.SlotType == SlotType.Hotbar)
-        {
-            int targetIndex = inventory.View.HotbarSlots.IndexOf(targetSlot);
-            if (targetIndex == inventory.SelectedHotbarIndex)
-                inventory.Model.SetSelectedItem(inventory.DragableItem);
-        }
-
-        inventory.SelectHotbarSlot(inventory.SelectedHotbarIndex);
-    }
-
-    private static void SwapItems(InventorySlot slot1, InventorySlot slot2)
-    {
-        var item1 = slot1.Item;
-        var item2 = slot2.Item;
-
-        slot1.InitializeSlot(item2);
-        slot2.InitializeSlot(item1);
-
-        slot1.UpdateVisual();
-        slot2.UpdateVisual();
     }
 }

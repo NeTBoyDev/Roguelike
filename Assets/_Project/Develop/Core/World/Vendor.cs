@@ -21,7 +21,6 @@ public class Vendor : MonoBehaviour
     public GameObject BuyPanel;
 
     [SerializeField] private TMP_Text _totalGoldText;
-    [SerializeField] private TMP_Text _playerGoldText;
 
     [SerializeField] private Button _sellAllButton;
 
@@ -92,13 +91,12 @@ public class Vendor : MonoBehaviour
 
         if(_playerInventory != null)
         {
+            ReturnAllItemsToPlayer();
             _playerInventory.InventorySetAcitve(false);
             _playerInventory.UpdateCursorState(false);
         }
 
         Debug.Log(GetRandomPhrase(_farewells));
-
-        ReturnAllItemsToPlayer();
     }
 
     private void ReturnAllItemsToPlayer()
@@ -113,7 +111,14 @@ public class Vendor : MonoBehaviour
 
         foreach (var slot in _vendorView.GetAllConcatSlots())
         {
-            slot.ClearSlot();
+            if(!slot.IsEmpty())
+                slot.ClearSlot();
+        }
+
+        if(_vendorModel.Items.Count > 0)
+        {
+            Debug.LogWarning("Vendor model still contains items after return. Clearing manually!");
+            _vendorModel.RemoveAllItems();
         }
     }
 
@@ -402,8 +407,8 @@ public class Vendor : MonoBehaviour
     }
     private void UpdatePlayerGoldText()
     {
-        if (_playerGoldText != null)
-            _playerGoldText.text = $"Your Gold: {_playerGold}";
+        if (_playerInventory.GoldText != null)
+            _playerInventory.GoldText.text = $"{_playerGold}";
     }
     private string GetRandomPhrase(string[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];
 
