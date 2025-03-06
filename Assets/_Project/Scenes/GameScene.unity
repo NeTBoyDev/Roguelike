@@ -351,10 +351,6 @@ MonoBehaviour:
   <RoomSpawnDelay>k__BackingField: 0
   <LastRoomSpawnDelay>k__BackingField: 0
   <PlayerSpawnDelay>k__BackingField: 0
-  <PlayerPrefab>k__BackingField: {fileID: 7528292338955704060, guid: bcd8cf2dc2a4070419c1842908868655,
-    type: 3}
-  <VendorPrefab>k__BackingField: {fileID: 2136184067701895308, guid: 804ba9ad9e9981f448663493a919c4e4,
-    type: 3}
   <DebugMode>k__BackingField: 1
   <LevelContainer>k__BackingField: {fileID: 0}
   <SpawnedRooms>k__BackingField: []
