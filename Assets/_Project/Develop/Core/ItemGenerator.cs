@@ -73,18 +73,18 @@ namespace _Project.Develop.Core
             new TrippleShot()
         };
 
-        public EntityContainer GenerateWeaponGameobject(WeaponType weaponType, Rarity rarity)
+        public EntityContainer GenerateWeaponGameobject(WeaponType weaponType, Rarity rarity, bool isReloadable = false)
         {
-            var weapon = GenerateContainer(weaponType, rarity);
+            var weapon = GenerateContainer(weaponType);
         
             // Создаём модель оружия в зависимости от типа
-            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name);
+            BaseEntity weaponModel = GenerateWeapon(weaponType, rarity, weapon.name,isReloadable);
 
             weapon.SetEntity(weaponModel);
             return weapon;
         }
 
-        public EntityContainer GenerateContainer(WeaponType weaponType, Rarity rarity)
+        public EntityContainer GenerateContainer(WeaponType weaponType)
         {
             GameObject weapon = null;
 
@@ -140,6 +140,30 @@ namespace _Project.Develop.Core
             {
                 WeaponType.MeeleWeapon => new MeeleWeapon(name),
                 WeaponType.RangeWeapon => new RangeWeapon(name),
+                WeaponType.UseableItems => new UseableItem(name),
+                WeaponType.Shield => new Shield(name),
+                WeaponType.SpellBook =>new Spellbook(name),
+                _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
+            };
+
+            weaponModel.Rarity = rarity;
+
+            Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
+            int effectCount = (int)rarity;
+            for (int i = 0; i < effectCount; i++)
+            {
+                weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
+            }
+            /*Debug.Log($"{effectCount}");
+            Debug.Log($"{weaponModel.Effects.Count}");*/
+            return weaponModel;
+        }
+        public BaseEntity GenerateWeapon(WeaponType weaponType, Rarity rarity, string name, bool isReloadable = false)
+        {
+            BaseEntity weaponModel = weaponType switch
+            {
+                WeaponType.MeeleWeapon => new MeeleWeapon(name),
+                WeaponType.RangeWeapon => new RangeWeapon(name,isReloadable),
                 WeaponType.UseableItems => new UseableItem(name),
                 WeaponType.Shield => new Shield(name),
                 WeaponType.SpellBook =>new Spellbook(name),

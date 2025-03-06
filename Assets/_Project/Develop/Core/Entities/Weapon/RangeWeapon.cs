@@ -11,7 +11,8 @@ using UnityEngine;
 
 public class RangeWeapon : Weapon
 {
-
+    public bool isReloadable { get; private set; }
+    public bool isReloaded = false;
     public RangeWeapon(string id) : base(id)
     {
         AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
@@ -26,6 +27,15 @@ public class RangeWeapon : Weapon
 
         Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
         
+    }
+    public RangeWeapon(string id, bool isReloadable) : base(id)
+    {
+        AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
+
+        Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
+
+        this.isReloadable = isReloadable;
+
     }
 
     public void ApplyEffects(ProjectileObject originalObj)
