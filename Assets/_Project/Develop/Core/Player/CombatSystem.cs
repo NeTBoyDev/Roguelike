@@ -350,7 +350,7 @@ public class CombatSystem : MonoBehaviour
 
         if (hasShield) // Блок для ближнего боя
         {
-            if (Input.GetMouseButtonDown(1) && !isBlocking)
+            if (Input.GetMouseButtonDown(1) && !isBlocking && playerModel.Stats[StatType.Stamina].CurrentValue > secondaryWeapon.Stats[StatType.StaminaCost].CurrentValue)
             {
                 StartBlock();
             }
