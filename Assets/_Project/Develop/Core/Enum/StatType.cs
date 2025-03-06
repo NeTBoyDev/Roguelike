@@ -10,6 +10,7 @@ namespace _Project.Develop.Core.Enum
         Agility,
         Intelligence,
         Health,
+        AttackRange,
         Difficulty,
         ExperienceReward
     }

@@ -80,6 +80,28 @@ public class SkeletonAI : MonoBehaviour
             ChangeState(new TakeDamageState(this));
         }
     }
+    
+    public void PerformAttack()
+    {
+        Vector3 attackDirection = transform.forward;
+        Vector3 attackPoint = transform.position + Vector3.up + attackDirection * AttackRange * 0.5f;
+
+        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, AttackRange * 0.5f);
+        foreach (var hit in hitEnemies)
+        {
+            if (hit.CompareTag("Player"))
+            {
+                if (hit.TryGetComponent(out CombatSystem enemy))
+                {
+                    float damage = skeletonModel[StatType.Strength].CurrentValue;
+                    enemy.TakeDamage(damage);
+                    Debug.Log($"Skeleton attacked {hit.name} for {damage} damage!");
+                }
+            }
+        }
+
+        
+    }
 
     public float DistanceToTarget => Vector3.Distance(transform.position, target.position);
 
@@ -283,23 +305,6 @@ public class AttackState : IState
 
     private void PerformAttack()
     {
-        Vector3 attackDirection = skeleton.transform.forward;
-        Vector3 attackPoint = skeleton.transform.position + Vector3.up + attackDirection * skeleton.AttackRange * 0.5f;
-
-        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint, skeleton.AttackRange * 0.5f);
-        foreach (var hit in hitEnemies)
-        {
-            if (hit.CompareTag("Player"))
-            {
-                if (hit.TryGetComponent(out CombatSystem enemy))
-                {
-                    float damage = skeleton.skeletonModel[StatType.Strength].CurrentValue;
-                    enemy.TakeDamage(damage);
-                    Debug.Log($"Skeleton attacked {hit.name} for {damage} damage!");
-                }
-            }
-        }
-
         skeleton.LastAttackTime = Time.time;
         isAnimationPlaying = true; // Запускаем новую анимацию
         skeleton.animator.Play($"Attack{Random.Range(1, 4)}");
@@ -344,7 +349,7 @@ public class TakeDamageState : IState
     public TakeDamageState(SkeletonAI skeleton)
     {
         this.skeleton = skeleton;
-        stun = Random.value > 0.5f;
+        stun = Random.value > 0.2f;
         if(stun)
             Debug.Log("SKELETON STUN");
     }
