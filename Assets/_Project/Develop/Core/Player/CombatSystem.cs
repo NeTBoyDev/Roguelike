@@ -140,6 +140,7 @@ public class CombatSystem : MonoBehaviour
 
     public void SetWeapon(Weapon weapon)
     {
+        _manager.StopPlaying(Reload);
         if(equippedWeapon!= null)
             RemoveWeapon();
         equippedWeapon = weapon;
