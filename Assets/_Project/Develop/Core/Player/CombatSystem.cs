@@ -18,7 +18,6 @@ using Random = UnityEngine.Random;
 
 public class CombatSystem : MonoBehaviour
 {
-    [SerializeField] private AnimationOverrideManager _overrideManager;
     public Creature playerModel { get; private set; }
     [SerializeField] private Animator animator;
 
