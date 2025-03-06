@@ -32,17 +32,17 @@ public class Room : MonoBehaviour
         RoomColliders = GetComponents<Collider>();
         Doors = GetComponentsInChildren<Door>(true).ToList();
     }
-    private async void Start()
-    {
+    //private async void Start()
+    //{
+    //    //EventBuilder use example
+    //    //var chain = EventBuilder.Create()
+    //    //    .AddEvent(IsStartRoom)
+    //    //    .AddDelay(2)
+    //    //    .AddEvent(() => Debug.Log("EVENT!")).Build();
 
-        var chain = EventBuilder.Create()
-            .AddEvent(IsStartRoom)
-            .AddDelay(2)
-            .AddEvent(() => Debug.Log("EVENT!")).Build();
 
-
-        await chain.Execute();
-    }
+    //    //await chain.Execute();
+    //}
 
     public float GetRoomSize() => GetComponent<SpriteRenderer>().bounds.size.x;
     public bool IsStartRoom() => Type == RoomType.StartRoom;
