@@ -22,7 +22,7 @@ public class InventoryModel
 
     public void RemoveItem(Item item)
     {
-        if (item == null || !Items.Remove(item))
+        if (item == null)
             return;
 
         if (SelectedItem == item)
