@@ -383,16 +383,13 @@ MonoBehaviour:
   - {fileID: 1898664814548399640, guid: 8f3e5c2bc57066b4caeb172b5e94f020, type: 3}
   - {fileID: 1898664814548399640, guid: ebb203b4711eb6c4faa5d3d2dd7658c9, type: 3}
   - {fileID: 1898664814548399640, guid: 3bc3b2d9042a0fd459b7cf6e45f13a72, type: 3}
-  - {fileID: 1898664814548399640, guid: 03c88f16fe69d2f4f95249ad6feda5ea, type: 3}
   - {fileID: 1898664814548399640, guid: 26088a3936645bb4eaaa53413f5bb3fd, type: 3}
-  - {fileID: 1898664814548399640, guid: 8e9976e9242a2e34ba0c6950a299fb18, type: 3}
-  - {fileID: 1898664814548399640, guid: 5deeb9bf11cab4748a9aa92473d7abc4, type: 3}
-  <GenerateAlgorithm>k__BackingField: 2
-  <MaxRoomCount>k__BackingField: 10
+  <GenerateAlgorithm>k__BackingField: 1
+  <MaxRoomCount>k__BackingField: 3
   <OverlapDoorThreshold>k__BackingField: 1
-  <MinRoomsBeforeFinalConnection>k__BackingField: 1
+  <MinRoomsBeforeFinalConnection>k__BackingField: 3
   <StartSpawnDelay>k__BackingField: 0
-  <RoomSpawnDelay>k__BackingField: 0
+  <RoomSpawnDelay>k__BackingField: 0.1
   <LastRoomSpawnDelay>k__BackingField: 0
   <PlayerSpawnDelay>k__BackingField: 0
   <PlayerPrefab>k__BackingField: {fileID: 7528292338955704060, guid: bcd8cf2dc2a4070419c1842908868655,
