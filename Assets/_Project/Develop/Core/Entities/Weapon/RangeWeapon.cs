@@ -15,7 +15,7 @@ public class RangeWeapon : Weapon
     public bool isReloaded = false;
     public RangeWeapon(string id) : base(id)
     {
-        AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
+        //AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
         //Projectile.Add(new Projectile("vfx_Projectile_Fireball02"));
 
         //Effects.Add(new ShotCount(10));
