@@ -31,6 +31,7 @@ public class ProjectileObject : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        OnHit?.Invoke();
         if (other.gameObject.CompareTag("Enemy"))
         {
             AIBase enemy = other.gameObject.GetComponent<AIBase>();
@@ -46,4 +47,6 @@ public class ProjectileObject : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    public event Action OnHit;
 }

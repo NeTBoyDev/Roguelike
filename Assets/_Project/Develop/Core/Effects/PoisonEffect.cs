@@ -12,7 +12,7 @@ namespace _Project.Develop.Core.Effects
         private float interval;
         private float damagePerTick;
 
-        public PoisonEffect(float duration, float interval, float damagePerTick) : base(EffectType.Poison,duration,interval,damagePerTick)
+        public PoisonEffect(float duration, float interval, float damagePerTick) : base(duration,interval,damagePerTick)
         {
             this.duration = duration;
             this.interval = interval;

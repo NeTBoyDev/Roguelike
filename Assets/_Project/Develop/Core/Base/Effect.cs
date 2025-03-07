@@ -9,8 +9,8 @@ namespace _Project.Develop.Core.Base
         {
             Duration = duration;
             startDuration = duration;
-        }
-        public EffectType Type { get; protected set; }
+        } 
+        //public EffectType Type { get; protected set; }
         public float Duration { get; protected set; }
         protected float startDuration;
         public bool IsFinished => Duration <= 0 && Duration != float.MaxValue;

@@ -17,7 +17,6 @@ public class RangeWeapon : Weapon
     {
 
         Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
-        
     }
    
 }
