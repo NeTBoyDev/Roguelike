@@ -49,8 +49,6 @@ public class MageSkeletonAI : AIBase
         destinationSetter.target = target;
 
         animator = GetComponent<Animator>();
-        hitEffect = GetComponentInChildren<ParticleSystem>();
-        castEffect = GetComponentInChildren<ParticleSystem>(); // Предполагается, что у вас есть такой эффект
 
         ChangeState(new MageKeepDistanceState(this));
     }
