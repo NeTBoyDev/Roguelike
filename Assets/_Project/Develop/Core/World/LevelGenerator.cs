@@ -9,6 +9,13 @@ using UnityEngine;
 using System.Collections;
 using Cysharp.Threading.Tasks.Linq;
 
+public enum GenerateAlgorithm
+{
+    FullRandom,
+    NearestDoors,
+    PriorityDoors,
+    LinearPath
+}
 
 public class LevelGenerator : MonoBehaviour
 {
@@ -18,13 +25,16 @@ public class LevelGenerator : MonoBehaviour
     [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public List<Room> RoomPrefabs { get; private set; } = null;
     [field: HorizontalLine(2, EColor.Green)]
-
+    [field: SerializeField] public GenerateAlgorithm GenerateAlgorithm { get; private set; } = GenerateAlgorithm.FullRandom;
+    [field: HorizontalLine(2, EColor.Green)]
     [field: Header("Settings")]
 
     [field: Tooltip("MaxRoomCount exclude Start and Last room")]
     [field: MinValue(1), MaxValue(100), SerializeField] public int MaxRoomCount { get; private set; } = 1;
     [field: Tooltip("Threshold at which doors are not destroyed. The lower the value, the closer the door must be. <color=yellow>Recommended value = 1</color>")]
     [field: SerializeField] public float OverlapDoorThreshold { get; private set; } = 1f;
+    [field: Tooltip("Minimum number of rooms before connecting to final room")]
+    [field: MinValue(1), SerializeField] public int MinRoomsBeforeFinalConnection { get; private set; } = 5;
 
     [field: Header("Delays")]
     [field: MinValue(0), SerializeField] public float StartSpawnDelay { get; private set; } = 1;
@@ -32,32 +42,30 @@ public class LevelGenerator : MonoBehaviour
     [field: MinValue(0), SerializeField] public float LastRoomSpawnDelay { get; private set; } = 1f;
     [field: MinValue(0), SerializeField] public float PlayerSpawnDelay { get; private set; } = 0f;
 
-
     [field: Header("Object Spawn settings")]
     [field: SerializeField] public GameObject PlayerPrefab { get; private set; } = null;
     [field: SerializeField] public GameObject VendorPrefab { get; private set; } = null;
-
 
     [field: SerializeField] public bool DebugMode { get; private set; } = false;
 
     [field: Header("Debug")]
     [field: SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] public GameObject LevelContainer { get; private set; } = null;
     [field: SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] public List<Room> SpawnedRooms { get; private set; } = new(1);
-    [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private Vector3 _offset = new(100, 0, 0);
     [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private int _currentRoomCount = 0;
-
+    [SerializeField, ReadOnly, ShowIf(nameof(DebugMode))] private bool _finalRoomConnected = false;
 
     private readonly CancellationTokenSource _spawnSource = new();
 
     private LevelGenerationPipeline _pipeline;
-    private Dictionary<Room, bool> _spawnedOnceRooms = new();
+    private readonly Dictionary<Room, bool> _spawnedOnceRooms = new();
+    private Room _finalRoom;
 
     #region Initialize
     private void Start()
     {
         Initialize();
         StartGenerate();
-        
+
         astarPath = FindObjectOfType<AstarPath>();
     }
 
@@ -69,7 +77,7 @@ public class LevelGenerator : MonoBehaviour
     #endregion
 
     #region Generate
-   
+
     public async void StartGenerate()
     {
         if (RoomPrefabs.Count <= 0)
@@ -81,10 +89,10 @@ public class LevelGenerator : MonoBehaviour
         _pipeline = LevelGenerationPipeline.Create()
             .AddDelay(StartSpawnDelay)
             .AddStep(GenerateStartRoom)
+            .AddDelay(LastRoomSpawnDelay)
+            .AddStep(GenerateFinalRoomInitial)
             .AddDelay(RoomSpawnDelay)
             .AddStep(GenerateFloorAsync)
-            .AddDelay(LastRoomSpawnDelay)
-            .AddStep(GenerateLastRoom)
             .AddDelay(2)
             .AddStep(SetupGraphDynamically)
             .AddDelay(PlayerSpawnDelay)
@@ -99,13 +107,13 @@ public class LevelGenerator : MonoBehaviour
     {
         var startRoom = GetStartRoom();
 
-
         CheckNull(PlayerPrefab, "Player prefab is null!");
         CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
         CheckNull(VendorPrefab, "Vendor prefab is null!");
 
         Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
     }
+
     private void CheckNull(object obj, string errorMessage)
     {
         if (obj == null)
@@ -114,59 +122,15 @@ public class LevelGenerator : MonoBehaviour
             throw new System.ArgumentNullException();
         }
     }
+
     public void SpawnVendor()
     {
         var startRoom = GetStartRoom();
-        if(startRoom != null)
+        if (startRoom != null)
         {
             var spawnPosition = startRoom.RoomColliders[0].bounds.center - Vector3.one;
             Instantiate(VendorPrefab, spawnPosition, Quaternion.identity);
         }
-    }
-
-    public async UniTask GenerateFloorAsync()
-    {
-        while (_currentRoomCount < MaxRoomCount)
-        {
-            bool placedAnyRoom = false;
-
-            var allBaseRooms = GetAllRandomBaseRooms().ToArray();
-
-            if (allBaseRooms.Length == 0 && _currentRoomCount < MaxRoomCount)
-            {
-                Debug.LogWarning($"No available rooms to spawn at count {_currentRoomCount}. Possible range restrictions or all unique rooms used.");
-                break;
-            }
-
-            foreach (var room in allBaseRooms)
-            {
-                if (room == null)
-                    continue;
-
-                if (_currentRoomCount >= MaxRoomCount)
-                    break;
-
-                var spawnedRoom = SpawnRoom(room);
-                if (spawnedRoom != null)
-                {
-                    placedAnyRoom = true;
-                    await Delay(RoomSpawnDelay, _spawnSource.Token);
-                }
-            }
-            if (!placedAnyRoom && _currentRoomCount < MaxRoomCount)
-            {
-                Debug.LogWarning($"No rooms placed in this iteration. Current: {_currentRoomCount}/{MaxRoomCount}. Continuing...");
-                continue;
-            }
-
-            if (!placedAnyRoom)
-            {
-                Debug.LogWarning($"Cannot generate more rooms. Generated rooms: {_currentRoomCount}/{MaxRoomCount}");
-                break;
-            }
-        }
-
-        Debug.Log($"<color=yellow>[Level Creator]:</color> Attempted to create room: <color=cyan>{_currentRoomCount}</color>. Rooms created: <color=yellow>{SpawnedRooms.Count}</color>");
     }
 
     public void GenerateStartRoom()
@@ -177,7 +141,7 @@ public class LevelGenerator : MonoBehaviour
 
         if (randomStartRoom == null)
         {
-            Debug.LogError("Failed to generate the room!");
+            Debug.LogError("Failed to generate the start room!");
             return;
         }
 
@@ -185,20 +149,189 @@ public class LevelGenerator : MonoBehaviour
         _currentRoomCount++;
     }
 
-    public void GenerateLastRoom()
+    public void GenerateFinalRoomInitial()
     {
         var randomLastRoom = LastRooms
             .OrderBy(_ => UnityEngine.Random.value)
             .FirstOrDefault();
 
-
         if (randomLastRoom == null)
         {
-            Debug.LogError("Failed to generate the level!");
+            Debug.LogError("Failed to generate the final room!");
             return;
         }
 
-        SpawnRoom(randomLastRoom);
+        Vector3 startPos = GetStartRoom().transform.position;
+        Vector3 direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f)).normalized;
+        Vector3 finalPosition = startPos + direction * 50f;
+
+        _finalRoom = Instantiate(randomLastRoom, finalPosition, GetRandomRotation(), LevelContainer.transform);
+        SpawnedRooms.Add(_finalRoom);
+
+        Debug.Log($"<color=green>[Level Generator]:</color> Final room spawned at distance {Vector3.Distance(startPos, finalPosition)} from start room.");
+    }
+
+    public async UniTask GenerateFloorAsync()
+    {
+        while (_currentRoomCount < MaxRoomCount && !_finalRoomConnected)
+        {
+            bool placedAnyRoom = false;
+
+            var allBaseRooms = GetAllRandomBaseRooms().ToArray();
+
+            if (allBaseRooms.Length == 0 && _currentRoomCount < MaxRoomCount)
+            {
+                Debug.LogWarning($"No available rooms to spawn at count {_currentRoomCount}. Possible range restrictions or all unique rooms used.");
+
+                if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
+                {
+                    Debug.Log("<color=yellow>[Level Generator]:</color> No more rooms available. Connecting to final room...");
+                    TryConnectToFinalRoom(forceConnect: true);
+                }
+                break;
+            }
+
+            foreach (var room in allBaseRooms)
+            {
+                if (_currentRoomCount >= MaxRoomCount || _finalRoomConnected)
+                    break;
+
+                if (room == null)
+                    continue;
+
+                var spawnedRoom = SpawnRoom(room);
+                if (spawnedRoom != null)
+                {
+                    placedAnyRoom = true;
+                    _currentRoomCount++;
+                    await Delay(RoomSpawnDelay, _spawnSource.Token);
+                }
+            }
+
+            if (!placedAnyRoom && !_finalRoomConnected)
+            {
+                Debug.LogWarning($"Cannot generate more rooms. Generated rooms: {_currentRoomCount}/{MaxRoomCount}");
+
+                if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
+                {
+                    Debug.Log("<color=yellow>[Level Generator]:</color> Connecting to final room as no more regular rooms can be placed.");
+                    TryConnectToFinalRoom(forceConnect: true);
+                }
+                break;
+            }
+        }
+
+        if (!_finalRoomConnected && _currentRoomCount >= MinRoomsBeforeFinalConnection)
+        {
+            Debug.Log("<color=yellow>[Level Generator]:</color> Generation complete. Now connecting final room...");
+
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                if (TryConnectToFinalRoom(forceConnect: true))
+                {
+                    _finalRoomConnected = true;
+                    Debug.Log($"<color=green>[Level Generator]:</color> Successfully connected final room on attempt {attempt + 1}!");
+                    break;
+                }
+
+                // Small delay between attempts
+                await Delay(0.2f, _spawnSource.Token);
+            }
+        }
+
+        string connectionStatus = _finalRoomConnected ? "<color=green>Connected</color>" : "<color=red>Not Connected</color>";
+        Debug.Log($"<color=yellow>[Level Generator]:</color> Created {_currentRoomCount} rooms. Total rooms: {SpawnedRooms.Count}. Final room status: {connectionStatus}");
+    }
+
+    private bool TryConnectToFinalRoom(bool forceConnect = false)
+    {
+        var recentRooms = forceConnect
+            ? SpawnedRooms
+                .Where(r => r != _finalRoom)
+                .OrderByDescending(r => SpawnedRooms.IndexOf(r))
+                .Take(3)
+            : SpawnedRooms.OrderByDescending(r => SpawnedRooms.IndexOf(r)).Take(3).ToList();
+
+        //Attempt 1: standard door connection
+        foreach (var room in recentRooms)
+        {
+            var availableDoors = room.Doors.Where(d => d != null && !d.Connected).ToList();
+            if (availableDoors.Count == 0) continue;
+
+            var finalRoomDoors = _finalRoom.Doors.Where(d => d != null && !d.Connected).ToList();
+            if (finalRoomDoors.Count == 0)
+            {
+                Debug.LogWarning("Final room has no available doors for connection.");
+                return false;
+            }
+
+            foreach (var sourceDoor in availableDoors)
+            {
+                foreach (var targetDoor in finalRoomDoors)
+                {
+                    Vector3 originalFinalRoomPos = _finalRoom.transform.position;
+                    Vector3 offset = sourceDoor.ConnectPoint.position - targetDoor.ConnectPoint.position;
+
+                    _finalRoom.transform.position += offset;
+
+                    if (!IsCollided(_finalRoom))
+                    {
+                        ConnectDoors(sourceDoor, targetDoor, false);
+                        Debug.Log($"<color=green>[Level Generator]:</color> Connected room {room.name} to final room via doors.");
+                        return true;
+                    }
+
+                    _finalRoom.transform.position = originalFinalRoomPos;
+                }
+            }
+        }
+
+        //Attempt 2: emergency connection
+        if (forceConnect && !_finalRoomConnected)
+        {
+            Debug.Log("[Level Generator]: Using emergency connection method for final room...");
+            var anyRoomWithDoors = SpawnedRooms
+                .Where(r => r != _finalRoom && r.Doors.Any(d => !d.Connected))
+                .OrderBy(r => Vector3.Distance(r.transform.position, SpawnedRooms[0].transform.position))
+                .FirstOrDefault();
+
+            if (anyRoomWithDoors != null)
+            {
+                var door = anyRoomWithDoors.Doors.FirstOrDefault(d => !d.Connected);
+                if (door != null)
+                {
+                    float distanceMultiplier = 2.0f;
+                    Vector3 centerPosition = SpawnedRooms[0].transform.position;
+                    Vector3 directionFromCenter = (door.ConnectPoint.position - centerPosition).normalized;
+
+                    Vector3 forwardPoint = door.ConnectPoint.position + door.ConnectPoint.forward * 15f;
+                    forwardPoint += 10f * distanceMultiplier * directionFromCenter;
+
+                    _finalRoom.transform.position = forwardPoint;
+                    _finalRoom.transform.rotation = Quaternion.LookRotation(-door.ConnectPoint.forward);
+
+                    var closestFinalDoor = _finalRoom.Doors
+                        .Where(d => !d.Connected)
+                        .OrderBy(d => Vector3.Distance(d.ConnectPoint.position, door.ConnectPoint.position))
+                        .FirstOrDefault();
+
+                    if (closestFinalDoor != null)
+                    {
+                        Vector3 offset = door.ConnectPoint.position - closestFinalDoor.ConnectPoint.position;
+                        _finalRoom.transform.position += offset;
+
+                        // Try to connect even with small intersections
+                        if (!IsCollided(_finalRoom) || forceConnect)
+                        {
+                            ConnectDoors(door, closestFinalDoor, false);
+                            Debug.Log("[Level Generator]: Emergency connection to final room successful!");
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public Room SpawnRoom(Room room, bool addRoomCount = true)
@@ -206,23 +339,16 @@ public class LevelGenerator : MonoBehaviour
         if (room == null || room.SpawnChance < UnityEngine.Random.value)
             return null;
 
-        if (room.SpawnOnlyOnce && _spawnedOnceRooms.ContainsKey(room) && _spawnedOnceRooms[room])
-        {
-            Debug.Log($"<color=darkred>The room has already been spawned.</color>");
-            return null;
-        }
-
         if (!CanRoomSpawnBasedOnRange(room))
         {
-            Debug.Log($"<color=red>The room {room} is out of range!</color>");
+            Debug.Log($"The room <color=red>{room}</color> is out of range!");
             return null;
         }
-
 
         var rotation = GetRandomRotation();
         var spawnedRoom = Instantiate(room, new Vector3(100, 0, 0), rotation, LevelContainer.transform);
 
-        if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom, addRoomCount))
+        if (SpawnedRooms.Count > 0 && !TryConnectRoomWithRotation(spawnedRoom, false))
         {
             Destroy(spawnedRoom.gameObject);
             return null;
@@ -255,7 +381,9 @@ public class LevelGenerator : MonoBehaviour
         RemoveRoom(currentRoom);
         return false;
     }
+
     public async UniTask Delay(float delay, CancellationToken token) => await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
+
     private Quaternion GetRandomRotation()
     {
         int randomRotation = new int[] { 0, 90, 180, 270 }[UnityEngine.Random.Range(0, 4)];
@@ -263,6 +391,7 @@ public class LevelGenerator : MonoBehaviour
 
         return rotation;
     }
+
     private void RemoveRoom(Room currentRoom)
     {
         SpawnedRooms.Remove(currentRoom);
@@ -270,6 +399,7 @@ public class LevelGenerator : MonoBehaviour
 
         _currentRoomCount = Mathf.Clamp(_currentRoomCount--, 0, 100);
     }
+
     private GameObject CreateLevelContainer()
     {
         LevelContainer = new GameObject("LevelContainer");
@@ -277,6 +407,7 @@ public class LevelGenerator : MonoBehaviour
 
         return LevelContainer;
     }
+
     public GameObject GetLevelContainer()
     {
         if (LevelContainer == null)
@@ -292,6 +423,7 @@ public class LevelGenerator : MonoBehaviour
             .Where(r => !r.SpawnOnlyOnce || !_spawnedOnceRooms.ContainsKey(r) || !_spawnedOnceRooms[r])
             .OrderBy(_ => UnityEngine.Random.value);
     }
+
     private bool CanRoomSpawnBasedOnRange(Room room)
     {
         int currentRoomIndex = _currentRoomCount;
@@ -300,8 +432,9 @@ public class LevelGenerator : MonoBehaviour
 
         return currentRoomIndex >= minSpawn && currentRoomIndex <= maxSpawn;
     }
-    public Room GetStartRoom() => SpawnedRooms[0];
-    public Room GetLastRoom() => SpawnedRooms[^1];
+
+    public Room GetStartRoom() => SpawnedRooms.Count > 0 ? SpawnedRooms[0] : null;
+    public Room GetLastRoom() => _finalRoomConnected ? _finalRoom : null;
 
     public bool IsCollided(Room room)
     {
@@ -333,76 +466,150 @@ public class LevelGenerator : MonoBehaviour
         return false;
     }
 
+    #region Algorithm
     private bool TryConnectRoom(Room currentRoom, bool addRoomCount = true)
     {
         if (currentRoom == null)
-            return false;
-
-        var currentRandomDoor = currentRoom.Doors
-            .Where(d => !d.Connected)
-            .OrderBy(_ => UnityEngine.Random.value)
-            .FirstOrDefault();
-
-        if (currentRandomDoor == null)
         {
+            if (DebugMode) Debug.LogError("currentRoom is null");
+            return false;
+        }
+
+        if (!TryGetRandomDoor(currentRoom, out var currentRandomDoor))
+        {
+            if (DebugMode) Debug.LogWarning($"No free doors in room {currentRoom.name}");
             RemoveRoom(currentRoom);
             return false;
         }
 
-        var availableDoors = SpawnedRooms
-            .Where(r => r != currentRoom)
-            .SelectMany(r => r.Doors)
-            .Where(d => !d.Connected)
-            //.OrderBy(d => UnityEngine.Random.value)
-            .OrderBy(d => Vector3.Distance(d.ConnectPoint.position, currentRandomDoor.ConnectPoint.position) <= 20)
-            .ToList();
+        var algorithmDoors = GetDoorsByAlgorithm(currentRandomDoor, currentRoom);
 
-        if (availableDoors.Count == 0)
+        if (algorithmDoors == null || algorithmDoors.Count == 0)
         {
+            if (DebugMode) Debug.LogWarning($"No available doors for connecting room {currentRoom.name}.");
             RemoveRoom(currentRoom);
             return false;
         }
 
-        foreach (var doorToConnect in availableDoors)
+        foreach (var doorToConnect in algorithmDoors)
         {
+            if (doorToConnect == null || doorToConnect.ConnectPoint == null)
+            {
+                if (DebugMode) Debug.LogError("doorToConnect or its ConnectPoint is null");
+                continue;
+            }
+
             Vector3 offset = doorToConnect.ConnectPoint.position - currentRandomDoor.ConnectPoint.position;
             currentRoom.transform.position += offset;
 
             if (!IsCollided(currentRoom))
             {
-                currentRandomDoor.ConnectDoor(doorToConnect);
-
-                float distanceBetweenDoors = Vector3.Distance(currentRandomDoor.ConnectPoint.position, doorToConnect.ConnectPoint.position);
-
-                if (DebugMode)
-                {
-                    Debug.Log($"Расстояние между дверями: {distanceBetweenDoors} (порог: {OverlapDoorThreshold})");
-                }
-
-                if (distanceBetweenDoors <= OverlapDoorThreshold)
-                {
-                    doorToConnect.gameObject.SetActive(false);
-                    if (DebugMode)
-                    {
-                        Debug.Log($"Дверь {currentRandomDoor.name} отключена (расстояние: {distanceBetweenDoors})", currentRandomDoor);
-                    }
-                }
-
-                if (addRoomCount)
-                    _currentRoomCount++;
+                ConnectDoors(currentRandomDoor, doorToConnect, addRoomCount);
                 return true;
             }
-            else
-            {
-                currentRandomDoor.DisconnectDoor();
-                currentRoom.transform.position -= offset;
-            }
+
+            currentRandomDoor.DisconnectDoor();
+            currentRoom.transform.position -= offset;
         }
 
+        if (DebugMode) Debug.LogWarning($"Failed to connect room {currentRoom.name} - removing");
         RemoveRoom(currentRoom);
         return false;
     }
 
+    private bool TryGetRandomDoor(Room room, out Door door)
+    {
+        door = room.Doors.Where(d => d != null && !d.Connected)
+                        .OrderBy(_ => UnityEngine.Random.value)
+                        .FirstOrDefault();
+        return door != null;
+    }
+
+    private List<Door> GetDoorsByAlgorithm(Door currentDoor, Room currentRoom)
+    {
+        if (SpawnedRooms == null || SpawnedRooms.Count == 0)
+        {
+            if (DebugMode) Debug.LogError("SpawnedRooms is empty or null");
+            return new List<Door>();
+        }
+
+        var availableDoors = SpawnedRooms
+            .Where(r => r != null && r != currentRoom && r != _finalRoom)
+            .SelectMany(r => r.Doors)
+            .Where(d => d != null && !d.Connected);
+
+        if (!availableDoors.Any() && DebugMode)
+        {
+            Debug.LogWarning("No available doors in SpawnedRooms");
+        }
+
+        switch (GenerateAlgorithm)
+        {
+            case GenerateAlgorithm.FullRandom:
+                return availableDoors.OrderBy(_ => UnityEngine.Random.value).ToList();
+
+            case GenerateAlgorithm.NearestDoors:
+                return availableDoors.OrderBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position)).ToList();
+
+            case GenerateAlgorithm.PriorityDoors:
+                return availableDoors.OrderByDescending(d => d.Priority)
+                                    .ThenBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position))
+                                    .ToList();
+
+            case GenerateAlgorithm.LinearPath:
+
+                var lastNormalRoom = SpawnedRooms
+                    .Where(r => r != _finalRoom)
+                    .OrderByDescending(r => SpawnedRooms.IndexOf(r))
+                    .FirstOrDefault();
+
+                if (lastNormalRoom == null || lastNormalRoom == currentRoom)
+                {
+                    return availableDoors.OrderBy(_ => UnityEngine.Random.value).ToList();
+                }
+                var lastRoomDoors = lastNormalRoom.Doors.Where(d => d != null && !d.Connected).ToList();
+                if (lastRoomDoors.Count == 0)
+                {
+                    return availableDoors.OrderBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position)).ToList();
+                }
+
+                return lastRoomDoors;
+          
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(GenerateAlgorithm), "Unknown generation algorithm");
+        }
+    }
+
+    private void ConnectDoors(Door currentDoor, Door doorToConnect, bool addRoomCount)
+    {
+        currentDoor.ConnectDoor(doorToConnect);
+        float distance = Vector3.Distance(currentDoor.ConnectPoint.position, doorToConnect.ConnectPoint.position);
+
+        if (DebugMode)
+            Debug.Log($"Distance between doors: {distance} (threshold: {OverlapDoorThreshold})");
+
+        if (distance <= OverlapDoorThreshold)
+        {
+            doorToConnect.gameObject.SetActive(false);
+            if (DebugMode)
+                Debug.Log($"Door {doorToConnect.name} disabled (distance: {distance})", doorToConnect);
+        }
+
+        Room doorRoom = doorToConnect.GetComponentInParent<Room>();
+        if (doorRoom == _finalRoom)
+        {
+            _finalRoomConnected = true;
+        }
+
+        if (addRoomCount)
+            _currentRoomCount++;
+    }
+    #endregion
+
+    #endregion
+
+    #region Astar
     private AstarPath astarPath;
 
     private void SetupGraphDynamically()
@@ -436,18 +643,8 @@ public class LevelGenerator : MonoBehaviour
 
         astarPath.Scan();
 
-        //For async method
-
-        //var enumerator = astarPath.ScanAsync().GetEnumerator();
-        //while (enumerator.MoveNext())
-        //{
-        //    await UniTask.Yield(PlayerLoopTiming.Update); // Уступаем управление Unity
-        //}
-
         Debug.Log("Graph scanning completed!");
     }
-
-
     #endregion
 
     private void OnDestroy()

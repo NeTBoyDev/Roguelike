@@ -7,6 +7,10 @@ public class Door : MonoBehaviour
     [field: SerializeField] public Transform[] LinkedObjects { get; private set; } = null;
     [field: SerializeField] public GameObject DoorObject { get; private set; } = null;
     [field: SerializeField] public Transform ConnectPoint { get; private set; } = null;
+
+    [field: Tooltip("Priority of door usage (works for the PriorityDoors algorithm)")]
+    [field: SerializeField, MinValue(0), MaxValue(100)] public float Priority { get; private set; } = 1;
+    [field: Space(10)]
     [field: SerializeField, ReadOnly] public bool Connected { get; private set; } = false;
 
     public void ChangeDoorState(bool opened)

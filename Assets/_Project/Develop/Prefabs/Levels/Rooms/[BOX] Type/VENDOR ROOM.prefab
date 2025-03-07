@@ -553,7 +553,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <Type>k__BackingField: 1
-  <SpawnChance>k__BackingField: 1
+  <SpawnChance>k__BackingField: 0.1
   <Spawnpoint>k__BackingField: {fileID: 0}
   <SpawnOnlyOnce>k__BackingField: 1
   <SpawnRange>k__BackingField: {x: 7, y: 100}

@@ -53,6 +53,7 @@ MonoBehaviour:
   - {fileID: 7190911808277036088}
   <DoorObject>k__BackingField: {fileID: 3647379676059048463}
   <ConnectPoint>k__BackingField: {fileID: 3835440231187705976}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &849180980743366258
 GameObject:
@@ -107,6 +108,7 @@ MonoBehaviour:
   - {fileID: 6067320262526482623}
   <DoorObject>k__BackingField: {fileID: 9132603791336538510}
   <ConnectPoint>k__BackingField: {fileID: 9192301696487162392}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &1994457756067366548
 GameObject:
@@ -347,6 +349,7 @@ MonoBehaviour:
   - {fileID: 615566734959014573}
   <DoorObject>k__BackingField: {fileID: 3296126902945568911}
   <ConnectPoint>k__BackingField: {fileID: 7903498028806551797}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &6402554057316204059
 GameObject:
@@ -401,6 +404,7 @@ MonoBehaviour:
   - {fileID: 5491387166657944628}
   <DoorObject>k__BackingField: {fileID: 2092346968291156568}
   <ConnectPoint>k__BackingField: {fileID: 7296581339345736790}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &6988440321868697684
 GameObject:
@@ -600,6 +604,8 @@ MonoBehaviour:
   <Type>k__BackingField: 3
   <SpawnChance>k__BackingField: 1
   <Spawnpoint>k__BackingField: {fileID: 0}
+  <SpawnOnlyOnce>k__BackingField: 1
+  <SpawnRange>k__BackingField: {x: 0, y: 100}
   <RoomColliders>k__BackingField: []
   <Doors>k__BackingField: []
 --- !u!54 &3560252698500186187
@@ -717,6 +723,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
@@ -948,6 +959,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
@@ -1398,6 +1414,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
@@ -2188,6 +2209,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -2300,6 +2326,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates (4)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
@@ -2744,6 +2775,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -3084,6 +3120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -3311,6 +3352,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}
@@ -4990,6 +5036,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_tile_extralarge_grates
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a7a18851eeca86d4fa7de07556f33ef6,
         type: 3}

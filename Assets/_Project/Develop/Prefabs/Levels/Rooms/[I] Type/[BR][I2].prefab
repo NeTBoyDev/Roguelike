@@ -51,6 +51,7 @@ MonoBehaviour:
   - {fileID: 6762457584620392885}
   <DoorObject>k__BackingField: {fileID: 1031419314632314439}
   <ConnectPoint>k__BackingField: {fileID: 3835440231187705976}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &849180980743366258
 GameObject:
@@ -103,6 +104,7 @@ MonoBehaviour:
   - {fileID: 2829602242791069506}
   <DoorObject>k__BackingField: {fileID: 5092394141189955565}
   <ConnectPoint>k__BackingField: {fileID: 9192301696487162392}
+  <Priority>k__BackingField: 1
   <Connected>k__BackingField: 0
 --- !u!1 &1172910338342280770
 GameObject:
@@ -210,7 +212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5784380377946416740}
   m_Layer: 0
-  m_Name: Floor
+  m_Name: Ceiling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -229,20 +231,12 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5525005603845524505}
-  - {fileID: 1811211232051651860}
-  - {fileID: 7646181221364098921}
   - {fileID: 4881909991881119991}
   - {fileID: 7650095076147860803}
   - {fileID: 591549633670315529}
   - {fileID: 5573898314147396690}
-  - {fileID: 8009904813766097690}
   - {fileID: 7252841128273030125}
-  - {fileID: 2284563508862163977}
-  - {fileID: 4908180567456319566}
-  - {fileID: 1409116464269116870}
   - {fileID: 7106316265389616237}
-  - {fileID: 1359491808706628156}
   m_Father: {fileID: 9039525076642355190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4440981518706927943
@@ -254,7 +248,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 864502277520695724}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -314,6 +308,45 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6364509176650978666}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6242755744382526633
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 190051739995036437}
+  m_Layer: 3
+  m_Name: Floor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &190051739995036437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6242755744382526633}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5525005603845524505}
+  - {fileID: 1811211232051651860}
+  - {fileID: 7646181221364098921}
+  - {fileID: 8009904813766097690}
+  - {fileID: 2284563508862163977}
+  - {fileID: 4908180567456319566}
+  - {fileID: 1409116464269116870}
+  - {fileID: 1359491808706628156}
+  m_Father: {fileID: 9039525076642355190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6787980224518448024
 GameObject:
@@ -379,6 +412,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 190051739995036437}
   - {fileID: 5784380377946416740}
   - {fileID: 864502277520695724}
   - {fileID: 3509745417974196191}
@@ -652,6 +686,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -894,6 +933,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -950,7 +994,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1020,6 +1064,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -1071,7 +1120,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1138,6 +1187,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_dirt_large_rocky (21)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1256,6 +1310,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -1312,7 +1371,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1382,6 +1441,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -1433,7 +1497,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1500,6 +1564,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_dirt_large_rocky (08)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1620,6 +1689,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: wall_corner (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
         type: 3}
@@ -1744,6 +1818,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
@@ -1800,7 +1879,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -1867,6 +1946,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_dirt_large_rocky (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -2108,6 +2192,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: wall_corner (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
         type: 3}
@@ -2540,7 +2629,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -2607,6 +2696,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_dirt_large_rocky (7)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -2722,6 +2816,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: wall (30)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
@@ -3023,7 +3122,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -3093,6 +3192,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -3144,7 +3248,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 5784380377946416740}
+    m_TransformParent: {fileID: 190051739995036437}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -3211,6 +3315,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: floor_dirt_large_rocky (22)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: dab1bfa80b988bb468d2d40d78658132,
         type: 3}
@@ -3452,6 +3561,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: wall_corner (10)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
+        type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2ec2b54764f79b042a2f25e6dcd49d6b,
         type: 3}
