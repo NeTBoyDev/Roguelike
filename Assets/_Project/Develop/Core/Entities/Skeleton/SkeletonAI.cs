@@ -1,4 +1,5 @@
 using _Project.Develop.Core.Enum;
+using _Project.Develop.Core.Player;
 using UnityEngine;
 using Pathfinding; 
 
@@ -30,7 +31,9 @@ public class SkeletonAI : MonoBehaviour
     private IState currentState;
     public Animator animator;
     public ParticleSystem hitEffect;
+    public AudioClip hitClip;
 
+    private SoundManager soundManager = new();
     void Start()
     {
         destinationSetter = GetComponent<AIDestinationSetter>();
@@ -78,6 +81,8 @@ public class SkeletonAI : MonoBehaviour
                 attackState.Interrupt(); // Прерываем текущее состояние атаки
             }
             ChangeState(new TakeDamageState(this));
+            hitEffect.Play();
+            soundManager.ProduceSound(transform.position,hitClip);
         }
     }
     
