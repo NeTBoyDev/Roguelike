@@ -26531,7 +26531,7 @@ MonoBehaviour:
   SwingSounds:
   - {fileID: 8300000, guid: 43aef8efd4a21504d9ad5b5f42450984, type: 3}
   - {fileID: 8300000, guid: 05b8be0903afef74f9629d3200ceee8f, type: 3}
-  SpellCast: {fileID: 8300000, guid: 7a80a7eca59a4a644b29e286fa2a5e04, type: 3}
+  SpellCast: {fileID: 8300000, guid: 96e916e3a33ac874ab5b7f4f689854a9, type: 3}
   SpellPrepare: {fileID: 8300000, guid: 327d8483f4681d24d9dc0ee8ac26c3da, type: 3}
   BlockHit: {fileID: 8300000, guid: a07f1f1614d43d8439eb84b21a615997, type: 3}
   Reload: {fileID: 8300000, guid: e9edef08d04b80d46b57d6c5dc809134, type: 3}

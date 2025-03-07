@@ -47850,6 +47850,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4085831249987131921, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: SpellCast
+      value: 
+      objectReference: {fileID: 8300000, guid: 96e916e3a33ac874ab5b7f4f689854a9, type: 3}
     - target: {fileID: 5332164616447399959, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_AnchorMax.y
