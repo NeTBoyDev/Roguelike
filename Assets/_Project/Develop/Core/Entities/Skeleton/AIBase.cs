@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using _Project.Develop.Core;
 using _Project.Develop.Core.Enum;
+using DG.Tweening;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class AIBase : MonoBehaviour
 {
@@ -18,4 +22,19 @@ public class AIBase : MonoBehaviour
         print($"Skeleton hp is {skeletonModel.Stats[StatType.Health].CurrentValue}");
     }
     public Creature skeletonModel { get; protected set; }
+
+    public void DropLoot()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            var container = ItemGenerator.Instance.GenerateRandomGameobject().GetComponent<Rigidbody>();
+            container.transform.position = transform.position;
+            var scale = container.transform.localScale;
+            container.transform.localScale = scale * .2f;
+            container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
+            container.transform.DOJump(container.transform.position + new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 2, 1, 1);
+            //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
+            container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
+        }
+    }
 }

@@ -99,6 +99,29 @@ namespace _Project.Develop.Core
             weapon.SetEntity(weaponModel);
             return weapon;
         }
+
+        public EntityContainer GenerateRandomGameobject()
+        {
+            var array = System.Enum.GetValues(typeof(WeaponType))
+                .Cast<WeaponType>()
+                .ToArray();
+            var rarity = System.Enum.GetValues(typeof(Rarity))
+                .Cast<Rarity>().OrderBy(v=>Random.value)
+                .ToArray()[0];
+            
+            var item = array[Random.Range(0, array.Length)];
+            return GenerateWeaponGameobject(item, rarity);
+        }
+        
+        public EntityContainer GenerateRandomGameobject(Rarity r)
+        {
+            var array = System.Enum.GetValues(typeof(WeaponType))
+                .Cast<WeaponType>()
+                .ToArray();
+            
+            var item = array[Random.Range(0, array.Length)];
+            return GenerateWeaponGameobject(item, r);
+        }
         
 
         public EntityContainer GenerateContainer(WeaponType weaponType,bool isReloadable)

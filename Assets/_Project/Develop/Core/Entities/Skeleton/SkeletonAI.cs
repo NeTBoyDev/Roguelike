@@ -396,6 +396,7 @@ public class DeadState : IState
         skeleton.animator.SetBool($"isDead",true);
         skeleton.AIPath.canMove = false;
         Debug.Log("Skeleton is dead!");
+        skeleton.DropLoot();
     }
 
     public void Execute() { }
