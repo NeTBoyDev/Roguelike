@@ -46183,55 +46183,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4041973267446680490, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.41418457
-      objectReference: {fileID: 0}
-    - target: {fileID: 4041973267446680490, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -0.17327881
-      objectReference: {fileID: 0}
-    - target: {fileID: 7278691799777124180, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.30944824
-      objectReference: {fileID: 0}
     - target: {fileID: 7528292338955704060, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_Name
       value: PlayerMage
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -200
-      objectReference: {fileID: 0}
-    - target: {fileID: 7903003692681063665, guid: bcd8cf2dc2a4070419c1842908868655,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -200
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

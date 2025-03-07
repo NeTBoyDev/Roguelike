@@ -464,8 +464,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 0.11312217
-    height: 0.11312217
+    width: 0.2
+    height: 0.2
 --- !u!1 &4395474381994009302
 GameObject:
   m_ObjectHideFlags: 0
@@ -677,8 +677,8 @@ MonoBehaviour:
   revealRadius: 15
   worldWidth: 640
   worldHeight: 640
-  viewScale: 2.21
-  drawSizeMultiplier: 0.5
+  viewScale: 1.25
+  drawSizeMultiplier: 0.85
   layerColors:
   - layerMask:
       serializedVersion: 2

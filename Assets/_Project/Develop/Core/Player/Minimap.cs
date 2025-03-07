@@ -33,7 +33,7 @@ public class Minimap : MonoBehaviour
     private Rect uvRect;                                  // UV-прямоугольник для RawImage
     private float baseVisibleSize = 0.25f;                // Базовый размер видимой области
     private float updateTimer;                            // Таймер для обновления
-    private const float updateInterval = 0.5f;            // 2 раза в секунду
+    private const float updateInterval = 1f;            // 2 раза в секунду
     private CancellationTokenSource cts;                  // Для отмены задач
 
     void Start()
