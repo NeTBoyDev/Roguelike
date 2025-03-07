@@ -33,7 +33,7 @@ public class ProjectileObject : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            SkeletonAI enemy = other.gameObject.GetComponent<SkeletonAI>();
+            AIBase enemy = other.gameObject.GetComponent<AIBase>();
             if (enemy != null)
             {
                 enemy.TakeDamage(damage); // Наносим урон

@@ -13,12 +13,11 @@ public enum SkeletonState
     Dead            // Смерть
 }
 
-public class SkeletonAI : MonoBehaviour
+public class SkeletonAI : AIBase
 {
     public AIDestinationSetter destinationSetter;
     private AIPath aiPath;
 
-    public Creature skeletonModel { get; private set; }
 
     private Transform target;
 
@@ -34,12 +33,11 @@ public class SkeletonAI : MonoBehaviour
     public AudioClip hitClip;
 
     private SoundManager soundManager = new();
-    void Start()
+    protected void Start()
     {
+        skeletonModel = new Creature("skeleton1");
         destinationSetter = GetComponent<AIDestinationSetter>();
         aiPath = GetComponent<AIPath>();
-        
-        skeletonModel = new Creature("skeleton1");
         
         target = GameObject.FindGameObjectWithTag("Player").transform;
         destinationSetter.target = target;
@@ -71,11 +69,11 @@ public class SkeletonAI : MonoBehaviour
         currentState.Enter();
     }
 
-    public void TakeDamage(float damage)
+    public override void TakeDamage(float damage)
     {
         if (!(currentState is DeadState))
         {
-            skeletonModel.Stats[StatType.Health].Modify(-damage);
+            
             if (currentState is AttackState attackState)
             {
                 attackState.Interrupt(); // Прерываем текущее состояние атаки
@@ -83,6 +81,7 @@ public class SkeletonAI : MonoBehaviour
             ChangeState(new TakeDamageState(this));
             hitEffect.Play();
             soundManager.ProduceSound(transform.position,hitClip);
+            base.TakeDamage(damage);
         }
     }
     

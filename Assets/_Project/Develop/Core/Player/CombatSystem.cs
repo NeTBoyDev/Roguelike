@@ -407,7 +407,7 @@ public class CombatSystem : MonoBehaviour
         {
             if (hit.CompareTag("Enemy"))
             {
-                SkeletonAI enemy = hit.GetComponent<SkeletonAI>();
+                AIBase enemy = hit.GetComponent<AIBase>();
                 if (enemy != null)
                 {
                     float damage = (playerModel[StatType.Strength].CurrentValue / 10 + 1) * equippedWeapon[StatType.Damage].CurrentValue;
