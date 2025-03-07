@@ -100,12 +100,12 @@ public class CombatSystem : MonoBehaviour
         }
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
+        /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Axe, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Crossbow, Rarity.Rare, false);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Staff, Rarity.Rare, false);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Staff, Rarity.Rare, false);*/
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
         

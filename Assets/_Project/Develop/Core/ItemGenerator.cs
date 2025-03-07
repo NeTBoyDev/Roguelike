@@ -129,10 +129,10 @@ namespace _Project.Develop.Core
             GameObject weapon = null;
             var value = Random.value;
             
-            if (weaponType == WeaponType.MeeleWeapon)
+            /*if (weaponType == WeaponType.MeeleWeapon)
                 weaponType = GetRandomFlagFromGroup(WeaponType.MeeleWeapon);
             if (weaponType == WeaponType.RangeWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);
+                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);*/
             
             weapon = weaponType switch
             {
@@ -181,15 +181,14 @@ namespace _Project.Develop.Core
         {
             //Добавить смену типа рандомную если тип ближнее или дальнее оружие
 
+            /*
             if (weaponType == WeaponType.MeeleWeapon)
                 weaponType = GetRandomFlagFromGroup(WeaponType.MeeleWeapon);
             if (weaponType == WeaponType.RangeWeapon)
-                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);
+                weaponType = GetRandomFlagFromGroup(WeaponType.RangeWeapon);*/
             
             BaseEntity weaponModel = weaponType switch
             {
-                WeaponType.MeeleWeapon => new MeeleWeapon(name),
-                WeaponType.RangeWeapon => new RangeWeapon(name),
                 WeaponType.UseableItems => new UseableItem(name),
                 WeaponType.Shield => new Shield(name),
                 WeaponType.SpellBook =>new Spellbook(name),
@@ -204,7 +203,7 @@ namespace _Project.Develop.Core
 
             weaponModel.Rarity = rarity;
 
-            Effect[] effectsArray = weaponType == WeaponType.MeeleWeapon ? MeleeEffects : RangeEffects;
+            Effect[] effectsArray = weaponModel is MeeleWeapon ? MeleeEffects : RangeEffects;
             int effectCount = (int)rarity;
             for (int i = 0; i < effectCount; i++)
             {
@@ -250,7 +249,7 @@ namespace _Project.Develop.Core
             // Получаем все возможные флаги из enum
             var allFlags = System.Enum.GetValues(typeof(WeaponType))
                 .Cast<WeaponType>()
-                .Where(f =>(group & f) == f) // Фильтруем по группе
+                //.Where(f =>(group & f) == f) // Фильтруем по группе
                 .ToArray();
 
             // Выбираем случайный флаг
@@ -260,7 +259,6 @@ namespace _Project.Develop.Core
     [Flags]
     public enum WeaponType
     {
-        
         UseableItems = 1,
         Shield = 2,
         SpellBook = 4,
@@ -270,8 +268,8 @@ namespace _Project.Develop.Core
         Hammer = 64,
         Staff = 128,
         Crossbow = 256,
-        RangeWeapon = Crossbow | Staff ,
-        MeeleWeapon = Sword | Dagger | Axe | Hammer,
+        /*RangeWeapon = Crossbow | Staff ,
+        MeeleWeapon = Sword | Dagger | Axe | Hammer,*/
         
     }
 }
