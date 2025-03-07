@@ -8,7 +8,6 @@ using Pathfinding;
 using UnityEngine;
 using System.Collections;
 using Cysharp.Threading.Tasks.Linq;
-using UnityEditor;
 
 public enum GenerateAlgorithm
 {
@@ -62,21 +61,24 @@ public class LevelGenerator : MonoBehaviour
     private Room _finalRoom;
 
     #region Initialize
-    private void Awake() => astarPath = FindObjectOfType<AstarPath>();
-    private void Start() => Initialize();
+    private void Start()
+    {
+        Initialize();
+        StartGenerate();
 
-    public void Initialize()
+        astarPath = FindObjectOfType<AstarPath>();
+    }
+
+    private void Initialize()
     {
         LevelContainer = GetLevelContainer();
         RoomPrefabs.RemoveAll(room => room == null);
-
-        StartGenerate();
     }
     #endregion
 
     #region Generate
 
-    private async void StartGenerate()
+    public async void StartGenerate()
     {
         if (RoomPrefabs.Count <= 0)
         {
@@ -99,7 +101,6 @@ public class LevelGenerator : MonoBehaviour
             .AddStep(SpawnVendor);
 
         await _pipeline.Execute();
-
     }
 
     public void SpawnPlayer()
@@ -162,7 +163,7 @@ public class LevelGenerator : MonoBehaviour
 
         Vector3 startPos = GetStartRoom().transform.position;
         Vector3 direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f)).normalized;
-        Vector3 finalPosition = startPos + direction * 500f;
+        Vector3 finalPosition = startPos + direction * 50f;
 
         _finalRoom = Instantiate(randomLastRoom, finalPosition, GetRandomRotation(), LevelContainer.transform);
         SpawnedRooms.Add(_finalRoom);
@@ -224,7 +225,7 @@ public class LevelGenerator : MonoBehaviour
         {
             Debug.Log("<color=yellow>[Level Generator]:</color> Generation complete. Now connecting final room...");
 
-            for (int attempt = 0; attempt < 12; attempt++)
+            for (int attempt = 0; attempt < 3; attempt++)
             {
                 if (TryConnectToFinalRoom(forceConnect: true))
                 {
@@ -233,6 +234,7 @@ public class LevelGenerator : MonoBehaviour
                     break;
                 }
 
+                // Small delay between attempts
                 await Delay(0.2f, _spawnSource.Token);
             }
         }
@@ -517,20 +519,9 @@ public class LevelGenerator : MonoBehaviour
 
     private bool TryGetRandomDoor(Room room, out Door door)
     {
-        if (GenerateAlgorithm == GenerateAlgorithm.PriorityDoors)
-        {
-            door = room.Doors.Where(d => d != null && !d.Connected)
-                            .OrderByDescending(d => d.Priority)
-                            .ThenBy(_ => UnityEngine.Random.value)
-                            .FirstOrDefault();
-        }
-        else
-        {
-            // Для других алгоритмов оставляем оригинальную логику
-            door = room.Doors.Where(d => d != null && !d.Connected)
-                            .OrderBy(_ => UnityEngine.Random.value)
-                            .FirstOrDefault();
-        }
+        door = room.Doors.Where(d => d != null && !d.Connected)
+                        .OrderBy(_ => UnityEngine.Random.value)
+                        .FirstOrDefault();
         return door != null;
     }
 
@@ -561,13 +552,12 @@ public class LevelGenerator : MonoBehaviour
                 return availableDoors.OrderBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position)).ToList();
 
             case GenerateAlgorithm.PriorityDoors:
-                return availableDoors
-                    .OrderByDescending(d => d.IsImportantConnection ? 1 : 0)
-                    .ThenByDescending(d => d.Priority)
-                    .ThenBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position))
-                    .ToList();
+                return availableDoors.OrderByDescending(d => d.Priority)
+                                    .ThenBy(d => Vector3.Distance(d.ConnectPoint.position, currentDoor.ConnectPoint.position))
+                                    .ToList();
 
             case GenerateAlgorithm.LinearPath:
+
                 var lastNormalRoom = SpawnedRooms
                     .Where(r => r != _finalRoom)
                     .OrderByDescending(r => SpawnedRooms.IndexOf(r))
@@ -577,7 +567,6 @@ public class LevelGenerator : MonoBehaviour
                 {
                     return availableDoors.OrderBy(_ => UnityEngine.Random.value).ToList();
                 }
-
                 var lastRoomDoors = lastNormalRoom.Doors.Where(d => d != null && !d.Connected).ToList();
                 if (lastRoomDoors.Count == 0)
                 {
@@ -585,6 +574,7 @@ public class LevelGenerator : MonoBehaviour
                 }
 
                 return lastRoomDoors;
+          
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(GenerateAlgorithm), "Unknown generation algorithm");
@@ -641,42 +631,19 @@ public class LevelGenerator : MonoBehaviour
         minBounds -= Vector3.one * padding;
         maxBounds += Vector3.one * padding;
 
-        // Get existing graphs (assuming there are at least 2 graphs)
-        if (astarPath.data.graphs.Length < 2)
-        {
-            Debug.LogError("Expected at least 2 graphs in AstarPath!");
-            return;
-        }
-
-        // Define vertical settings
-        float lowerHeight = -20f;           // Базовая высота нижнего графа
-        float distanceBetweenGraphs = 20f;  // Расстояние между графами (настраиваемое)
-
-        // Configure first Grid Graph (lower level)
-        GridGraph lowerGraph = astarPath.data.graphs[0] as GridGraph;
-        Vector3 center = (minBounds + maxBounds) / 2f;
-        lowerGraph.center = new Vector3(center.x, lowerHeight, center.z);
-        lowerGraph.SetDimensions(
-            Mathf.CeilToInt((maxBounds.x - minBounds.x) / lowerGraph.nodeSize),
-            Mathf.CeilToInt((maxBounds.z - minBounds.z) / lowerGraph.nodeSize),
-            lowerGraph.nodeSize
+        //Configure the Grid Graph
+        GridGraph gridGraph = astarPath.data.gridGraph;
+        gridGraph.center = (minBounds + maxBounds) / 2f; // Set graph center
+        gridGraph.center = new Vector3(gridGraph.center.x, -10, gridGraph.center.z);
+        gridGraph.SetDimensions(
+            Mathf.CeilToInt((maxBounds.x - minBounds.x) / gridGraph.nodeSize),
+            Mathf.CeilToInt((maxBounds.z - minBounds.z) / gridGraph.nodeSize),
+            gridGraph.nodeSize
         );
 
-        // Configure second Grid Graph (upper level)
-        GridGraph upperGraph = astarPath.data.graphs[1] as GridGraph;
-        float upperHeight = lowerHeight + distanceBetweenGraphs; // Высота верхнего графа
-        upperGraph.center = new Vector3(center.x, upperHeight, center.z);
-        upperGraph.SetDimensions(
-            Mathf.CeilToInt((maxBounds.x - minBounds.x) / upperGraph.nodeSize),
-            Mathf.CeilToInt((maxBounds.z - minBounds.z) / upperGraph.nodeSize),
-            upperGraph.nodeSize
-        );
-
-        // Scan all graphs
         astarPath.Scan();
 
-        Debug.Log($"Graph scanning completed! Number of graphs: {astarPath.data.graphs.Length}");
-        Debug.Log($"Distance between graphs: {distanceBetweenGraphs}");
+        Debug.Log("Graph scanning completed!");
     }
     #endregion
 

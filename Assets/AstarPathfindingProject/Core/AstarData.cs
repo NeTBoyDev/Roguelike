@@ -281,7 +281,7 @@ namespace Pathfinding {
 		}
 
 		/// <summary>Destroys all graphs and sets graphs to null</summary>
-		public void ClearGraphs () {
+		void ClearGraphs () {
 			if (graphs == null) return;
 			for (int i = 0; i < graphs.Length; i++) {
 				if (graphs[i] != null) {

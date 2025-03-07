@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +48,7 @@ public class Room : MonoBehaviour
 
     //    //await chain.Execute();
     //}
+
     public float GetRoomSize() => GetComponent<SpriteRenderer>().bounds.size.x;
     public bool IsStartRoom() => Type == RoomType.StartRoom;
 }
