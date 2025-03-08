@@ -26707,6 +26707,7 @@ MonoBehaviour:
   <InteractionDistance>k__BackingField: 4
   <GoldText>k__BackingField: {fileID: 3689074465361137887}
   _currentVendor: {fileID: 0}
+  _currentAnvil: {fileID: 0}
 --- !u!1 &7539369705815728633
 GameObject:
   m_ObjectHideFlags: 0
@@ -29283,8 +29284,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
+      propertyPath: layerColors.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
       propertyPath: layerColors.Array.data[1].color.rgba
       value: 4291085519
+      objectReference: {fileID: 0}
+    - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: layerColors.Array.data[2].color.rgba
+      value: 4278255598
       objectReference: {fileID: 0}
     - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
@@ -29295,6 +29306,16 @@ PrefabInstance:
         type: 3}
       propertyPath: layerColors.Array.data[1].layerMask.m_Bits
       value: 1024
+      objectReference: {fileID: 0}
+    - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: layerColors.Array.data[2].layerMask.m_Bits
+      value: 4096
+      objectReference: {fileID: 0}
+    - target: {fileID: 7285629381218512387, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_Name
+      value: Settings
       objectReference: {fileID: 0}
     - target: {fileID: 7285629381218512387, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
