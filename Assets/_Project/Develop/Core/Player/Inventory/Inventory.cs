@@ -589,7 +589,7 @@ public class Inventory : MonoBehaviour
         {
             if (((UseableItem)item).GetEffect() is ContinuousEffect cont)
             {
-                effects += $"Adds {cont.magnitude}\n";
+                effects += $"Adds {cont.magnitude}\n {item.Id.Split(' ').Last()}";
                 effects += $"For {cont.Duration}\n seconds";
             }
         }

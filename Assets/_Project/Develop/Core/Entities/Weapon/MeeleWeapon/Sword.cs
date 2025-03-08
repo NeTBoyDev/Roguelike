@@ -7,6 +7,6 @@ public class Sword : MeeleWeapon
 {
     public Sword(string id,Rarity rarity) : base(id,rarity)
     {
-        
+        Stats[StatType.AttackSpeed].SetValue(GameData.Rarity[Rarity]);
     }
 }
