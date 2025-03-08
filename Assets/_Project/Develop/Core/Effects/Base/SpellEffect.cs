@@ -7,6 +7,11 @@ namespace _Project.Develop.Core.Effects.Base
     public abstract class SpellEffect : Effect
     {
         protected float magnitude;
+        
+        public void SetMagnitude(float value)
+        {
+            magnitude = value;
+        }
 
         public virtual void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)
         {

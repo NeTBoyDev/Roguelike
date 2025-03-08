@@ -69,9 +69,18 @@ MonoBehaviour:
   - {fileID: 2316293436293309229, guid: 0ddf9b25bab8e6f44af123287ef13ebd, type: 3}
   - {fileID: 9022426563081864837, guid: d088f26fb4f35c944a01e156e0ac07e0, type: 3}
   Artifacts: []
-  ModificatorObjects: []
+  ModificatorObjects:
+  - {fileID: 5579081699372154065, guid: 81a5cecd73f16c24bb560c9fe20871e6, type: 3}
+  - {fileID: 8159233065879722223, guid: 082ab3f177ff03542814dd2a1a91911b, type: 3}
+  - {fileID: 179652962579861551, guid: e43d7ceb54f919141bda26c079ced72c, type: 3}
+  - {fileID: 1472114955599630941, guid: 9d342445db2662441a2be28e1e4819e9, type: 3}
+  - {fileID: 447972798995273822, guid: c7f8fe68bdad7404791c74ebfc369917, type: 3}
+  - {fileID: 3195752869006272269, guid: ddce793b73f03bd49a98e04ec561ea73, type: 3}
   UseableItems:
   - {fileID: 4240378193073885370, guid: 0b38f2db129504d4788123aff1badf5a, type: 3}
+  - {fileID: 980009840767956152, guid: d4dd9f86140e64344b430e928d647b48, type: 3}
+  - {fileID: 5525090434103975961, guid: 93db4c37432d20c4389663205010c84c, type: 3}
+  - {fileID: 7689699013075649130, guid: c1015022ca48e164295213fa35e9a297, type: 3}
   Shields:
   - {fileID: 919132149155446097, guid: 6ec906440c5ef824e8ea32711cac979c, type: 3}
   - {fileID: 919132149155446097, guid: a31c18c2a88bfbc418f15397409d8b7d, type: 3}

@@ -6,7 +6,7 @@ namespace _Project.Develop.Core.Effects
     public class SlowEffect : ContinuousEffect
     {
         public SlowEffect(float magnitude, float duration = float.MaxValue) 
-            : base(EffectType.Slow, magnitude, duration) { Name = "Slow";}
+            : base(magnitude, duration) { Name = "Slow";}
 
         public override void OnApply(IEntity target)
         {

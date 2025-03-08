@@ -12,6 +12,8 @@ namespace _Project.Develop.Core.Effects.SpellEffects
             Name = "Horizontal multishot";
         }
 
+        
+
         public override void Apply(ProjectileObject target, ref List<ProjectileObject> affectedObjects)
         {
             List<ProjectileObject> newObjects = new List<ProjectileObject> { target }; 

@@ -8,6 +8,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 using System.Collections.Generic;
+using _Project.Develop.Core.Effects.Base;
+using _Project.Develop.Core.Entities.Potions;
 using _Project.Develop.Core.Enum;
 using TMPro;
 
@@ -134,7 +136,7 @@ public class Inventory : MonoBehaviour
     {
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
-        if (Input.GetKeyDown(UseItemKey)) LogSelectedItem();
+        if (Input.GetKeyDown(UseItemKey)) UseSelectedItem();
 
         if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null && _currentVendor.IsVendorOpen()) CloseVendorInterface();
 
@@ -276,14 +278,22 @@ public class Inventory : MonoBehaviour
         View.InventorySetActiveAsync(value, delay).Forget();
     }
 
-    private void LogSelectedItem()
+    private void UseSelectedItem()
     {
         if (Model.SelectedItem == null)
         {
             Debug.Log(Model.SelectedItem);
             return;
         }
-
+        
+        ((UseableItem)Model.SelectedItem).Use(CombatSystem.playerModel);
+        
+        if (((UseableItem)Model.SelectedItem).Count > 1)
+            ((UseableItem)Model.SelectedItem).Count--;
+        else
+            RemoveItem(Model.SelectedItem);
+        
+        UpdateAllHotbarSlots();
         Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
     }
     #endregion
@@ -535,7 +545,7 @@ public class Inventory : MonoBehaviour
     public void ShowItemInfo(Item item)
     {
         _itemInfoPanel.gameObject.SetActive(true);
-        _itemNameText.text = item.Id;
+        _itemNameText.text = $"{item.Rarity} {item.Id}";
         string stats = string.Empty;
         foreach (var stat in item.Stats)
         {
@@ -543,13 +553,30 @@ public class Inventory : MonoBehaviour
         }
 
         _itemStatText.text = stats;
-        
+        Debug.Log($"{item.Id}");
         string effects = string.Empty;
-        foreach (var effect in item.Effects)
+        if (item is RagePotion || item is AgilityPotions  || item is WisdomPotion) // ƒŒœ»—¿“‹ ƒÀﬂ ¬—≈’ œŒ“Œ 
         {
-            print(effect.Name);
-            effects += $"{effect.Name}\n";
+            if (((UseableItem)item).GetEffect() is ContinuousEffect cont)
+            {
+                effects += $"Adds {cont.magnitude}\n";
+                effects += $"For {cont.Duration}\n seconds";
+            }
         }
+        else if(((UseableItem)item).GetEffect() is PeriodicEffect per)
+        {
+            effects += $"Heals {per.magnitude} health\n";
+            effects += $"For {per.Duration} seconds\n";
+        }
+        else
+        {
+            foreach (var effect in item.Effects)
+            {
+                print(effect.Name);
+                effects += $"{effect.Name}\n";
+            }
+        }
+        
 
         _itemEffectText.text = effects;
         _itemDescriptionText.text = "No description yet";

@@ -12,6 +12,14 @@ public static class InventoryDragDropHandler
             return;
         }
 
+        if (inventory.LastInteractSlot.Item is Gem && targetSlot.Item is Weapon && targetSlot.Item.Effects.Count < (int)inventory.LastInteractSlot.Item.Rarity)
+        {
+            targetSlot.Item.AddEffect(inventory.LastInteractSlot.Item.Effects[0]);
+            inventory.RemoveItem(inventory.LastInteractSlot.Item);
+            inventory.ResetDrag();
+            return;     
+        }
+
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
 

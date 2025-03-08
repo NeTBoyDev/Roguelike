@@ -5,9 +5,9 @@ namespace _Project.Develop.Core.Effects.Base
 {
     public abstract class ContinuousEffect : Effect
     {
-        protected float magnitude;
+        public float magnitude { get; protected set; }
 
-        public ContinuousEffect(EffectType type, float magnitude, float duration = float.MaxValue) : base(duration)
+        public ContinuousEffect(float magnitude, float duration = float.MaxValue) : base(duration)
         {
             this.magnitude = magnitude;
             Duration = duration;

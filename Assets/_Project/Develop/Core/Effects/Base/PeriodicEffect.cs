@@ -7,7 +7,7 @@ namespace _Project.Develop.Core.Effects.Base
     {
         protected float interval;
         protected float timer;
-        protected float magnitude;
+        public float magnitude { get; protected set; }
 
         public PeriodicEffect(float duration, float interval, float magnitude) : base(duration)
         {
