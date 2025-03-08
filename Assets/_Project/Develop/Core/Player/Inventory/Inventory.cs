@@ -17,6 +17,7 @@ public class Inventory : MonoBehaviour
 {
     public int PlayerGold { get; private set; } = 1000;
 
+    [SerializeField] private Camera _camera;
     [SerializeField] private Image _dragPreviewImage;
     
     [SerializeField] private RectTransform _itemInfoPanel;
@@ -57,6 +58,7 @@ public class Inventory : MonoBehaviour
     private void Awake()
     {
         CombatSystem = GetComponentInChildren<CombatSystem>();
+        _camera = GetComponentInChildren<Camera>();
     }
 
     private void Start()
@@ -103,22 +105,19 @@ public class Inventory : MonoBehaviour
         {
             InventoryState = value;
             if (!value)
+            {
                 CloseItemInfo();
+            }
 
             UpdateStatsText();
+
             if(Model.Minimap != null)
                 Model.Minimap.SetActive(!value);
         };
     }
     
-    public void RemoveWeapon()
-    {
-        CombatSystem.RemoveWeapon();
-    }
-    public void RemoveSecondaryWeapon()
-    {
-        CombatSystem.RemoveSecondaryWeapon();
-    }
+    public void RemoveWeapon() => CombatSystem.RemoveWeapon();
+    public void RemoveSecondaryWeapon() => CombatSystem.RemoveSecondaryWeapon();
     #endregion 
 
     #region Handlers
@@ -146,7 +145,7 @@ public class Inventory : MonoBehaviour
 
     private void TryOpenVendorOrAnvil()
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
+        Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
         if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Vendor vendor))
         {
@@ -183,7 +182,7 @@ public class Inventory : MonoBehaviour
 
     private void CheckForItem()
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
+        Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
@@ -206,7 +205,7 @@ public class Inventory : MonoBehaviour
 
     private bool TryGetContainer(out EntityContainer container)
     {
-        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
+        Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
@@ -309,10 +308,10 @@ public class Inventory : MonoBehaviour
         UpdateAllHotbarSlots();
         Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
     }
-    #endregion
+    #endregion  
 
     #region Item Management
-    public void AddItem(Item item) => InventoryItemManager.AddItem(item, View, Model, CombatSystem);
+    public void AddItem(Item item) => InventoryItemManager.AddItem(item, View, Model, CombatSystem, _camera);
     public void RemoveItem(Item item) => InventoryItemManager.RemoveItem(item, View, Model);
     public void RemoveHotbarItem(Item item) => InventoryItemManager.RemoveHotbarItem(item, View, Model);
     public void RemoveItem(InventorySlot slot) => InventoryItemManager.RemoveItem(slot, View, Model);
@@ -350,6 +349,9 @@ public class Inventory : MonoBehaviour
     {
         DragableItem = null;
         LastInteractSlot = null;
+
+        if (_dragPreviewImage == null)
+            return;
         _dragPreviewImage.gameObject.SetActive(false);
     }
 
@@ -409,8 +411,8 @@ public class Inventory : MonoBehaviour
     private void DropItemInWorld(Item item)
     {
         var container = ItemGenerator.Instance.GenerateContainer(item,true);
-        container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
-        container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3, ForceMode.Impulse);
+        container.transform.position = _camera.transform.position + _camera.transform.forward;
+        container.GetComponent<Rigidbody>().AddForce(_camera.transform.forward * 3, ForceMode.Impulse);
     }
     #endregion
 

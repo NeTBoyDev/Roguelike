@@ -6,23 +6,23 @@ using System.Linq;
 
 public static class InventoryItemManager
 {
-    public static void AddItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem)
+    public static void AddItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem, Camera camera)
     {
         if (item == null || item.Count <= 0) return;
 
         if (item.IsStackable)
         {
-            AddStackableItem(item, view, model);
+            AddStackableItem(item, view, model, camera);
         }
         else
         {
-            AddNonStackableItem(item, view, model, combatSystem);
+            AddNonStackableItem(item, view, model, combatSystem, camera);
         }
 
         view.GetSlotWithItem(item)?.UpdateVisual();
     }
 
-    private static void AddStackableItem(Item item, InventoryView view, InventoryModel model)
+    private static void AddStackableItem(Item item, InventoryView view, InventoryModel model, Camera camera)
     {
         int remainingCount = item.Count;
 
@@ -45,7 +45,7 @@ public static class InventoryItemManager
             var emptySlot = view.GetFirstEmptySlot();
             if (emptySlot == null || !IsValidForSlot(item, emptySlot))
             {
-                DropExcessItem(item, remainingCount);
+                DropExcessItem(item, remainingCount, camera);
                 break;
             }
 
@@ -59,7 +59,7 @@ public static class InventoryItemManager
         }
     }
 
-    private static void AddNonStackableItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem)
+    private static void AddNonStackableItem(Item item, InventoryView view, InventoryModel model, CombatSystem combatSystem, Camera camera)
     {
         for (int i = 0; i < item.Count; i++)
         {
@@ -68,15 +68,15 @@ public static class InventoryItemManager
             {
                 if (item is Weapon weapon)
                 {
-                    DropExcessItem(weapon, 1);
+                    DropExcessItem(weapon, 1, camera);
                 }
                 else if(item is SecondaryWeapon secondaryWeapon)
                 {
-                    DropExcessItem(secondaryWeapon, 1);
+                    DropExcessItem(secondaryWeapon, 1, camera);
                 }
                 else
                 {
-                    DropExcessItem(item, 1);
+                    DropExcessItem(item, 1, camera);
                 }
                 break;
             }
@@ -98,13 +98,13 @@ public static class InventoryItemManager
         }
     }
 
-    private static void DropExcessItem(Item item, int count)
+    private static void DropExcessItem(Item item, int count, Camera camera)
     {
         item.Count = count;
 
         var container = ItemGenerator.Instance.GenerateContainer(item,true);
-        container.transform.position = Camera.main.transform.position + Camera.main.transform.forward;
-        container.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward * 3, ForceMode.Impulse);
+        container.transform.position = camera.transform.position + camera.transform.forward;
+        container.GetComponent<Rigidbody>().AddForce(camera.transform.forward * 3, ForceMode.Impulse);
 
         Debug.Log($"Cannot add {count} items of type <color=cyan>{item.Id}</color>. Inventory full!");
     }
