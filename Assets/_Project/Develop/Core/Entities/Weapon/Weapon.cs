@@ -22,7 +22,7 @@ public class Weapon : Item
     public void AddProjectile(Projectile p)
     {
         Projectile.Add(p);
-        p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue * Effects.Count); //СДЕЛАТЬ ФОРМУЛУ
+        p[StatType.Strength].Modify(p[StatType.Strength].CurrentValue /* * Effects.Count*/); //СДЕЛАТЬ ФОРМУЛУ
         ProjectileView.Add(Resources.Load<GameObject>($"Projectiles/{p.Id}").GetComponent<ProjectileObject>());
     }
     

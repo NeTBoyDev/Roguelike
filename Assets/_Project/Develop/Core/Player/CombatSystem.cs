@@ -104,6 +104,7 @@ public class CombatSystem : MonoBehaviour
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Common);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Gem, Rarity.Legendary);
         /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Axe, Rarity.Legendary);

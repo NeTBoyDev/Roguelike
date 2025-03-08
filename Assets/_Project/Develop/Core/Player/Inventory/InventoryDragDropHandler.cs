@@ -12,11 +12,17 @@ public static class InventoryDragDropHandler
             return;
         }
 
-        if (inventory.LastInteractSlot.Item is Gem && targetSlot.Item is Weapon && targetSlot.Item.Effects.Count < (int)targetSlot.Item.Rarity)
+        if (inventory.LastInteractSlot.Item is Gem gem && targetSlot.Item is Weapon weapon && targetSlot.Item.Effects.Count < (int)targetSlot.Item.Rarity)
         {
             targetSlot.Item.ApplyEffect(inventory.LastInteractSlot.Item.Effects[0]);
+            
+            if(gem.projectile != null)
+                weapon.AddProjectile(gem.projectile);
+            
             inventory.RemoveItem(inventory.LastInteractSlot.Item);
             inventory.ResetDrag();
+            
+            
             return;     
         }
 

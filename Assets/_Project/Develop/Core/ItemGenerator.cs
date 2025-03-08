@@ -304,13 +304,15 @@ namespace _Project.Develop.Core
                     weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
                 }
             }
-            else if(weaponModel is Gem)
+            else if(weaponModel is Gem gem)
             {
                 effectsArray = Random.value > .5f ? MeleeEffects : RangeEffects;
                 var effect = effectsArray[Random.Range(0, effectsArray.Length)];
                 if(effect is SpellEffect e)
                     e.SetMagnitude((int)rarity);
                 weaponModel.Effects.Add(effect);
+                if (gem.Rarity == Rarity.Legendary)
+                    gem.AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
             }
             else if (weaponModel is Artifact || weaponModel is SecondaryWeapon)
             {
