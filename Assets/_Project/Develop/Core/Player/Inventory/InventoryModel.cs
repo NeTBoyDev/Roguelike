@@ -7,6 +7,7 @@ using UnityEngine;
 [Serializable]
 public class InventoryModel
 {
+    [field: SerializeField] public GameObject Minimap { get; private set; } = null;
     [field: SerializeField] public List<Item> Items { get; private set; } = new(1);
     [field: SerializeField] public Item SelectedItem { get; private set; } = null;
 
