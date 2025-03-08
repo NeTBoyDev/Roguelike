@@ -1,5 +1,8 @@
+using _Project.Develop.Core;
 using _Project.Develop.Core.Entities;
 using _Project.Develop.Core.Enum;
+using DG.Tweening;
+using NaughtyAttributes;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -14,22 +17,44 @@ public class Vendor : MonoBehaviour
         Buy, 
         Sell 
     }
+    [field: Header("Main settings")]
     [field: SerializeField] public float VendorCloseDistance { get; private set; } = 3f;
-    [SerializeField] private InventoryView _vendorView;
-    [SerializeField] private InventoryModel _vendorModel;
+    [SerializeField] private InventoryView _vendorView = null;
+    [SerializeField] private InventoryModel _vendorModel = null;
 
-
+    [HorizontalLine(2, EColor.Green)]
+    [field: Header("Sell settings")]
     public GameObject SellPanel;
-    public GameObject BuyPanel;
+    [Space(10)]
 
+    [SerializeField] private Button OpenSellPanelButton;
+    [SerializeField] private Button _sellAllButton;
     [SerializeField] private TMP_Text _totalGoldText;
 
-    [SerializeField] private Button _sellAllButton;
+    [field: Tooltip("Sell multiplier for items (1 - standard price) (0 - free sell)")]
+    [field: SerializeField, MinValue(0)] public float SellMultiplier { get; private set; } = 1;
+
+    [HorizontalLine(2, EColor.Green)]
+    [field: Header("Buy settings")]
+    public GameObject BuyPanel;
+    [Space(10)]
+
+    [SerializeField] private Button OpenBuyPanelButton;
+    [SerializeField] private TMP_Text _itemGoldText;
+    [field: Tooltip("Purchase multiplier for items (1 - standard price) (0 - free buy)")]
+    [field: SerializeField, MinValue(0)] public float BuyMultiplier { get; private set; } = 2;
+    [field: HorizontalLine(2, EColor.Green)]
+    [field: SerializeField] public List<InventorySlot> BuySlots { get; private set; }//Vendor buy slots
+    [field: SerializeField] public List<Item> BuyItems { get; private set; } = new(1);
+
+    [field: SerializeField] public Vector2Int RandomItemsCount { get; private set; } = Vector2Int.one;
+
 
     private Inventory _playerInventory;
-    private int _playerGold = 1000;
+    [field: SerializeField, ReadOnly] public TradeMode LastSelectedMode { get; private set; } = TradeMode.Buy;
+    [field: SerializeField, ReadOnly] public TradeMode CurrentMode { get; private set; } = TradeMode.Buy;
 
-    private TradeMode _currentMode = TradeMode.Buy;
+    private Vector3 _initialButtonPos;
 
     [Header("Phrases Change to sounds")]
     #region Phrases
@@ -40,13 +65,27 @@ public class Vendor : MonoBehaviour
     [SerializeField] private string[] _sellPhrases = { "Thanks for the goods!", "A fair trade!", "I’ll take that off your hands!" };
     #endregion
 
+    #region Initialize
     private void Start()
     {
         _playerInventory = FindObjectOfType<Inventory>();
+
+        SubscribeEvents();
         InitializeVendorInventory();
         UpdatePlayerGoldText();
 
         _vendorView.Inventory.SetActive(false);
+    }
+
+    private void OnValidate()
+    {
+        if (BuySlots.Count > 0)
+        {
+            RandomItemsCount = new Vector2Int(
+                Mathf.Clamp(RandomItemsCount.x, 1, BuySlots.Count),
+                Mathf.Clamp(RandomItemsCount.y, Mathf.Max(1, RandomItemsCount.x), BuySlots.Count)
+            );
+        }
     }
 
     private void OnEnable()
@@ -57,9 +96,29 @@ public class Vendor : MonoBehaviour
             _sellAllButton.onClick.AddListener(SellAllItems);
         }
     }
-    private void InitializeVendorInventory()
+    private void OnDisable()
     {
         foreach (var slot in _vendorView.GetAllConcatSlots())
+        {
+            slot.onDrag -= OnVendorDrag;
+            slot.onDrop -= OnVendorDrop;
+
+            slot.onPointerEnter -= ShowVendorItemInfo;
+            slot.onPointerExit -= CloseVendorItemInfo;
+        }
+
+        foreach (var slot in BuySlots)
+        {
+            slot.onDrag -= OnVendorDrag;
+            slot.onDrop -= OnVendorDrop;
+
+            slot.onPointerEnter -= ShowVendorItemInfo;
+            slot.onPointerExit -= CloseVendorItemInfo;
+        }
+    }
+    private void InitializeVendorInventory()
+    {
+        foreach (var slot in _vendorView.GetAllConcatSlots().Concat(BuySlots))
         {
             slot.onDrag += OnVendorDrag;
             slot.onDrop += OnVendorDrop;
@@ -67,17 +126,70 @@ public class Vendor : MonoBehaviour
             slot.onPointerEnter += ShowVendorItemInfo;
             slot.onPointerExit += CloseVendorItemInfo;
         }
+
+        KitStart();
     }
 
-    public void OpenVendor(TradeMode mode)
+    private void KitStart()
     {
-        _currentMode = mode;
+        var randomCount = Random.Range(RandomItemsCount.x, RandomItemsCount.y + 1);
+        Debug.Log($"Random count = {randomCount}");
+
+        for (int i = 0; i < randomCount; i++)
+        {
+            if (BuySlots[i].IsEmpty())
+            {
+                var obj = ItemGenerator.Instance.GenerateRandomGameobject();
+                var item = obj.ContainedEntity as Item;
+                Destroy(obj.gameObject);
+
+                BuyItems.Add(item);
+                BuySlots[i].InitializeSlot(item);
+            }
+        }
+    }
+    private void SubscribeEvents()
+    {
+        OpenBuyPanelButton.onClick.RemoveAllListeners();
+        OpenSellPanelButton.onClick.RemoveAllListeners();
+
+        _initialButtonPos = OpenBuyPanelButton.transform.localPosition;
+
+        OpenBuyPanelButton.onClick.AddListener(() => SetPanel(TradeMode.Buy, OpenBuyPanelButton, OpenSellPanelButton));
+        OpenSellPanelButton.onClick.AddListener(() => SetPanel(TradeMode.Sell, OpenSellPanelButton, OpenBuyPanelButton));
+    }
+    #endregion
+
+    #region Vendor panel logic
+    private void SetPanel(TradeMode mode, Button pressedButton, Button otherButton)
+    {
+        BuyPanel.SetActive(mode == TradeMode.Buy);
+        SellPanel.SetActive(mode == TradeMode.Sell);
+
+        LastSelectedMode = mode;
+        CurrentMode = mode;
+
+        pressedButton.interactable = false;
+        pressedButton.transform.DOLocalMoveY(_initialButtonPos.y - 10f, 0.2f);
+
+        otherButton.interactable = true;
+        otherButton.transform.DOLocalMoveY(_initialButtonPos.y, 0.2f);
+
+        UpdateTotalGoldText();
+        UpdateSellAllButtonState();
+    }
+
+    public void OpenVendor()
+    {
+        CurrentMode = LastSelectedMode;
         _vendorView.Inventory.SetActive(true);
 
-        bool sell = _currentMode == TradeMode.Sell;
+        bool sell = CurrentMode == TradeMode.Sell;
 
         SellPanel.SetActive(sell);
         BuyPanel.SetActive(!sell);
+
+        SetPanel(CurrentMode, sell ? OpenSellPanelButton : OpenBuyPanelButton, sell ? OpenBuyPanelButton : OpenSellPanelButton);
 
         _playerInventory.InventorySetAcitve(true);
 
@@ -91,7 +203,7 @@ public class Vendor : MonoBehaviour
     {
         _vendorView.Inventory.SetActive(false);
 
-        if(_playerInventory != null)
+        if (_playerInventory != null)
         {
             ReturnAllItemsToPlayer();
             _playerInventory.InventorySetAcitve(false);
@@ -101,6 +213,106 @@ public class Vendor : MonoBehaviour
         Debug.Log(GetRandomPhrase(_farewells));
     }
 
+    #endregion
+
+    #region Handlers
+    private int CalculateItemPrice(Item item, float multiplier = 1)
+    {
+        if (item == null)
+            return 0;
+
+        int basePrice = 10;
+
+        int rarityMultiplier = (int)item.Rarity * 5;
+        int effectCount = item.Effects.Count;
+
+        return (int)((basePrice + rarityMultiplier * effectCount * 5) * multiplier);
+    }
+    private void UpdateTotalGoldText()
+    {
+        if (_totalGoldText == null) return;
+
+        if (CurrentMode == TradeMode.Sell) //Sell mode
+        {
+            int total = 0;
+            foreach (var slot in _vendorView.GetAllConcatSlots())
+            {
+                if (slot.Item != null)
+                    total += CalculateItemPrice(slot.Item, SellMultiplier);
+            }
+
+            _totalGoldText.text = $"{total}";
+        }
+        else //Buy mode
+        {
+            _totalGoldText.text = $"Vendor Stock";
+        }
+    }
+    private void UpdatePlayerGoldText()
+    {
+        if (_playerInventory.GoldText != null)
+            _playerInventory.GoldText.text = $"{_playerInventory.PlayerGold}";
+    }
+    private string GetRandomPhrase(string[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];
+
+    public void SellAllItems()
+    {
+        if (CurrentMode != TradeMode.Sell)
+            return;
+
+        int totalValue = 0;
+        List<Item> itemsToRemove = new();
+
+        foreach (var slot in _vendorView.GetAllConcatSlots())
+        {
+            if (slot.Item != null)
+            {
+                int itemPrice = CalculateItemPrice(slot.Item, SellMultiplier);
+                totalValue += itemPrice;
+                itemsToRemove.Add(slot.Item);
+            }
+        }
+
+        _playerInventory.ChangePlayerGold(totalValue);
+
+        foreach (var item in itemsToRemove)
+        {
+            _vendorModel.RemoveItem(item);
+            _vendorView.GetSlotWithItem(item).ClearSlot();
+        }
+
+        Debug.Log($"<color=green>Sold all items for <color=cyan>{totalValue}</color> gold!</color>");
+        Debug.Log(GetRandomPhrase(_sellPhrases));
+
+        UpdatePlayerGoldText();
+        UpdateTotalGoldText();
+        UpdateSellAllButtonState();
+    }
+
+    private void UpdateSellAllButtonState()
+    {
+        if (_sellAllButton != null && CurrentMode == TradeMode.Sell)
+        {
+            _sellAllButton.interactable = HasItemsToSell();
+        }
+    }
+
+    private bool HasItemsToSell()
+    {
+        foreach (var slot in _vendorView.GetAllConcatSlots())
+        {
+            if (slot.Item != null)
+                return true;
+        }
+        return false;
+    }
+    public void SetBuyMultiplicator(int amount) => BuyMultiplier = Mathf.Max(0, amount);
+    public void SetSellMultiplicator(int amount) => SellMultiplier = Mathf.Max(0, amount);
+    public void SetItemToBuy(int minAmount, int maxAmount) => RandomItemsCount = new Vector2Int(minAmount, maxAmount);
+    public bool IsVendorOpen() => _vendorView.Inventory.activeInHierarchy;
+    #endregion
+
+    #region Vendor logic
     private void ReturnAllItemsToPlayer()
     {
         if (_vendorModel.Items.Count == 0)
@@ -136,7 +348,7 @@ public class Vendor : MonoBehaviour
     private void LogReturnedItem(Item item)
     {
         string rarityColor = GetRarityColor(item.Rarity);
-        Debug.Log($"<color=yellow>[Returned item]</color>: <color=cyan>{item.Id}</color>, Count: <color=cyan>{item.Count}</color>, Rarity: <color={rarityColor}>{item.Rarity}</color>");
+        Debug.Log($"<color=yellow>[Returned item]</color>: <color=cyan>{item.Id}</color>, Count: <color=cyan>{item.Count}</color>, Rarity: <color={rarityColor}>{item.Rarity}</color>, Type: {item.GetType()}");
     }
 
     private string GetRarityColor(Rarity rarity)
@@ -162,27 +374,80 @@ public class Vendor : MonoBehaviour
         }
     }
 
-    public bool IsVendorOpen() => _vendorView.Inventory.activeInHierarchy;
-    private void CloseVendorItemInfo() => _playerInventory.CloseItemInfo();
+
+    private void CloseVendorItemInfo()
+    {
+        if (CurrentMode == TradeMode.Buy)
+        {
+            _itemGoldText.gameObject.SetActive(false);
+            _itemGoldText.text = "";
+        }
+        else
+        {
+
+        }
+        _playerInventory.CloseItemInfo();
+    }
 
     private void ShowVendorItemInfo(Item item)
     {
         _playerInventory.ShowItemInfo(item);
-        _playerInventory._itemDescriptionText.text = $"Price: {CalculateItemPrice(item)} gold";
-    }
 
+        if (CurrentMode == TradeMode.Buy)
+        {
+            var itemPrice = CalculateItemPrice(item, BuyMultiplier);
+
+            _itemGoldText.gameObject.SetActive(true);
+            _itemGoldText.text = $"Item price: {CalculateItemPrice(item, BuyMultiplier)}";
+
+            bool noMoney = itemPrice > _playerInventory.PlayerGold;
+            _itemGoldText.color = noMoney ? Color.red : Color.white;
+
+            if (noMoney)
+                AnimateNoMoney();
+        }
+        else
+        {
+            _playerInventory._itemDescriptionText.text = $"Price: {CalculateItemPrice(item, SellMultiplier)} gold";
+        }
+
+    }
+    #endregion
+
+    #region Drag & Drop
     private void OnVendorDrag(PointerEventData data, Item item, InventorySlot slot)
     {
-        if(item == null || slot == null)
+        if (item == null || slot == null)
         {
             return;
         }
 
-        _playerInventory.DragItem(data, item, slot);
+        if (CurrentMode == TradeMode.Buy)
+        {
+            if (!BuySlots.Contains(slot))
+            {
+                Debug.Log("In Buy mode, you can only drag items from the purchase slots!");
+                return;
+            }
+            int itemPrice = CalculateItemPrice(item, BuyMultiplier);
+            if (_playerInventory.PlayerGold < itemPrice)
+            {
+                Debug.Log($"<color=red>Not enough <color=cyan>{itemPrice - _playerInventory.PlayerGold}</color> gold</color>");
+                _playerInventory.ResetDrag();
+                AnimateNoMoney();
+                return;
+            }
+            _playerInventory.DragItem(data, item, slot);
+        }
+        else if (CurrentMode == TradeMode.Sell)
+        {
+            _playerInventory.DragItem(data, item, slot);
+        }
     }
 
     private void OnVendorDrop(PointerEventData data, Item item, InventorySlot targetSlot)
     {
+
         Item draggedItem = _playerInventory.DragableItem;
         var sourceSlot = _playerInventory.LastInteractSlot;
 
@@ -190,15 +455,26 @@ public class Vendor : MonoBehaviour
         {
             UpdateTotalGoldText();
             UpdateSellAllButtonState();
-
             _playerInventory.ResetDrag();
-
-            Debug.Log("test1");
             return;
         }
 
         if (targetSlot == sourceSlot || targetSlot == null)
         {
+            if (CurrentMode == TradeMode.Buy)
+            {
+                if (!RectTransformUtility.RectangleContainsScreenPoint(_playerInventory.View.Inventory.GetComponent<RectTransform>(), data.position))
+                {
+                    Debug.Log("Drag the item to the inventory area to sell it.");
+                    _playerInventory.ResetDrag();
+                    return;
+                }
+
+                HandleBuy(data, item, targetSlot);
+                return;
+            }
+
+
             Debug.Log("Item dropped on itself or outside inventory - ignoring");
             _playerInventory.ResetDrag();
             return;
@@ -206,15 +482,21 @@ public class Vendor : MonoBehaviour
 
         Debug.Log($"Dragging: {draggedItem}, Target: {targetSlot}, Source: {sourceSlot}");
 
-        if (_currentMode == TradeMode.Buy)
+        if (CurrentMode == TradeMode.Buy)
         {
-            HandleBuy(data, draggedItem, targetSlot);
+            if (!BuySlots.Contains(sourceSlot))
+            {
+                Debug.Log("In Buy mode, you can only drag items from vendor's Buy slots!");
+                _playerInventory.ResetDrag();
+                return;
+            }
+
         }
         else
         {
             HandleSell(data, draggedItem, targetSlot);
         }
-        
+
         if (sourceSlot.SlotType == SlotType.Weapon)
         {
             print("Remove from weapon");
@@ -233,80 +515,125 @@ public class Vendor : MonoBehaviour
     }
 
 
+
+    private void AnimateNoMoney()
+    {
+        if (DOTween.IsTweening(_itemGoldText.transform))
+            return;
+
+        _itemGoldText.transform.DOShakePosition(0.5f, strength: 5f, vibrato: 10, randomness: 90, snapping: false, fadeOut: true);
+    }
     private void HandleBuy(PointerEventData data, Item item, InventorySlot targetSlot)
     {
-        if (item == null || _playerInventory.DragableItem == null || targetSlot == null) return;
+        int itemPrice = CalculateItemPrice(item, BuyMultiplier);
 
-        int itemPrice = CalculateItemPrice(item);
-        InventorySlot sourceSlot = _playerInventory.LastInteractSlot;
-
-        if (_playerGold >= itemPrice)
+        var emptySlot = _playerInventory.View.GetFirstEmptySlot();
+        if (emptySlot == null )
         {
-            if (InventoryDragDropHandler.IsValid(item, targetSlot))
-            {
-                if (targetSlot.IsEmpty())
-                {
-                    _playerInventory.AddItem(item);
-                    targetSlot.InitializeSlot(item);
-
-                    if (item.Count > 1)
-                    {
-                        item.Count--;
-                        sourceSlot.UpdateVisual();
-                    }
-                    else
-                    {
-                        _vendorModel.RemoveItem(item);
-                        _vendorView.ClearSlot(sourceSlot);
-                    }
-
-                    _playerGold -= itemPrice;
-                    Debug.Log(GetRandomPhrase(_buyPhrases));
-                }
-                else if (item.IsStackable && targetSlot.Item.Id == item.Id && targetSlot.Item.Rarity == item.Rarity)
-                {
-                    int newStackCount = targetSlot.Item.Count + item.Count;
-                    int overflow = Mathf.Max(0, newStackCount - targetSlot.Item.MaxStackSize);
-
-                    targetSlot.Item.Count = Mathf.Min(newStackCount, targetSlot.Item.MaxStackSize);
-                    targetSlot.UpdateVisual();
-
-                    if (overflow > 0)
-                    {
-                        item.Count = overflow;
-                        sourceSlot.UpdateVisual();
-                    }
-                    else
-                    {
-                        _vendorModel.RemoveItem(item);
-                        _vendorView.ClearSlot(sourceSlot);
-                    }
-
-                    _playerGold -= itemPrice;
-                    Debug.Log(GetRandomPhrase(_buyPhrases));
-                }
-                else
-                {
-                    Debug.Log("Cannot buy: slot is occupied by incompatible item!");
-                    _playerInventory.ResetDrag();
-                    return;
-                }
-
-                UpdatePlayerGoldText();
-                UpdateTotalGoldText();
-                _playerInventory.ResetDrag();
-            }
-            else
-            {
-                Debug.Log("Cannot buy: invalid slot for this item!");
-                _playerInventory.ResetDrag();
-            }
-        }
-        else
-        {
-            Debug.Log(GetRandomPhrase(_noMoneyPhrases));
+            Debug.Log("<color=yellow>[Vendor]</color>: <color=red>Not empty space in inventory!</color>");
             _playerInventory.ResetDrag();
+            return;
         }
+
+
+
+        if(!InventoryDragDropHandler.IsValid(item, emptySlot))
+        {
+            Debug.Log("<color=yellow>[Vendor]</color>: <color=red>SLOT IS NOT VALID</color>");
+            _playerInventory.ResetDrag();
+            return;
+        }
+
+
+        emptySlot.InitializeSlot(item);
+        BuyItems.Remove(item);
+        targetSlot.ClearSlot();
+
+        _playerInventory.ChangePlayerGold(-itemPrice);
+        UpdatePlayerGoldText();
+        UpdateTotalGoldText();
+
+        if (emptySlot.SlotType == SlotType.Weapon && item is Weapon weapon)
+        {
+            _playerInventory.CombatSystem.SetWeapon(weapon);
+        }
+        if (emptySlot.SlotType == SlotType.SecondaryWeapon && item is SecondaryWeapon secondaryWeapon)
+        {
+            _playerInventory.CombatSystem.SetSecondaryWeapon(secondaryWeapon);
+        }
+        //artifacts add logic here
+
+        Debug.Log(GetRandomPhrase(_buyPhrases));
+        _playerInventory.ResetDrag();
+
+
+        //Debug.Log("TEST1");
+
+        //if (item == null || _playerInventory.DragableItem == null)
+        //{
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+
+        //Debug.Log("TEST2");
+        //InventorySlot sourceSlot = _playerInventory.LastInteractSlot;
+        //if (!BuySlots.Contains(sourceSlot))
+        //{
+        //    Debug.Log("You can only drag items from vendor's Buy slots in Buy mode!");
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+        //Debug.Log("TEST3");
+        //if (BuySlots.Contains(targetSlot) || VendorView.GetAllConcatSlots().Contains(targetSlot))
+        //{
+        //    Debug.Log("You cannot move items to vendor slots in Buy mode!");
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+        //Debug.Log("TEST4");
+        //if (!targetSlot.IsEmpty())
+        //{
+        //    Debug.Log("Cannot buy: target slot must be empty!");
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+        //Debug.Log("TEST5");
+        //if (!InventoryDragDropHandler.IsValid(item, targetSlot))
+        //{
+        //    Debug.Log("Cannot buy: invalid slot for this item!");
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+        //int itemPrice = CalculateItemPrice(item);
+        //Debug.Log("TEST6");
+
+        //if (_playerInventory.PlayerGold < itemPrice)
+        //{
+        //    Debug.Log(GetRandomPhrase(_noMoneyPhrases));
+        //    _playerInventory.ResetDrag();
+        //    return;
+        //}
+        //Debug.Log("TEST7");
+        //_playerInventory.ChangePlayerGold(-itemPrice);
+        //_playerInventory.AddItem(item);
+        //targetSlot.InitializeSlot(item);
+
+        //if (item.Count > 1)
+        //{
+        //    item.Count--;
+        //    sourceSlot.UpdateVisual();
+        //}
+        //else
+        //{
+        //    _vendorModel.RemoveItem(item);
+        //    sourceSlot.ClearSlot();
+        //}
+
+        //Debug.Log(GetRandomPhrase(_buyPhrases));
+
+        //UpdatePlayerGoldText();
+        //UpdateTotalGoldText();
+        //_playerInventory.ResetDrag();
     }
 
     private void HandleSell(PointerEventData data, Item item, InventorySlot targetSlot)
@@ -436,95 +763,5 @@ public class Vendor : MonoBehaviour
         UpdateSellAllButtonState();
         _playerInventory.ResetDrag();
     }
-
-    private int CalculateItemPrice(Item item)
-    {
-        if (item == null)
-            return 0;
-
-        int basePrice = 10;
-
-        int rarityMultiplier = (int)item.Rarity * 5;
-        int effectCount = item.Effects.Count;
-
-        return basePrice + rarityMultiplier * (effectCount * 5);
-    }
-    private void UpdateTotalGoldText()
-    {
-        if (_totalGoldText == null) return;
-
-        if (_currentMode == TradeMode.Sell) //Sell mode
-        {
-            int total = 0;
-            foreach (var slot in _vendorView.GetAllConcatSlots())
-            {
-                if (slot.Item != null)
-                    total += CalculateItemPrice(slot.Item);
-            }
-
-            _totalGoldText.text = $"{total}";
-        }
-        else //Buy mode
-        {
-            _totalGoldText.text = $"Vendor Stock";
-        }
-    }
-    private void UpdatePlayerGoldText()
-    {
-        if (_playerInventory.GoldText != null)
-            _playerInventory.GoldText.text = $"{_playerGold}";
-    }
-    private string GetRandomPhrase(string[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];
-
-    public void SellAllItems()
-    {
-        if (_currentMode != TradeMode.Sell) 
-            return;
-
-        int totalValue = 0;
-        List<Item> itemsToRemove = new();
-
-        foreach (var slot in _vendorView.GetAllConcatSlots())
-        {
-            if (slot.Item != null)
-            {
-                int itemPrice = CalculateItemPrice(slot.Item);
-                totalValue += itemPrice;
-                itemsToRemove.Add(slot.Item);
-            }
-        }
-
-        _playerGold += totalValue;
-
-        foreach (var item in itemsToRemove)
-        {
-            _vendorModel.RemoveItem(item);
-            _vendorView.GetSlotWithItem(item).ClearSlot();
-        }
-
-        Debug.Log($"Sold all items for {totalValue} gold!");
-        Debug.Log(GetRandomPhrase(_sellPhrases));
-
-        UpdatePlayerGoldText();
-        UpdateTotalGoldText();
-        UpdateSellAllButtonState();
-    }
-
-    private void UpdateSellAllButtonState()
-    {
-        if (_sellAllButton != null && _currentMode == TradeMode.Sell)
-        {
-            _sellAllButton.interactable = HasItemsToSell();
-        }
-    }
-
-    private bool HasItemsToSell()
-    {
-        foreach (var slot in _vendorView.GetAllConcatSlots())
-        {
-            if (slot.Item != null)
-                return true;
-        }
-        return false;
-    }
+    #endregion
 }

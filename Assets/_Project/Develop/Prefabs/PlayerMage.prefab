@@ -26698,6 +26698,8 @@ MonoBehaviour:
     - {fileID: 4628602529875417092}
     - {fileID: 4166741966376825186}
     - {fileID: 8348505761543884680}
+  <Model>k__BackingField:
+    <Minimap>k__BackingField: {fileID: 9215683771490918871}
   OpenInventoryKey: 9
   UseItemKey: 101
   PickItemKey: 102
@@ -29090,6 +29092,11 @@ PrefabInstance:
       propertyPath: far clip plane
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 132661031587011432, guid: e411ae66fc12c8d48985367037656e74,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.8300171
+      objectReference: {fileID: 0}
     - target: {fileID: 4693026733308234380, guid: e411ae66fc12c8d48985367037656e74,
         type: 3}
       propertyPath: m_Name
@@ -29164,6 +29171,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2738506714374593801}
     m_Modifications:
+    - target: {fileID: 149354274121911942, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1178580289592460192, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -29271,6 +29283,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
+      propertyPath: layerColors.Array.data[1].color.rgba
+      value: 4291085519
+      objectReference: {fileID: 0}
+    - target: {fileID: 6066120693183893905, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
       propertyPath: layerColors.Array.data[0].layerMask.m_Bits
       value: 2048
       objectReference: {fileID: 0}
@@ -29279,10 +29296,20 @@ PrefabInstance:
       propertyPath: layerColors.Array.data[1].layerMask.m_Bits
       value: 1024
       objectReference: {fileID: 0}
+    - target: {fileID: 7285629381218512387, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7650975056836777903, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
       propertyPath: m_Depth
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7650975056836777903, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7650975056836777903, guid: eaa8e92a42d85af49a62add61e1b809d,
         type: 3}
@@ -29332,6 +29359,12 @@ PositionConstraint:
 --- !u!4 &7615964259947136452 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1461246964574005909, guid: eaa8e92a42d85af49a62add61e1b809d,
+    type: 3}
+  m_PrefabInstance: {fileID: 9076498706625556305}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9215683771490918871 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 149354274121911942, guid: eaa8e92a42d85af49a62add61e1b809d,
     type: 3}
   m_PrefabInstance: {fileID: 9076498706625556305}
   m_PrefabAsset: {fileID: 0}

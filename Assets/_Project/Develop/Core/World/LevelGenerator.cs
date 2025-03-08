@@ -26,6 +26,8 @@ public class LevelGenerator : MonoBehaviour
     [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public List<Room> RoomPrefabs { get; private set; } = null;
     [field: HorizontalLine(2, EColor.Green)]
+
+    [field: InfoBox("LinearPath = so many bugs")]
     [field: SerializeField] public GenerateAlgorithm GenerateAlgorithm { get; private set; } = GenerateAlgorithm.FullRandom;
     [field: HorizontalLine(2, EColor.Green)]
     [field: Header("Settings")]
@@ -624,11 +626,9 @@ public class LevelGenerator : MonoBehaviour
 
     private void SetupGraphDynamically()
     {
-        //Initialize boundaries
         Vector3 minBounds = Vector3.positiveInfinity;
         Vector3 maxBounds = Vector3.negativeInfinity;
 
-        //Collect the boundaries of all rooms
         foreach (var room in SpawnedRooms)
         {
             Bounds bounds = room.GetComponent<Collider>().bounds;
@@ -636,47 +636,22 @@ public class LevelGenerator : MonoBehaviour
             maxBounds = Vector3.Max(maxBounds, bounds.max);
         }
 
-        //Add a small padding
         float padding = 25f;
         minBounds -= Vector3.one * padding;
         maxBounds += Vector3.one * padding;
 
-        // Get existing graphs (assuming there are at least 2 graphs)
-        if (astarPath.data.graphs.Length < 2)
-        {
-            Debug.LogError("Expected at least 2 graphs in AstarPath!");
-            return;
-        }
-
-        // Define vertical settings
-        float lowerHeight = -20f;           // Базовая высота нижнего графа
-        float distanceBetweenGraphs = 20f;  // Расстояние между графами (настраиваемое)
-
-        // Configure first Grid Graph (lower level)
-        GridGraph lowerGraph = astarPath.data.graphs[0] as GridGraph;
-        Vector3 center = (minBounds + maxBounds) / 2f;
-        lowerGraph.center = new Vector3(center.x, lowerHeight, center.z);
-        lowerGraph.SetDimensions(
-            Mathf.CeilToInt((maxBounds.x - minBounds.x) / lowerGraph.nodeSize),
-            Mathf.CeilToInt((maxBounds.z - minBounds.z) / lowerGraph.nodeSize),
-            lowerGraph.nodeSize
+        GridGraph gridGraph = astarPath.data.layerGridGraph;
+        gridGraph.center = (minBounds + maxBounds) / 2f;
+        gridGraph.center = new Vector3(gridGraph.center.x, -10, gridGraph.center.z);
+        gridGraph.SetDimensions(
+            Mathf.CeilToInt((maxBounds.x - minBounds.x) / gridGraph.nodeSize),
+            Mathf.CeilToInt((maxBounds.z - minBounds.z) / gridGraph.nodeSize),
+            gridGraph.nodeSize
         );
 
-        // Configure second Grid Graph (upper level)
-        GridGraph upperGraph = astarPath.data.graphs[1] as GridGraph;
-        float upperHeight = lowerHeight + distanceBetweenGraphs; // Высота верхнего графа
-        upperGraph.center = new Vector3(center.x, upperHeight, center.z);
-        upperGraph.SetDimensions(
-            Mathf.CeilToInt((maxBounds.x - minBounds.x) / upperGraph.nodeSize),
-            Mathf.CeilToInt((maxBounds.z - minBounds.z) / upperGraph.nodeSize),
-            upperGraph.nodeSize
-        );
-
-        // Scan all graphs
         astarPath.Scan();
 
-        Debug.Log($"Graph scanning completed! Number of graphs: {astarPath.data.graphs.Length}");
-        Debug.Log($"Distance between graphs: {distanceBetweenGraphs}");
+        Debug.Log("Graph scanning completed!");
     }
     #endregion
 

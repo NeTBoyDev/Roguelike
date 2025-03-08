@@ -13,6 +13,8 @@ using TMPro;
 
 public class Inventory : MonoBehaviour
 {
+    public int PlayerGold { get; private set; } = 1000;
+
     [SerializeField] private Image _dragPreviewImage;
     
     [SerializeField] private RectTransform _itemInfoPanel;
@@ -66,6 +68,8 @@ public class Inventory : MonoBehaviour
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
+
+        View.Inventory.SetActive(false);
     }
 
     private void Initialize()
@@ -99,7 +103,10 @@ public class Inventory : MonoBehaviour
             InventoryState = value;
             if (!value)
                 CloseItemInfo();
+
             UpdateStatsText();
+            if(Model.Minimap != null)
+                Model.Minimap.SetActive(!value);
         };
     }
     
@@ -129,13 +136,15 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) LogSelectedItem();
 
-        if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null) CloseVendorInterface();
+        if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null && _currentVendor.IsVendorOpen()) CloseVendorInterface();
 
         TryOpenVendor();
 
         CheckForItem();
         HandleHotbarInput();
     }
+
+    public void ChangePlayerGold(int amount) => PlayerGold += amount;
 
     private void TryOpenVendor()
     {
@@ -149,7 +158,7 @@ public class Inventory : MonoBehaviour
             }
             else
             {
-                OpenVendorInterface(vendor, Vendor.TradeMode.Sell);
+                OpenVendorInterface(vendor);
             }
         }
         else if (_currentVendor != null && Vector3.Distance(transform.GetChild(0).position, _currentVendor.transform.position) > _currentVendor.VendorCloseDistance)
@@ -297,9 +306,22 @@ public class Inventory : MonoBehaviour
         _dragPreviewImage.gameObject.SetActive(true);
     }
 
-    public void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot) =>
-        InventoryDragDropHandler.HandleDrop(eventData, item, targetSlot, this);
+    public void DropItem(PointerEventData eventData, Item item, InventorySlot targetSlot)
+    {
+        if (DragableItem == null || LastInteractSlot == null)
+        {
+            ResetDrag();
+            return;
+        }
 
+        if (_currentVendor != null && _currentVendor.CurrentMode == Vendor.TradeMode.Buy &&
+            _currentVendor.BuySlots.Contains(LastInteractSlot))
+        {
+            return;
+        }
+
+        InventoryDragDropHandler.HandleDrop(eventData, item, targetSlot, this);
+    }
     public void ResetDrag()
     {
         DragableItem = null;
@@ -540,14 +562,14 @@ public class Inventory : MonoBehaviour
         _itemInfoPanel.gameObject.SetActive(false);
     }
 
-    public void OpenVendorInterface(Vendor vendor, Vendor.TradeMode mode)
+    public void OpenVendorInterface(Vendor vendor)
     {
         if(_currentVendor != null && _currentVendor != vendor)
         {
             CloseVendorInterface();
         }
         _currentVendor = vendor;
-        _currentVendor.OpenVendor(mode);
+        _currentVendor.OpenVendor();
 
         InventorySetAcitve(true);
         UpdateCursorState(true);
