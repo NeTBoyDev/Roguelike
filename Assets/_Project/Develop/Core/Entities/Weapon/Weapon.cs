@@ -14,8 +14,8 @@ public class Weapon : Item
     {
         Rarity = rarity;
         Stats[StatType.Damage] = new Stat(StatType.Damage, 10f * GameData.Rarity[Rarity]);
-        Stats[StatType.AttackSpeed] = new Stat(StatType.AttackSpeed, 1f * GameData.Rarity[Rarity]);
-        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 20f * GameData.Rarity[Rarity]);
+        Stats[StatType.AttackSpeed] = new Stat(StatType.AttackSpeed, 1f / GameData.Rarity[Rarity]);
+        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 20f);
         Stats[StatType.AttackRange] = new Stat(StatType.AttackRange, 0.75f * GameData.Rarity[Rarity]);
     }
 

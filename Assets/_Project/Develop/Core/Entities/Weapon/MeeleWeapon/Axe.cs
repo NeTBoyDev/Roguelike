@@ -10,6 +10,6 @@ public class Axe : MeeleWeapon
         Stats[StatType.AttackSpeed].SetValue(0.75f * GameData.Rarity[Rarity]);
         Stats[StatType.AttackRange].SetValue(1 * GameData.Rarity[Rarity]);
         Stats[StatType.Damage].SetValue(15 * GameData.Rarity[Rarity]);
-        Stats[StatType.StaminaCost].SetValue(25 * GameData.Rarity[Rarity]);
+        Stats[StatType.StaminaCost].SetValue(25);
     }
 }

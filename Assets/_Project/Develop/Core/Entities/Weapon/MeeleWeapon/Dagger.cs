@@ -9,6 +9,6 @@ public class Dagger : MeeleWeapon
     {
         Stats[StatType.AttackSpeed].SetValue(1.25f * GameData.Rarity[Rarity]);
         Stats[StatType.AttackRange].SetValue(0.5f * GameData.Rarity[Rarity]);
-        Stats[StatType.StaminaCost].SetValue(13 * GameData.Rarity[Rarity]);
+        Stats[StatType.StaminaCost].SetValue(13);
     }
 }

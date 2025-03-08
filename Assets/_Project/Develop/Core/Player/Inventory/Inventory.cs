@@ -291,7 +291,7 @@ public class Inventory : MonoBehaviour
         if (((UseableItem)Model.SelectedItem).Count > 1)
             ((UseableItem)Model.SelectedItem).Count--;
         else
-            RemoveItem(Model.SelectedItem);
+            RemoveHotbarItem(Model.SelectedItem);
         
         UpdateAllHotbarSlots();
         Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
@@ -301,6 +301,7 @@ public class Inventory : MonoBehaviour
     #region Item Management
     public void AddItem(Item item) => InventoryItemManager.AddItem(item, View, Model, CombatSystem);
     public void RemoveItem(Item item) => InventoryItemManager.RemoveItem(item, View, Model);
+    public void RemoveHotbarItem(Item item) => InventoryItemManager.RemoveHotbarItem(item, View, Model);
     public void RemoveItem(InventorySlot slot) => InventoryItemManager.RemoveItem(slot, View, Model);
     public Item FindItem(string Id) => Model.FindItem(Id);
     #endregion

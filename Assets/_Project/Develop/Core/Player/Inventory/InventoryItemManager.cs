@@ -118,6 +118,16 @@ public static class InventoryItemManager
             model.RemoveItem(item);
         }
     }
+    
+    public static void RemoveHotbarItem(Item item, InventoryView view, InventoryModel model)
+    {
+        var slot = view.GetHotbarSlotWithItem(item);
+        if (slot != null)
+        {
+            view.ClearSlot(slot);
+            model.RemoveItem(slot.Item);
+        }
+    }
 
     public static void RemoveItem(InventorySlot slot, InventoryView view, InventoryModel model)
     {

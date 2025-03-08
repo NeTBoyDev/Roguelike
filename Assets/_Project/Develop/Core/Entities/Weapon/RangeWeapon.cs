@@ -16,7 +16,9 @@ public class RangeWeapon : Weapon
     public RangeWeapon(string id,Rarity rarity) : base(id,rarity)
     {
 
-        Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue / GameData.Rarity[Rarity]);
+        Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
+        Stats[StatType.StaminaCost].SetValue(Stats[StatType.AttackSpeed].CurrentValue * GameData.Rarity[Rarity]);
+        //Stats[StatType.AttackSpeed].SetValue(Stats[StatType.AttackSpeed].CurrentValue / GameData.Rarity[Rarity]);
     }
    
 }
