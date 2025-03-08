@@ -50,6 +50,7 @@ public class Inventory : MonoBehaviour
     [field: SerializeField] public float InteractionDistance { get; private set; } = 5f;
     [field: SerializeField] public TMP_Text GoldText { get; private set; } = null;
     [SerializeField,ReadOnly] private Vendor _currentVendor = null;
+    [SerializeField, ReadOnly] private Anvil _currentAnvil = null;
 
     #region Initialize
 
@@ -61,8 +62,6 @@ public class Inventory : MonoBehaviour
     private void Start()
     {
         Initialize();
-
-        KitStart();
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
@@ -120,10 +119,6 @@ public class Inventory : MonoBehaviour
     {
         CombatSystem.RemoveSecondaryWeapon();
     }
-    private void KitStart()
-    {
-
-    }
     #endregion 
 
     #region Handlers
@@ -139,8 +134,9 @@ public class Inventory : MonoBehaviour
         if (Input.GetKeyDown(UseItemKey)) UseSelectedItem();
 
         if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null && _currentVendor.IsVendorOpen()) CloseVendorInterface();
+        if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentAnvil != null && _currentAnvil.IsAnvilOpen()) CloseAnvilInterface();
 
-        TryOpenVendor();
+        TryOpenVendorOrAnvil();
 
         CheckForItem();
         HandleHotbarInput();
@@ -148,7 +144,7 @@ public class Inventory : MonoBehaviour
 
     public void ChangePlayerGold(int amount) => PlayerGold += amount;
 
-    private void TryOpenVendor()
+    private void TryOpenVendorOrAnvil()
     {
         Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hit, InteractionDistance);
 
@@ -166,6 +162,22 @@ public class Inventory : MonoBehaviour
         else if (_currentVendor != null && Vector3.Distance(transform.GetChild(0).position, _currentVendor.transform.position) > _currentVendor.VendorCloseDistance)
         {
             CloseVendorInterface();
+        }
+
+        if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Anvil anvil))
+        {
+            if (_currentAnvil == anvil)
+            {
+                CloseAnvilInterface();
+            }
+            else
+            {
+                OpenAnvilInterface(anvil);
+            }
+        }
+        else if (_currentAnvil != null && Vector3.Distance(transform.GetChild(0).position, _currentAnvil.transform.position) > _currentAnvil.AnvilCloseDistance)
+        {
+            CloseAnvilInterface();
         }
     }
 
@@ -286,10 +298,11 @@ public class Inventory : MonoBehaviour
             return;
         }
         
-        ((UseableItem)Model.SelectedItem).Use(CombatSystem.playerModel);
-        
         if (((UseableItem)Model.SelectedItem).Count > 1)
+        {
             ((UseableItem)Model.SelectedItem).Count--;
+            ((UseableItem)Model.SelectedItem).Use(CombatSystem.playerModel);
+        }
         else
             RemoveHotbarItem(Model.SelectedItem);
         
@@ -358,7 +371,7 @@ public class Inventory : MonoBehaviour
     private void DropItemOutOfInventory(PointerEventData data, Item item, InventorySlot slot)
     {
         if (!RectTransformUtility.RectangleContainsScreenPoint(View.Inventory.GetComponent<RectTransform>(), data.position) &&
-            !VendorIsActive())
+            !VendorIsActive() && !AnvilIsActive())
         {
             DropItemInWorld(item);
             RemoveItem(slot);
@@ -391,6 +404,7 @@ public class Inventory : MonoBehaviour
     }
 
     private bool VendorIsActive() => _currentVendor != null && _currentVendor.IsVendorOpen();
+    private bool AnvilIsActive() => _currentAnvil != null && _currentAnvil.IsAnvilOpen();
 
     private void DropItemInWorld(Item item)
     {
@@ -404,7 +418,7 @@ public class Inventory : MonoBehaviour
 
     private void QuickMoveItem(PointerEventData eventData, Item item, InventorySlot sourceSlot)
     {
-        if (item == null || eventData.button != PointerEventData.InputButton.Right) return;
+        if (item == null || eventData.button != PointerEventData.InputButton.Right || sourceSlot.SlotType == SlotType.Hotbar) return;
 
         InventorySlot targetSlot = FindQuickMoveTargetSlot(item);
 
@@ -588,7 +602,6 @@ public class Inventory : MonoBehaviour
         {
             foreach (var effect in item.Effects)
             {
-                print(effect.Name);
                 effects += $"{effect.Name}\n";
             }
         }
@@ -626,6 +639,34 @@ public class Inventory : MonoBehaviour
         {
             _currentVendor.CloseVendor();
             _currentVendor = null;
+
+            InventorySetAcitve(false);
+            UpdateCursorState(false);
+
+            OnInventoryStateChange?.Invoke(false);
+        }
+    }
+
+    public void OpenAnvilInterface(Anvil anvil)
+    {
+        if (_currentAnvil != null && _currentAnvil != anvil)
+        {
+            CloseAnvilInterface();
+        }
+        _currentAnvil = anvil;
+        _currentAnvil.OpenAnvil();
+
+        InventorySetAcitve(true);
+        UpdateCursorState(true);
+
+        OnInventoryStateChange?.Invoke(true);
+    }
+    public void CloseAnvilInterface()
+    {
+        if (_currentAnvil != null)
+        {
+            _currentAnvil.CloseAnvil();
+            _currentAnvil = null;
 
             InventorySetAcitve(false);
             UpdateCursorState(false);

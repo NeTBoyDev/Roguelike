@@ -6,18 +6,21 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[Flags]
 public enum SlotType
 {
-    Default,
-    Hotbar,
-    Weapon,
-    SecondaryWeapon,
-    Artifact1,
-    Artifact2
+    None = 0,
+    Default = 1 << 0, //1
+    Hotbar = 1 << 1,  //2
+    Weapon = 1 << 2,  //4
+    SecondaryWeapon = 1 << 3,  //8
+    Artifact1 = 1 << 4,  //16
+    Artifact2 = 1 << 5   //32
 }
 
 public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    [field: EnumFlags]
     [field: SerializeField] public SlotType SlotType {  get; private set; } = SlotType.Default;
     [field: SerializeField] public Item Item { get; private set; } = null;
     [field: SerializeField] public Image Image { get; private set; } = null;
