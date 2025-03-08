@@ -68,13 +68,19 @@ public class Vendor : MonoBehaviour
     #region Initialize
     private void Start()
     {
-        _playerInventory = FindObjectOfType<Inventory>();
+        FindPlayer();
 
         SubscribeEvents();
         InitializeVendorInventory();
         UpdatePlayerGoldText();
 
         _vendorView.Inventory.SetActive(false);
+    }
+
+    private void FindPlayer()
+    {
+        if(_playerInventory == null)
+            _playerInventory = FindObjectOfType<Inventory>();
     }
 
     private void OnValidate()
@@ -181,6 +187,8 @@ public class Vendor : MonoBehaviour
 
     public void OpenVendor()
     {
+        FindPlayer();
+
         CurrentMode = LastSelectedMode;
         _vendorView.Inventory.SetActive(true);
 
@@ -250,7 +258,7 @@ public class Vendor : MonoBehaviour
     }
     private void UpdatePlayerGoldText()
     {
-        if (_playerInventory.GoldText != null)
+        if ( _playerInventory != null && _playerInventory.GoldText != null)
             _playerInventory.GoldText.text = $"{_playerInventory.PlayerGold}";
     }
     private string GetRandomPhrase(string[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];

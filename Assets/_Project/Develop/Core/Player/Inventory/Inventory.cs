@@ -564,6 +564,7 @@ public class Inventory : MonoBehaviour
 
     public void OpenVendorInterface(Vendor vendor)
     {
+
         if(_currentVendor != null && _currentVendor != vendor)
         {
             CloseVendorInterface();

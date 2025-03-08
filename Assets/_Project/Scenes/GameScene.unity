@@ -384,9 +384,9 @@ MonoBehaviour:
   - {fileID: 1898664814548399640, guid: ebb203b4711eb6c4faa5d3d2dd7658c9, type: 3}
   - {fileID: 1898664814548399640, guid: 3bc3b2d9042a0fd459b7cf6e45f13a72, type: 3}
   - {fileID: 1898664814548399640, guid: 03c88f16fe69d2f4f95249ad6feda5ea, type: 3}
-  - {fileID: 1898664814548399640, guid: 26088a3936645bb4eaaa53413f5bb3fd, type: 3}
   - {fileID: 1898664814548399640, guid: 8e9976e9242a2e34ba0c6950a299fb18, type: 3}
   - {fileID: 1898664814548399640, guid: 5deeb9bf11cab4748a9aa92473d7abc4, type: 3}
+  - {fileID: 1898664814548399640, guid: e5d4fa8bbbd174141aaf4bdbef763c95, type: 3}
   <GenerateAlgorithm>k__BackingField: 2
   <MaxRoomCount>k__BackingField: 10
   <OverlapDoorThreshold>k__BackingField: 1
@@ -399,7 +399,7 @@ MonoBehaviour:
     type: 3}
   <VendorPrefab>k__BackingField: {fileID: 2136184067701895308, guid: 804ba9ad9e9981f448663493a919c4e4,
     type: 3}
-  <DebugMode>k__BackingField: 0
+  <DebugMode>k__BackingField: 1
   <LevelContainer>k__BackingField: {fileID: 0}
   <SpawnedRooms>k__BackingField: []
   _currentRoomCount: 0

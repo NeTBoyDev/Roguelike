@@ -51,4 +51,12 @@ public class Room : MonoBehaviour
     //}
     public float GetRoomSize() => GetComponent<SpriteRenderer>().bounds.size.x;
     public bool IsStartRoom() => Type == RoomType.StartRoom;
+    public void RemoveAllRoomColliders()
+    {
+        foreach (var collider in RoomColliders)
+        {
+            //collider.enabled = false;
+            Destroy(collider);
+        }
+    }
 }

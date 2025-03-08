@@ -65,20 +65,23 @@ public class LevelGenerator : MonoBehaviour
 
     #region Initialize
     private void Awake() => astarPath = FindObjectOfType<AstarPath>();
-    private void Start() => Initialize();
+    private void Start() => Initialize(new LevelGeneratorSettings(GenerateAlgorithm, MaxRoomCount, 2));
 
-    public void Initialize()
+    public void Initialize(LevelGeneratorSettings settings)
     {
+        MaxRoomCount = settings.MaxRoomCount;
+        GenerateAlgorithm = settings.GenerateAlgorithm;
+
         LevelContainer = GetLevelContainer();
         RoomPrefabs.RemoveAll(room => room == null);
 
-        StartGenerate();
+        StartGenerate(settings);
     }
     #endregion
 
     #region Generate
 
-    private async void StartGenerate()
+    private async void StartGenerate(LevelGeneratorSettings settings)
     {
         if (RoomPrefabs.Count <= 0)
         {
@@ -86,24 +89,25 @@ public class LevelGenerator : MonoBehaviour
             return;
         }
 
-        _pipeline = LevelGenerationPipeline.Create()
-            .AddDelay(StartSpawnDelay)
-            .AddStep(GenerateStartRoom)
-            .AddDelay(LastRoomSpawnDelay)
-            .AddStep(GenerateFinalRoomInitial)
-            .AddDelay(RoomSpawnDelay)
-            .AddStep(GenerateFloorAsync)
-            .AddDelay(2)
-            .AddStep(SetupGraphDynamically)
-            .AddDelay(PlayerSpawnDelay)
-            .AddStep(SpawnPlayer)
-            .AddDelay(1)
-            .AddStep(SpawnVendor);
+        _pipeline = LevelGenerationPipeline.Create().AddDelay(StartSpawnDelay)
+            .AddStep(GenerateStartRoom).AddDelay(LastRoomSpawnDelay)
+            .AddStep(GenerateFinalRoomInitial).AddDelay(RoomSpawnDelay)
+            .AddStep(GenerateFloorAsync).AddDelay(settings.BakeFrameCount)
+            .AddStep(SetupGraphDynamically).AddDelay(PlayerSpawnDelay)
+            .AddStep(SpawnPlayer).AddDelay(1)
+            .AddStep(SpawnVendor).AddDelay(1) //TEST VENDOR (NEED TO DELETE) (fake vendor)
+            .AddStep(RemoveCollidersInSpawnedRooms);
 
         await _pipeline.Execute();
-
     }
 
+    private void RemoveCollidersInSpawnedRooms()
+    {
+        foreach (var room in SpawnedRooms)
+        {
+            room.RemoveAllRoomColliders();
+        }
+    }
     public void SpawnPlayer()
     {
         var startRoom = GetStartRoom();
@@ -770,5 +774,18 @@ public class LevelGenerationPipeline
         {
             _cts.Cancel();
         }
+    }
+}
+
+public struct LevelGeneratorSettings
+{
+    public GenerateAlgorithm GenerateAlgorithm;
+    public int MaxRoomCount;
+    public int BakeFrameCount;
+    public LevelGeneratorSettings(GenerateAlgorithm algorithm, int maxRoomCount, int bakeFrameCount)
+    {
+        GenerateAlgorithm = algorithm;
+        MaxRoomCount = maxRoomCount;
+        BakeFrameCount = bakeFrameCount;
     }
 }
