@@ -12,19 +12,6 @@ public static class InventoryDragDropHandler
             return;
         }
 
-        if (inventory.LastInteractSlot.Item is Gem gem && targetSlot.Item is Weapon weapon && targetSlot.Item.Effects.Count < (int)targetSlot.Item.Rarity)
-        {
-            targetSlot.Item.ApplyEffect(inventory.LastInteractSlot.Item.Effects[0]);
-            
-            if(gem.projectile != null)
-                weapon.AddProjectile(gem.projectile);
-            
-            inventory.RemoveItem(inventory.LastInteractSlot.Item);
-            inventory.ResetDrag();
-            
-            
-            return;     
-        }
 
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
@@ -62,18 +49,22 @@ public static class InventoryDragDropHandler
     {
         if (item == null) return true;
 
-        return targetSlot.SlotType switch
-        {
-            SlotType.Hotbar => item is UseableItem,
-            SlotType.Weapon => item is MeeleWeapon || item is RangeWeapon,
-            SlotType.SecondaryWeapon => item is SecondaryWeapon,
-            SlotType.Artifact1 => item is Artifact,
-            SlotType.Artifact2 => item is Artifact,
-            SlotType.Default => true,
-            _ => false
-        };
-    }
+        // Проверяем, какие типы слотов разрешены
+        bool isHotbar = (targetSlot.SlotType & SlotType.Hotbar) != 0;
+        bool isWeapon = (targetSlot.SlotType & SlotType.Weapon) != 0;
+        bool isSecondaryWeapon = (targetSlot.SlotType & SlotType.SecondaryWeapon) != 0;
+        bool isArtifact1 = (targetSlot.SlotType & SlotType.Artifact1) != 0;
+        bool isArtifact2 = (targetSlot.SlotType & SlotType.Artifact2) != 0;
+        bool isDefault = (targetSlot.SlotType & SlotType.Default) != 0;
 
+        if (isHotbar && item is UseableItem) return true;
+        if (isWeapon && (item is MeeleWeapon || item is RangeWeapon)) return true;
+        if (isSecondaryWeapon && item is SecondaryWeapon) return true;
+        if ((isArtifact1 || isArtifact2) && item is Artifact) return true;
+        if (isDefault) return true;
+
+        return false;
+    }
     private static void HandleWeaponSlots(Inventory inventory, InventorySlot targetSlot)
     {
         if (inventory.DragableItem is Weapon weapon && targetSlot.SlotType == SlotType.Weapon)

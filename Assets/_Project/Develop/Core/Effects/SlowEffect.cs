@@ -1,3 +1,4 @@
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using _Project.Develop.Core.Enum;
 
@@ -18,6 +19,11 @@ namespace _Project.Develop.Core.Effects
         {
             if (target.Stats.ContainsKey(StatType.Agility))
                 target.Stats[StatType.Agility].Modify(magnitude);
+        }
+
+        public override Effect Clone()
+        {
+            return new SlowEffect(magnitude, Duration);
         }
     }
 }
