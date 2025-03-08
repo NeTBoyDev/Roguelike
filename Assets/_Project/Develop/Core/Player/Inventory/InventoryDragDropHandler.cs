@@ -12,7 +12,7 @@ public static class InventoryDragDropHandler
             return;
         }
 
-        if (inventory.LastInteractSlot.Item is Gem && targetSlot.Item is Weapon && targetSlot.Item.Effects.Count < (int)inventory.LastInteractSlot.Item.Rarity)
+        if (inventory.LastInteractSlot.Item is Gem && targetSlot.Item is Weapon && targetSlot.Item.Effects.Count < (int)targetSlot.Item.Rarity)
         {
             targetSlot.Item.ApplyEffect(inventory.LastInteractSlot.Item.Effects[0]);
             inventory.RemoveItem(inventory.LastInteractSlot.Item);

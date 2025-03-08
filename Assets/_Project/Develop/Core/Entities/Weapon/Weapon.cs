@@ -10,12 +10,13 @@ public class Weapon : Item
 {
     public List<Projectile> Projectile { get; private set; } = new();
     public List<ProjectileObject> ProjectileView { get; private set; } = new();
-    public Weapon(string id) : base(id)
+    public Weapon(string id,Rarity rarity) : base(id)
     {
-        Stats[StatType.Damage] = new Stat(StatType.Damage, 10f);
-        Stats[StatType.AttackSpeed] = new Stat(StatType.AttackSpeed, 1f);
-        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 20f);
-        Stats[StatType.AttackRange] = new Stat(StatType.AttackRange, 0.75f);
+        Rarity = rarity;
+        Stats[StatType.Damage] = new Stat(StatType.Damage, 10f * GameData.Rarity[Rarity]);
+        Stats[StatType.AttackSpeed] = new Stat(StatType.AttackSpeed, 1f * GameData.Rarity[Rarity]);
+        Stats[StatType.StaminaCost] = new Stat(StatType.StaminaCost, 20f * GameData.Rarity[Rarity]);
+        Stats[StatType.AttackRange] = new Stat(StatType.AttackRange, 0.75f * GameData.Rarity[Rarity]);
     }
 
     public void AddProjectile(Projectile p)
@@ -94,7 +95,7 @@ public class Weapon : Item
                 Camera.main.transform.position + Camera.main.transform.forward, 
                 direction);
         
-            projectile.SetDamage(Projectile[i][StatType.Strength].CurrentValue * multiplyier);
+            projectile.SetDamage(Projectile[i][StatType.Strength].CurrentValue * multiplyier * GameData.Rarity[Rarity]);
         
             ApplyEffects(projectile);
         }

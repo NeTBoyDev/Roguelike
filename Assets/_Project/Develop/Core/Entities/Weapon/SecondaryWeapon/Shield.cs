@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class Shield : SecondaryWeapon
 {
-    public Shield(string id) : base(id)
+    public Shield(string id,Rarity rarity) : base(id, rarity)
     {
-        Stats[StatType.StaminaCost].SetValue(40);
+        Stats[StatType.StaminaCost].SetValue(40 / GameData.Rarity[Rarity]);
     }
 }

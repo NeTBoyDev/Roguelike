@@ -35,7 +35,7 @@ public class AutoAim : SpellEffect
 
         while (elapsedTime < maxDuration && obj != null) 
         {
-            SkeletonAI nearestEnemy = FindNearestSkeletonAI(obj.transform.position, magnitude);
+            SkeletonAI nearestEnemy = FindNearestSkeletonAI(obj.transform.position, 5);
 
             if (nearestEnemy != null)
             {

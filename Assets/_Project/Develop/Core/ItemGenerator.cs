@@ -276,14 +276,14 @@ namespace _Project.Develop.Core
             BaseEntity weaponModel = weaponType switch
             {
                 WeaponType.UseableItems =>GetPotion(name),
-                WeaponType.Shield => new Shield(name),
-                WeaponType.SpellBook =>new Spellbook(name),
-                WeaponType.Sword => new Sword(name),
-                WeaponType.Dagger => new Dagger(name),
-                WeaponType.Axe => new Axe(name),
-                WeaponType.Staff => new Staff(name),
-                WeaponType.Crossbow => new Crossbow(name),
-                WeaponType.Hammer => new Hammer(name),
+                WeaponType.Shield => new Shield(name,rarity),
+                WeaponType.SpellBook =>new Spellbook(name,rarity),
+                WeaponType.Sword => new Sword(name,rarity),
+                WeaponType.Dagger => new Dagger(name,rarity),
+                WeaponType.Axe => new Axe(name,rarity),
+                WeaponType.Staff => new Staff(name,rarity),
+                WeaponType.Crossbow => new Crossbow(name,rarity),
+                WeaponType.Hammer => new Hammer(name,rarity),
                 WeaponType.Gem => new Gem(name),
                 WeaponType.Artifact => new Artifact(name),
                 
@@ -294,11 +294,12 @@ namespace _Project.Develop.Core
 
             Effect[] effectsArray;
             int effectCount = (int)rarity;
+            var count = Random.Range(0, effectCount);
             
-            if (weaponModel is Weapon)
+            if (weaponModel is MeeleWeapon || weaponModel is RangeWeapon)
             {
                 effectsArray = weaponModel is MeeleWeapon ? MeleeEffects : RangeEffects;
-                for (int i = 0; i < effectCount; i++)
+                for (int i = 0; i < count; i++)
                 {
                     weaponModel.Effects.Add(effectsArray[Random.Range(0, effectsArray.Length)]);
                 }
@@ -311,7 +312,7 @@ namespace _Project.Develop.Core
                     e.SetMagnitude((int)rarity);
                 weaponModel.Effects.Add(effect);
             }
-            else if (weaponModel is Artifact)
+            else if (weaponModel is Artifact || weaponModel is SecondaryWeapon)
             {
                 for (int i = 0; i < (int)weaponModel.Rarity; i++)
                 {
@@ -322,7 +323,7 @@ namespace _Project.Develop.Core
                     }
                     else
                     {
-                        weaponModel.Stats[stat]= new Stat(stat,1,16);
+                        weaponModel.Stats[stat]= new Stat(stat,(int)weaponModel.Rarity,16);
                     }
                 }
             }

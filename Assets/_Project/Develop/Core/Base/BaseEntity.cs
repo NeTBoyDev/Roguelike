@@ -8,7 +8,7 @@ using UnityEngine;
 public abstract class BaseEntity : IEntity
 {
     public string Id { get; private set; }
-    public Dictionary<StatType, Stat> Stats { get; private set; }
+    public Dictionary<StatType, Stat> Stats { get; protected set; }
     public List<Effect> Effects { get; private set; }
 
     public Rarity Rarity;

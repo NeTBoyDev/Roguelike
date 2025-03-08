@@ -13,7 +13,7 @@ public class MeeleWeapon : Weapon
 {
     
     
-    public MeeleWeapon(string id) : base(id)
+    public MeeleWeapon(string id,Rarity rarity) : base(id,rarity)
     {
         //Debug.Log($"Start damage is {Stats[StatType.Damage].CurrentValue} {Projectile.Count}");
         

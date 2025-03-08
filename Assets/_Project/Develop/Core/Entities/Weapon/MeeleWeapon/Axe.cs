@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Axe : MeeleWeapon
 {
-    public Axe(string id) : base(id)
+    public Axe(string id,Rarity rarity) : base(id,rarity)
     {
-        Stats[StatType.AttackSpeed].SetValue(0.75f);
-        Stats[StatType.AttackRange].SetValue(1);
-        Stats[StatType.Damage].SetValue(15);
-        Stats[StatType.StaminaCost].SetValue(25);
+        Stats[StatType.AttackSpeed].SetValue(0.75f * GameData.Rarity[Rarity]);
+        Stats[StatType.AttackRange].SetValue(1 * GameData.Rarity[Rarity]);
+        Stats[StatType.Damage].SetValue(15 * GameData.Rarity[Rarity]);
+        Stats[StatType.StaminaCost].SetValue(25 * GameData.Rarity[Rarity]);
     }
 }

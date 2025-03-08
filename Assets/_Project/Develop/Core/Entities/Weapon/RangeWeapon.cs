@@ -13,7 +13,7 @@ public class RangeWeapon : Weapon
 {
     public bool isReloadable { get; protected set; }
     public bool isReloaded = false;
-    public RangeWeapon(string id) : base(id)
+    public RangeWeapon(string id,Rarity rarity) : base(id,rarity)
     {
 
         Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
