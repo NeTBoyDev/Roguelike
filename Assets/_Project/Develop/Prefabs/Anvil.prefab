@@ -111,8 +111,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 1.1058044}
-  m_SizeDelta: {x: 0, y: 2.2117}
+  m_AnchoredPosition: {x: 0, y: 7.9537}
+  m_SizeDelta: {x: 0, y: 15.9075}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6575674469495695138
 CanvasRenderer:
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -225,7 +225,7 @@ GameObject:
   - component: {fileID: 7936421801963361774}
   - component: {fileID: 2631871863734502403}
   m_Layer: 5
-  m_Name: ItemSlot
+  m_Name: WeaponSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -249,7 +249,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 100, y: 58}
+  m_AnchoredPosition: {x: 115, y: 58}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6539636674253632077
@@ -272,7 +272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 306d214897ea3da45b73a1769cdb2235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <SlotType>k__BackingField: 12
+  <SlotType>k__BackingField: 4
   <Image>k__BackingField: {fileID: 7775432877760541553}
   <DefaultSprite>k__BackingField: {fileID: 21300000, guid: c416328c301571449ab5dc2c4a74f905,
     type: 3}
@@ -345,6 +345,7 @@ RectTransform:
   - {fileID: 2719600237487833319}
   - {fileID: 1815170248080684140}
   - {fileID: 8457884642611673127}
+  - {fileID: 889830867419589607}
   - {fileID: 7985912325391526500}
   m_Father: {fileID: 1753760791919538928}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -389,8 +390,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 83.5}
-  m_SizeDelta: {x: 150, y: 35}
+  m_AnchoredPosition: {x: 0, y: 91}
+  m_SizeDelta: {x: 150, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2771604045125294541
 CanvasRenderer:
@@ -832,12 +833,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7411085581350705418}
-  - {fileID: 889830867419589607}
   m_Father: {fileID: 6393264382208478655}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000121593475, y: 10.599987}
+  m_AnchoredPosition: {x: -0.0000121593475, y: 3.7}
   m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8073034492769522373
@@ -1078,7 +1078,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Item
+  m_text: 'weapon
 
 '
   m_isRightToLeft: 0
@@ -1208,7 +1208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.8}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1373,7 +1373,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -100, y: 58}
+  m_AnchoredPosition: {x: -115, y: 58}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5466533252071446656
@@ -1460,17 +1460,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7126078900449363401}
-  m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1815170248080684140}
+  m_Father: {fileID: 6393264382208478655}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -68.34326, y: 0.60779953}
-  m_SizeDelta: {x: 96.3148, y: 56.6866}
+  m_AnchoredPosition: {x: 0.68359375, y: 78.70002}
+  m_SizeDelta: {x: 126.3671, y: 74}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6899980078089224174
 CanvasRenderer:
@@ -1528,19 +1528,19 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
+  m_fontSize: 30
   m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 14
-  m_fontSizeMax: 25
+  m_fontSizeMax: 30
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -40
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -1635,7 +1635,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Upgrade Items
+  m_text: Upgrade weapon
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3fa72807991d8d54fbb1839263217a5c, type: 2}
   m_sharedMaterial: {fileID: -4664338555326026538, guid: 3fa72807991d8d54fbb1839263217a5c,
@@ -1756,14 +1756,14 @@ MonoBehaviour:
   <AnvilCloseDistance>k__BackingField: 15
   _anvilPanel: {fileID: 5609842905240794387}
   _playerInventory: {fileID: 0}
-  <BaseUpgradeChance>k__BackingField: 50
+  <BaseUpgradeChance>k__BackingField: 70
   _gemSlot: {fileID: 5495275777284964694}
   _weaponSlot: {fileID: 7936421801963361774}
   _finalSlot: {fileID: 4321586742076449630}
   _upgradeButton: {fileID: 4959018352236717388}
   _progressImage: {fileID: 9095704718212533316}
   _statusText: {fileID: 97818721390797188}
-  <UpgradeDuration>k__BackingField: 2
+  <UpgradeDuration>k__BackingField: 6
 --- !u!65 &4261917399425360472
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1821,7 +1821,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -95}
+  m_AnchoredPosition: {x: 0, y: -104.2}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7836106801975042550

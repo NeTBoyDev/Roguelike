@@ -7,8 +7,8 @@ namespace _Project.Develop.Core.Entities
     {
         public UseableItem(string id) : base(id)
         {
-            MaxStackSize = 10;
-            Count = 9;
+            MaxStackSize = 3;
+            Count = Random.Range(1, MaxStackSize +1);
         }
 
         public virtual void Use(BaseEntity entity)

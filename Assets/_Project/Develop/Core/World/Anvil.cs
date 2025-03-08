@@ -32,6 +32,7 @@ public class Anvil : MonoBehaviour
     [field: SerializeField, MinValue(0)] public float UpgradeDuration { get; private set; } = 2f;
 
     private bool _isUpgrading = false;
+    private Tween _upgradeTween;
 
     #region Initialize
     private void Start()
@@ -58,20 +59,29 @@ public class Anvil : MonoBehaviour
 
     private void OnDisable()
     {
-        _gemSlot.onDrag -= OnAnvilDrag;
-        _gemSlot.onDrop -= OnAnvilDrop;
-        _weaponSlot.onDrag -= OnAnvilDrag;
-        _weaponSlot.onDrop -= OnAnvilDrop;
-        _finalSlot.onDrag -= OnAnvilDrag;
+        InventorySlot[] allSlots = { _gemSlot, _weaponSlot, _finalSlot };
+
+        foreach (var slot in allSlots)
+        {
+            slot.onDrag -= OnAnvilDrag;
+            slot.onDrop -= OnAnvilDrop;
+            slot.onPointerEnter -= ShowItemInfo;
+            slot.onPointerExit -= CloseItemInfo;
+        }
+        CancelUpgrade();
     }
 
     private void SubscribeEvents()
     {
-        _gemSlot.onDrag += OnAnvilDrag;
-        _gemSlot.onDrop += OnAnvilDrop;
-        _weaponSlot.onDrag += OnAnvilDrag;
-        _weaponSlot.onDrop += OnAnvilDrop;
-        _finalSlot.onDrag += OnAnvilDrag;
+        InventorySlot[] allSlots = {_gemSlot, _weaponSlot, _finalSlot};
+
+        foreach (var slot in allSlots)
+        {
+            slot.onDrag += OnAnvilDrag;
+            slot.onDrop += OnAnvilDrop;
+            slot.onPointerEnter += ShowItemInfo;
+            slot.onPointerExit += CloseItemInfo;
+        }
     }
     #endregion
 
@@ -81,22 +91,31 @@ public class Anvil : MonoBehaviour
         FindPlayer();
 
         _progressImage.fillAmount = 0f;
+
         _anvilPanel.SetActive(true);
 
         _playerInventory.InventorySetAcitve(true);
         _playerInventory.UpdateCursorState(true);
 
         UpdateButtonState();
+        UpdateTextsState();
     }
 
     public void CloseAnvil()
     {
+        if (_isUpgrading)
+        {
+            CancelUpgrade();
+            TryCompleteUpgrade();
+        }
+
         _anvilPanel.SetActive(false);
 
         ReturnItemsToPlayer();
 
         _playerInventory.InventorySetAcitve(false);
         _playerInventory.UpdateCursorState(false);
+        _playerInventory.ResetDrag();
     }
 
     private void ReturnItemsToPlayer()
@@ -172,8 +191,10 @@ public class Anvil : MonoBehaviour
         if (targetSlot.IsEmpty())
         {
             var item2 = draggedItem;
+
             targetSlot.InitializeSlot(item2);
             _playerInventory.RemoveItem(item2);
+
             sourceSlot.ClearSlot();
         }
         else
@@ -185,8 +206,15 @@ public class Anvil : MonoBehaviour
 
         targetSlot.UpdateVisual();
         sourceSlot.UpdateVisual();
-        _playerInventory.ResetDrag();
+
         UpdateButtonState();
+
+        if (draggedItem is Weapon && sourceSlot.SlotType == SlotType.Weapon)
+        {
+            _playerInventory.RemoveWeapon();
+        }
+
+        _playerInventory.ResetDrag();
     }
     #endregion
 
@@ -196,24 +224,28 @@ public class Anvil : MonoBehaviour
         await UniTask.Delay(TimeSpan.FromSeconds(delay));
 
         var bothSlotFilled = BothSlotsFilled();
-        _upgradeButton.interactable = bothSlotFilled && IsWeaponValid(_weaponSlot.Item);
+        _upgradeButton.interactable = bothSlotFilled && IsWeaponValid(_weaponSlot.Item, out string _);
 
-        UpdateCountState();
+        UpdateTextsState();
     }
 
-    private void UpdateCountState()
+    private void UpdateTextsState()
     {
         var item = _weaponSlot.Item;
         if (item == null)
+        {
+            _statusText.text = "";
             return;
-        if (BothSlotsFilled() && IsWeaponValid(item))
+        }
+
+        if (BothSlotsFilled() && IsWeaponValid(item, out string validMessage))
         {
             int chance = CalculateUpgradeChance(_gemSlot.Item);
-            _statusText.text = chance == 0 ? "" : $"Chance {chance}%";
+            _statusText.text = chance == 0 ? "" : $"Upgrade chance {chance}%";
         }
-        else if(!IsWeaponValid(item))
+        else if(!IsWeaponValid(item, out string noValidMessage))
         {
-            _statusText.text = "<color=red>Item rarity cannot be common!</color>";
+            _statusText.text = $"<color=red>{noValidMessage}</color>";
         }
         else
         {
@@ -223,12 +255,28 @@ public class Anvil : MonoBehaviour
     private bool BothSlotsFilled() => !_isUpgrading && !_gemSlot.IsEmpty() && !_weaponSlot.IsEmpty() &&
                                       _gemSlot.Item is Gem && _weaponSlot.Item is Weapon;
 
-    private bool IsWeaponValid(Item item)
+    private bool IsWeaponValid(Item item, out string ValidMessage)
     {
         if (item == null)
+        {
+            ValidMessage = string.Empty;
             return false;
+        }
 
-        return item.Rarity != _Project.Develop.Core.Enum.Rarity.Common;
+        if (item.Rarity == _Project.Develop.Core.Enum.Rarity.Common)
+        {
+            ValidMessage = "Item rarity cannot be common!";
+            return false;
+        }
+
+        if (item.Effects.Count >= (int)item.Rarity)
+        {
+            ValidMessage = "No available gem slots!";
+            return false;
+        }
+
+        ValidMessage = string.Empty;
+        return true;
     }
 
     private int CalculateUpgradeChance(Item gem)
@@ -253,12 +301,27 @@ public class Anvil : MonoBehaviour
         _progressImage.fillAmount = 0f;
 
         if (_statusText != null)
-            _statusText.text = $"Process...";
+            _statusText.text = "Process...";
 
-        _progressImage.DOFillAmount(1f, UpgradeDuration)
+        _upgradeTween = _progressImage.DOFillAmount(1f, UpgradeDuration)
             .OnComplete(() => TryCompleteUpgrade());
     }
+    public void CancelUpgrade()
+    {
+        if (_upgradeTween != null && _upgradeTween.IsActive())
+        {
+            _upgradeTween.Kill();
+            _progressImage.fillAmount = 0f;
+        }
 
+        _isUpgrading = false;
+        _upgradeButton.interactable = true;
+
+        if (_statusText != null)
+            _statusText.text = "Upgrade canceled";
+
+        ReturnItemsToPlayer();
+    }
     private void TryCompleteUpgrade()
     {
         _isUpgrading = false;
@@ -267,8 +330,8 @@ public class Anvil : MonoBehaviour
         Weapon weapon = _weaponSlot.Item as Weapon;
         Gem gem = _gemSlot.Item as Gem;
 
-        Debug.Log(weapon);
-        Debug.Log(gem);
+        if (weapon == null || gem == null)
+            return;
 
         if (success)
         {
@@ -283,8 +346,7 @@ public class Anvil : MonoBehaviour
             if (_statusText != null)
                 _statusText.text = "<color=green>Success!</color>";
 
-            _finalSlot.InitializeSlot(weapon);
-            _weaponSlot.ClearSlot();
+            MoveItemInFinalSlot(weapon);
         }
         else
         {
@@ -309,6 +371,22 @@ public class Anvil : MonoBehaviour
         return randomValue < successChance;
     }
 
+    private void MoveItemInFinalSlot(Item item)
+    {
+        if (item == null)
+            return;
+
+        _finalSlot.InitializeSlot(item);
+        _weaponSlot.ClearSlot();
+    }
+
     public bool IsAnvilOpen() => _anvilPanel.activeInHierarchy;
+    #endregion
+
+    #region Handlers
+
+    private void ShowItemInfo(Item item) => _playerInventory.ShowItemInfo(item);
+    private void CloseItemInfo() => _playerInventory.CloseItemInfo();
+
     #endregion
 }
