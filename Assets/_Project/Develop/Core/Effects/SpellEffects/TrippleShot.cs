@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using UnityEngine;
 
@@ -39,6 +40,11 @@ namespace _Project.Develop.Core.Effects.SpellEffects
             }
 
             affectedObjects = newObjects; // Обновляем список
+        }
+
+        public override Effect Clone()
+        {
+            return new TrippleShot((int)magnitude);
         }
     }
 }

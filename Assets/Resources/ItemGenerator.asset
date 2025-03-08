@@ -68,7 +68,14 @@ MonoBehaviour:
   - {fileID: 5241086215509125177, guid: 54e932fa3e901cd478c71eb5c25d8765, type: 3}
   - {fileID: 2316293436293309229, guid: 0ddf9b25bab8e6f44af123287ef13ebd, type: 3}
   - {fileID: 9022426563081864837, guid: d088f26fb4f35c944a01e156e0ac07e0, type: 3}
-  Artifacts: []
+  Artifacts:
+  - {fileID: 919132149155446097, guid: 6ff1057488b2b1a439988e6bffe044af, type: 3}
+  - {fileID: 919132149155446097, guid: c1759bac936ec154f8f89a6a3dc47f9d, type: 3}
+  - {fileID: 919132149155446097, guid: 00d047d917b67574bb106bbbf72490c5, type: 3}
+  - {fileID: 919132149155446097, guid: 135b4a8d5f105bd439de63f462811875, type: 3}
+  - {fileID: 919132149155446097, guid: 1bc8afcf8e339dc478a339b58305fce1, type: 3}
+  - {fileID: 919132149155446097, guid: 603d3a5792e147c40915992c2e642d4e, type: 3}
+  - {fileID: 919132149155446097, guid: fd8ba6e293447d64f8732e0a28d56b68, type: 3}
   ModificatorObjects:
   - {fileID: 5579081699372154065, guid: 81a5cecd73f16c24bb560c9fe20871e6, type: 3}
   - {fileID: 8159233065879722223, guid: 082ab3f177ff03542814dd2a1a91911b, type: 3}

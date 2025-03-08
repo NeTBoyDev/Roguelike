@@ -14,7 +14,7 @@ public static class InventoryDragDropHandler
 
         if (inventory.LastInteractSlot.Item is Gem && targetSlot.Item is Weapon && targetSlot.Item.Effects.Count < (int)inventory.LastInteractSlot.Item.Rarity)
         {
-            targetSlot.Item.AddEffect(inventory.LastInteractSlot.Item.Effects[0]);
+            targetSlot.Item.ApplyEffect(inventory.LastInteractSlot.Item.Effects[0]);
             inventory.RemoveItem(inventory.LastInteractSlot.Item);
             inventory.ResetDrag();
             return;     
@@ -22,6 +22,7 @@ public static class InventoryDragDropHandler
 
         HandleWeaponSlots(inventory, targetSlot);
         HandleSecondaryWeaponSlots(inventory, targetSlot);
+        HandleArtifactSlots(inventory,targetSlot);
 
 
         if (targetSlot.IsEmpty())
@@ -60,7 +61,8 @@ public static class InventoryDragDropHandler
             SlotType.Hotbar => item is UseableItem,
             SlotType.Weapon => item is MeeleWeapon || item is RangeWeapon,
             SlotType.SecondaryWeapon => item is SecondaryWeapon,
-            SlotType.Artifact => item is Artifact,
+            SlotType.Artifact1 => item is Artifact,
+            SlotType.Artifact2 => item is Artifact,
             SlotType.Default => true,
             _ => false
         };
@@ -89,6 +91,29 @@ public static class InventoryDragDropHandler
             inventory.CombatSystem.RemoveSecondaryWeapon();
             if (targetSlot.Item is SecondaryWeapon w)
                 inventory.CombatSystem.SetSecondaryWeapon(w);
+        }
+    }
+    
+    private static void HandleArtifactSlots(Inventory inventory, InventorySlot targetSlot)
+    {
+        if (inventory.DragableItem is Artifact art1 && targetSlot.SlotType == SlotType.Artifact1)
+            inventory.CombatSystem.SetFirstArtifact(art1);
+        
+        if (inventory.DragableItem is Artifact art2 && targetSlot.SlotType == SlotType.Artifact2)
+            inventory.CombatSystem.SetSecondArtifact(art2);
+
+        if (inventory.LastInteractSlot.SlotType == SlotType.Artifact1)
+        {
+            inventory.CombatSystem.RemoveFirstArtifact();
+            if (targetSlot.Item is Artifact a)
+                inventory.CombatSystem.SetFirstArtifact(a);
+        }
+        
+        if (inventory.LastInteractSlot.SlotType == SlotType.Artifact2)
+        {
+            inventory.CombatSystem.RemoveSecondArtifact();
+            if (targetSlot.Item is Artifact a2)
+                inventory.CombatSystem.SetSecondArtifact(a2);
         }
     }
 

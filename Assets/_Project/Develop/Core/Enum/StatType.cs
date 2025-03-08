@@ -3,12 +3,12 @@ namespace _Project.Develop.Core.Enum
     public enum StatType
     {
         Damage,
-        AttackSpeed,
-        StaminaCost,
         Strength,
-        Stamina,
         Agility,
         Intelligence,
+        AttackSpeed,
+        StaminaCost,
+        Stamina,
         Health,
         AttackRange,
         Difficulty,

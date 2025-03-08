@@ -516,7 +516,7 @@ public class Inventory : MonoBehaviour
         }
         else if (item is Artifact)
         {
-            return View.InventorySlots.FirstOrDefault(s => s.SlotType == SlotType.Artifact);
+            return View.InventorySlots.FirstOrDefault(s => s.SlotType == SlotType.Artifact1);
         }
 
         return null;
@@ -539,6 +539,14 @@ public class Inventory : MonoBehaviour
                 Model.SetSelectedItem(item);
             }
         }
+        else if ((targetSlot.SlotType == SlotType.Artifact1) && item is Artifact artifact1)
+        {
+            CombatSystem.SetFirstArtifact(artifact1);
+        }
+        else if ((targetSlot.SlotType == SlotType.Artifact2) && item is Artifact artifact2)
+        {
+            CombatSystem.SetSecondArtifact(artifact2);
+        }
     }
     #endregion
 
@@ -555,7 +563,14 @@ public class Inventory : MonoBehaviour
         _itemStatText.text = stats;
         Debug.Log($"{item.Id}");
         string effects = string.Empty;
-        if (item is RagePotion || item is AgilityPotions  || item is WisdomPotion) // ƒŒœ»—¿“‹ ƒÀﬂ ¬—≈’ œŒ“Œ 
+        if (item is Artifact)
+        {
+            foreach (var stat in item.Stats)
+            {
+                effects += $"{stat.Value.Type.ToString()} : {stat.Value.CurrentValue}\n";
+            }
+        }
+        else if (item is RagePotion || item is AgilityPotions  || item is WisdomPotion) // ƒŒœ»—¿“‹ ƒÀﬂ ¬—≈’ œŒ“Œ 
         {
             if (((UseableItem)item).GetEffect() is ContinuousEffect cont)
             {
@@ -563,10 +578,10 @@ public class Inventory : MonoBehaviour
                 effects += $"For {cont.Duration}\n seconds";
             }
         }
-        else if(((UseableItem)item).GetEffect() is PeriodicEffect per)
+        else if( item is UseableItem && ((UseableItem)item).GetEffect() is PeriodicEffect per)
         {
-            effects += $"Heals {per.magnitude} health\n";
-            effects += $"For {per.Duration} seconds\n";
+            effects += $"Heals {per.magnitude * per.Duration} health\n";
+            effects += $"In {per.Duration} seconds\n";
         }
         else
         {

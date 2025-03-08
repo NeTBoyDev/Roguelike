@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using _Project.Develop.Core.Enum;
 using UnityEngine;
@@ -31,6 +32,11 @@ namespace _Project.Develop.Core.Effects
                 }
             };
             affectedObjects = new List<ProjectileObject> { target }; // Оригинальный снаряд остаётся
+        }
+        
+        public override Effect Clone()
+        {
+            return new ExplosiveShot((int)magnitude);
         }
     }
 }

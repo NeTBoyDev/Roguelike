@@ -13,23 +13,23 @@ MonoBehaviour:
   m_Name: Fighter
   m_EditorClassIdentifier: 
   Stats:
-  - <Type>k__BackingField: 3
+  - <Type>k__BackingField: 1
     <BaseValue>k__BackingField: 10
     <CurrentValue>k__BackingField: 10
-    <MaxValue>k__BackingField: 200
-  - <Type>k__BackingField: 4
-    <BaseValue>k__BackingField: 100
-    <CurrentValue>k__BackingField: 100
-    <MaxValue>k__BackingField: 500
-  - <Type>k__BackingField: 5
-    <BaseValue>k__BackingField: 8
-    <CurrentValue>k__BackingField: 8
     <MaxValue>k__BackingField: 200
   - <Type>k__BackingField: 7
     <BaseValue>k__BackingField: 100
     <CurrentValue>k__BackingField: 100
     <MaxValue>k__BackingField: 500
+  - <Type>k__BackingField: 2
+    <BaseValue>k__BackingField: 8
+    <CurrentValue>k__BackingField: 8
+    <MaxValue>k__BackingField: 200
   - <Type>k__BackingField: 6
+    <BaseValue>k__BackingField: 100
+    <CurrentValue>k__BackingField: 100
+    <MaxValue>k__BackingField: 500
+  - <Type>k__BackingField: 3
     <BaseValue>k__BackingField: 5
     <CurrentValue>k__BackingField: 5
     <MaxValue>k__BackingField: 200

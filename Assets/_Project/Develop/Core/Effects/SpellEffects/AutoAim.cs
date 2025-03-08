@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -83,5 +84,8 @@ public class AutoAim : SpellEffect
 
         return nearest;
     }
-    
+    public override Effect Clone()
+    {
+        return new AutoAim((int)magnitude);
+    }
 }

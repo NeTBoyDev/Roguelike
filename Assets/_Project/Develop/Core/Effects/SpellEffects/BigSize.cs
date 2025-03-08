@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
 using UnityEngine;
 
@@ -18,5 +19,8 @@ public class BigSize : SpellEffect
             projectile.transform.localScale *= magnitude;
         }
     }
-    
+    public override Effect Clone()
+    {
+        return new BigSize((int)magnitude);
+    }
 }

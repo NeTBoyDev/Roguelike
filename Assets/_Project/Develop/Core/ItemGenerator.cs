@@ -169,6 +169,7 @@ namespace _Project.Develop.Core
                 WeaponType.Crossbow => CrossBows[Random.Range(0,CrossBows.Length)],
                 WeaponType.Hammer => Hammers[Random.Range(0,Hammers.Length)],
                 WeaponType.Gem => ModificatorObjects[Random.Range(0,ModificatorObjects.Length)],
+                WeaponType.Artifact => Artifacts[Random.Range(0,Artifacts.Length)],
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -202,6 +203,7 @@ namespace _Project.Develop.Core
                 WeaponType.Crossbow => CrossBows.FirstOrDefault(i=>i.name == name),
                 WeaponType.Hammer => Hammers.FirstOrDefault(i=>i.name == name),
                 WeaponType.Gem => ModificatorObjects.FirstOrDefault(i=>i.name == name),
+                WeaponType.Artifact => Artifacts.FirstOrDefault(i=>i.name == name),
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -227,6 +229,8 @@ namespace _Project.Develop.Core
                 obj = SpellBooks.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is Gem)
                 obj = ModificatorObjects.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is Artifact)
+                obj = Artifacts.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             
             var weaponContainer = Instantiate(weapon.View).AddComponent<EntityContainer>();
             weaponContainer.name = obj.name;
@@ -281,6 +285,8 @@ namespace _Project.Develop.Core
                 WeaponType.Crossbow => new Crossbow(name),
                 WeaponType.Hammer => new Hammer(name),
                 WeaponType.Gem => new Gem(name),
+                WeaponType.Artifact => new Artifact(name),
+                
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -304,6 +310,21 @@ namespace _Project.Develop.Core
                 if(effect is SpellEffect e)
                     e.SetMagnitude((int)rarity);
                 weaponModel.Effects.Add(effect);
+            }
+            else if (weaponModel is Artifact)
+            {
+                for (int i = 0; i < (int)weaponModel.Rarity; i++)
+                {
+                    var stat = (StatType)Random.Range(1, 4);
+                    if (weaponModel.Stats.ContainsKey(stat))
+                    {
+                        weaponModel.Stats[stat].Modify((int)weaponModel.Rarity);
+                    }
+                    else
+                    {
+                        weaponModel.Stats[stat]= new Stat(stat,1,16);
+                    }
+                }
             }
             
             /*Debug.Log($"{effectCount}");
@@ -366,6 +387,7 @@ namespace _Project.Develop.Core
         Staff = 128,
         Crossbow = 256,
         Gem,
+        Artifact
         /*RangeWeapon = Crossbow | Staff ,
         MeeleWeapon = Sword | Dagger | Axe | Hammer,*/
         

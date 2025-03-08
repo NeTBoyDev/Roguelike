@@ -12,7 +12,8 @@ public enum SlotType
     Hotbar,
     Weapon,
     SecondaryWeapon,
-    Artifact,
+    Artifact1,
+    Artifact2
 }
 
 public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler

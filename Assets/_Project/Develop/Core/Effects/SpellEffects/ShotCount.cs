@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Effects.Base;
+using _Project.Develop.Core.Effects.SpellEffects;
 using UnityEngine;
 
 public class ShotCount : SpellEffect
@@ -22,6 +24,11 @@ public class ShotCount : SpellEffect
         }
 
         affectedObjects = newObjects; 
+    }
+    
+    public override Effect Clone()
+    {
+        return new ShotCount((int)magnitude);
     }
     
 }

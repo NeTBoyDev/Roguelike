@@ -42,6 +42,9 @@ public class CombatSystem : MonoBehaviour
     private bool isReloading = false;      // Флаг перезарядки
     private float reloadTimer = 0f;        // Таймер перезарядки
 
+    private Artifact artifact1;
+    private Artifact artifact2;
+
     private Vector3 moveInput;
 
     public RectTransform[] Crosshair;
@@ -101,6 +104,7 @@ public class CombatSystem : MonoBehaviour
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Staff, Rarity.Common);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Gem, Rarity.Uncommon);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Artifact, Rarity.Rare);
         /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Axe, Rarity.Legendary);
@@ -128,6 +132,7 @@ public class CombatSystem : MonoBehaviour
         
         foreach (var stat in playerModel.Stats)
         {
+            print(stat.Key);
             stat.Value.SetValue(preset.Stats.First(s => s.Type == stat.Key).CurrentValue);
         }
     }
@@ -236,6 +241,44 @@ public class CombatSystem : MonoBehaviour
         secondaryWeapon = null;
         Destroy(SecondaryWeaponView);
         hasShield = false;
+    }
+    
+    public void SetFirstArtifact(Artifact weapon)
+    {
+        if(artifact1!= null)
+            RemoveFirstArtifact();
+        artifact1 = weapon;
+        foreach (var stat in weapon.Stats)
+        {
+            playerModel.Stats[stat.Key].Modify(stat.Value.CurrentValue);
+        }
+    }
+    public void RemoveFirstArtifact()
+    {
+        foreach (var stat in artifact1.Stats)
+        {
+            playerModel.Stats[stat.Key].Modify(-stat.Value.CurrentValue);
+        }
+        artifact1 = null;
+    }
+    
+    public void SetSecondArtifact(Artifact weapon)
+    {
+        if(artifact2!= null)
+            RemoveSecondArtifact();
+        artifact2 = weapon;
+        foreach (var stat in weapon.Stats)
+        {
+            playerModel.Stats[stat.Key].Modify(stat.Value.CurrentValue);
+        }
+    }
+    public void RemoveSecondArtifact()
+    {
+        foreach (var stat in artifact2.Stats)
+        {
+            playerModel.Stats[stat.Key].Modify(-stat.Value.CurrentValue);
+        }
+        artifact2 = null;
     }
 
     private void OpenCrosshair(float time)
