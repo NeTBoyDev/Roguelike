@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -25,7 +24,7 @@ namespace _Project.Develop.Core.Player
                     s.enabled = true;
             },
             s=>s.enabled = false,
-            s=> { UnityEngine.Object.Destroy(s.gameObject); },
+            s=> { Object.Destroy(s.gameObject); },
             true,
             25,
             100
@@ -33,26 +32,18 @@ namespace _Project.Develop.Core.Player
 
         public async void ProduceSound(Vector3 position,AudioClip sound,bool infinite = false)
         {
-            if (sound == null)
-                return;
-
             var source = _pool.Get();
-
-            if (source == null)
-                return;
-
             source.transform.position = position;
-            source.pitch = UnityEngine.Random.Range(0.85f, 1.15f);
+            source.pitch = Random.Range(0.85f, 1.15f);
             source.clip = sound;
             source.volume = volume;
-
-            float length = sound.length;
+            int length = (int)sound.length * 1000;
             if (!infinite)
             {
                 source.PlayOneShot(sound);
                 UniTask.Run(async () =>
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(length));
+                    await UniTask.Delay(length);
                     _pool.Release(source);
                 });
             }
