@@ -37,6 +37,8 @@ namespace _Project.Develop.Core.Enum
         {
             return Effects[Random.Range(0, Effects.Count)];
         }
-        
+
+        public static StatPreset _preset;
+
     }
 }

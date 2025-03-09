@@ -120,10 +120,10 @@ public class CombatSystem : MonoBehaviour
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
         
-        InitializeStats();
+        //InitializeStats();
     }
 
-    private void InitializeStats()
+    public void InitializeStats(StatPreset preset)
     {
         var agility = playerModel.Stats[StatType.Agility];
         agility.OnModify += (value) => character.SetSpeed(3 + value/5);
