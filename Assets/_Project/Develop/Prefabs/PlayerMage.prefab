@@ -32507,6 +32507,26 @@ PrefabInstance:
       propertyPath: m_CullingMask.m_Bits
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8054971304616416908, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8054971304616416908, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8054971304616416908, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1920
+      objectReference: {fileID: 0}
+    - target: {fileID: 8054971304616416908, guid: eaa8e92a42d85af49a62add61e1b809d,
+        type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 1080
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6972887421185769517, guid: eaa8e92a42d85af49a62add61e1b809d, type: 3}
     m_RemovedGameObjects: []
