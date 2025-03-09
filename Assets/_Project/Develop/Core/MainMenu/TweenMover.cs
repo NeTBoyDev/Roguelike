@@ -3,6 +3,7 @@ using DG.Tweening;
 using NaughtyAttributes;
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum MoveType
 {
@@ -22,7 +23,7 @@ public class TweenMover : MonoBehaviour
     [SerializeField, MinValue(0), ShowIf(nameof(MoveType), MoveType.Forward)] private float forwardDistance = 5f;
     [SerializeField, ShowIf(nameof(MoveType), MoveType.CustomDirection)] private Vector3 customDirection = Vector3.forward;
     [SerializeField] private bool useLocalSpace = true;
-    [SerializeField] private Transform target; //Целевой объект для движения
+    [SerializeField] private Transform target; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     public Action<Collider> OnAnimationEnded;
 
     [SerializeField, ShowIf(nameof(MoveType), MoveType.Circle)] private float circleRadius = 3f;
@@ -35,6 +36,9 @@ public class TweenMover : MonoBehaviour
     [Header("Curve Influence")]
     [SerializeField] private AnimationCurve heightCurve = AnimationCurve.Linear(0f, 0f, 1f, 0f);
     [SerializeField] private float heightScale = 1f;
+
+    [SerializeField] private bool _autoReset = true;
+    [SerializeField] private UnityEvent AnimationEnded;
 
     private Vector3 originalPosition;
     private Quaternion originalRotation;
@@ -65,7 +69,8 @@ public class TweenMover : MonoBehaviour
         IsAnimationFinished = false;
         isAnimating = false;
 
-        OnAnimationEnded += (a) => StopMove(1);
+        if(_autoReset)
+            OnAnimationEnded += (a) => StopMove(1);
     }
 
     private void OnDestroy() => OnAnimationEnded = null;
@@ -207,6 +212,7 @@ public class TweenMover : MonoBehaviour
     {
         Vector3 direction = useLocalSpace ? TargetTransform.forward * forwardDistance : Vector3.forward * forwardDistance;
         MoveInDirection(direction);
+        
     }
 
     private void MoveCustomDirection()
@@ -239,6 +245,7 @@ public class TweenMover : MonoBehaviour
                 IsAnimationFinished = true;
                 isAnimating = false;
                 OnAnimationEnded?.Invoke(_targerColldier);
+                AnimationEnded?.Invoke();
             });
     }
 
@@ -281,7 +288,7 @@ public class TweenMover : MonoBehaviour
     {
         if (orbitTarget == null)
         {
-            Debug.LogWarning("OrbitTarget: Цель не задана!");
+            Debug.LogWarning("OrbitTarget: пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!");
             return;
         }
 
@@ -316,7 +323,7 @@ public class TweenMover : MonoBehaviour
             .OnComplete(() =>
             {
                 IsAnimationFinished = true;
-                isAnimating = false; // Разрешаем новые анимации
+                isAnimating = false; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 OnAnimationEnded?.Invoke(_targerColldier);
             });
     }

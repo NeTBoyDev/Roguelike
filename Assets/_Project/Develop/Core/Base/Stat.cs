@@ -34,6 +34,16 @@ namespace _Project.Develop.Core.Base
             OnModify?.Invoke(CurrentValue);
             //Debug.Log($"After{CurrentValue}");
         }
+        
+        public void SetValue(float value,float maxValue)
+        {
+            //Debug.Log($"Before{CurrentValue}");
+            CurrentValue = Mathf.Clamp(value, 0, MaxValue);
+            BaseValue = maxValue;
+            MaxValue = maxValue;
+            OnModify?.Invoke(CurrentValue);
+            //Debug.Log($"After{CurrentValue}");
+        }
 
         public event Action<float> OnModify;
     }

@@ -10,8 +10,8 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (FindObjectOfType<CombatSystem>() == null)
         {
-            Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
-            PlayerPrefab.GetComponent<CombatSystem>().InitializeStats(GameData._preset);
+            Instantiate(PlayerPrefab, transform.position, Quaternion.identity);
+            //PlayerPrefab.GetComponentInChildren<CombatSystem>().InitializeStats(GameData._preset);
         }
     }
 
