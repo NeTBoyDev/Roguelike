@@ -28,7 +28,7 @@ public class Chest : MonoBehaviour
             var scale = container.transform.localScale;
             container.transform.localScale = scale * .2f;
             container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
-            container.transform.DOJump(container.transform.position + new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 2, 1, 1);
+            container.transform.DOJump(new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
             //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
             container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
         }
@@ -44,7 +44,7 @@ public class Chest : MonoBehaviour
                 var scale = container.transform.localScale;
                 container.transform.localScale = scale * .2f;
                 container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
-                container.transform.DOJump(container.transform.position + new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 2, 1, 1);
+                container.transform.DOJump(new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
                 //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
                 container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
             }    

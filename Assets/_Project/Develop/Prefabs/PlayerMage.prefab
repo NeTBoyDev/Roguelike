@@ -28782,6 +28782,7 @@ MonoBehaviour:
   Reload: {fileID: 8300000, guid: e9edef08d04b80d46b57d6c5dc809134, type: 3}
   Shot: {fileID: 8300000, guid: a24e9de35884e114d896029a2325ef28, type: 3}
   DieClip: {fileID: 8300000, guid: 25a957a166d1b014c91404c0e8fa7636, type: 3}
+  Equip: {fileID: 8300000, guid: 4085eb9d4c9595046a471f2445827e56, type: 3}
   HpSlider: {fileID: 6784985651554879450}
   StaminaSlider: {fileID: 8489299106713056653}
   HitImage: {fileID: 1472871280435012614}
@@ -28989,6 +28990,9 @@ MonoBehaviour:
   _currentVendor: {fileID: 0}
   _currentAnvil: {fileID: 0}
   _currentBook: {fileID: 0}
+  _usePotion: {fileID: 8300000, guid: 5747eda6d566e1b45aff9b1f3d78f887, type: 3}
+  pickUp: {fileID: 8300000, guid: 92938fa2209200a43b79d669f0bfcc36, type: 3}
+  dragdrop: {fileID: 8300000, guid: 6bc580d1852da16499fb8c1c9e901639, type: 3}
 --- !u!1 &7539369705815728633
 GameObject:
   m_ObjectHideFlags: 0

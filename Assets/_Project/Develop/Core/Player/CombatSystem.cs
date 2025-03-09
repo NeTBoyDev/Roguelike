@@ -64,7 +64,7 @@ public class CombatSystem : MonoBehaviour
     [Header("Audio")] 
     [SerializeField] private AudioClip[] HitSounds;
     [SerializeField] private AudioClip[] SwingSounds;
-    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit,Reload,Shot,DieClip;
+    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit,Reload,Shot,DieClip,Equip;
 
     [SerializeField] private SoundManager _manager = new();
 
@@ -197,6 +197,7 @@ public class CombatSystem : MonoBehaviour
         attackCooldown = 0.5f / equippedWeapon[StatType.AttackSpeed].CurrentValue;
         animator.SetFloat("AttackSpeed",equippedWeapon is MeeleWeapon ? equippedWeapon[StatType.AttackSpeed].CurrentValue 
             : 1f + (1 -equippedWeapon.Stats[StatType.RangeAttackSpeed].CurrentValue));
+        _manager.ProduceSound(transform.position,Equip);
     }
 
     private void ClearWeaponBooleans()
@@ -224,6 +225,7 @@ public class CombatSystem : MonoBehaviour
 
         if (weapon is Shield)
             hasShield = true;
+        _manager.ProduceSound(transform.position,Equip);
     }
 
     public void RemoveWeapon()
@@ -266,8 +268,6 @@ public class CombatSystem : MonoBehaviour
         secondaryWeapon = null;
         Destroy(SecondaryWeaponView);
         hasShield = false;
-        
-        
     }
     
     public void SetFirstArtifact(Artifact weapon)
@@ -279,6 +279,7 @@ public class CombatSystem : MonoBehaviour
         {
             playerModel.Stats[stat.Key].Modify(stat.Value.CurrentValue);
         }
+        _manager.ProduceSound(transform.position,Equip);
     }
     public void RemoveFirstArtifact()
     {
@@ -298,6 +299,7 @@ public class CombatSystem : MonoBehaviour
         {
             playerModel.Stats[stat.Key].Modify(stat.Value.CurrentValue);
         }
+        _manager.ProduceSound(transform.position,Equip);
     }
     public void RemoveSecondArtifact()
     {

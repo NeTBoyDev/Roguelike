@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using _Project.Develop.Core.Effects.Base;
 using _Project.Develop.Core.Entities.Potions;
 using _Project.Develop.Core.Enum;
+using _Project.Develop.Core.Player;
 using TMPro;
 using UnityEngine.SceneManagement;
 
@@ -58,6 +59,8 @@ public class Inventory : MonoBehaviour
     [SerializeField, ReadOnly] private Vendor _currentVendor = null;
     [SerializeField, ReadOnly] private Anvil _currentAnvil = null;
     [SerializeField, ReadOnly] private BookOfTheAbyss _currentBook = null; // Добавили BookOfTheAbyss
+    private SoundManager manager;
+    public AudioClip _usePotion;
 
     #region Initialize
     private void Awake()
@@ -77,6 +80,7 @@ public class Inventory : MonoBehaviour
         }
 
         CombatSystem = GetComponentInChildren<CombatSystem>();
+        manager = new SoundManager();
     }
 
     private void Start()
@@ -254,12 +258,14 @@ public class Inventory : MonoBehaviour
         }
     }
 
+    public AudioClip pickUp;
     private void TryPickUpItem()
     {
         if (TryGetContainer(out var container))
         {
             AddItem(container.ContainedEntity as Item);
             Destroy(container.gameObject);
+            manager.ProduceSound(transform.position,pickUp);
         }
     }
 
@@ -367,6 +373,7 @@ public class Inventory : MonoBehaviour
 
         UpdateAllHotbarSlots();
         Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
+        manager.ProduceSound(transform.position,_usePotion);
     }
     #endregion  
 
@@ -379,6 +386,8 @@ public class Inventory : MonoBehaviour
     #endregion
 
     #region Drag & Drop
+
+    public AudioClip dragdrop;
     public void DragItem(PointerEventData eventData, Item item, InventorySlot slot)
     {
         if (item == null) return;
@@ -404,6 +413,10 @@ public class Inventory : MonoBehaviour
         }
 
         InventoryDragDropHandler.HandleDrop(eventData, item, targetSlot, this);
+        if (targetSlot.SlotType == SlotType.Default || targetSlot.SlotType == SlotType.Hotbar)
+        {
+            manager.ProduceSound(transform.position,dragdrop);
+        }
     }
     public void ResetDrag()
     {
