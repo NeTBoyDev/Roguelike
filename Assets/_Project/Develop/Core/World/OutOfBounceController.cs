@@ -20,6 +20,6 @@ public class OutOfBounceController : MonoBehaviour
         Debug.Log($"Character velocity = {character.velocity}");
 
         if (character.velocity.y < -OutOfBounceDistance)
-            levelGenerator.SpawnPlayer();
+            levelGenerator.SpawnPlayerAsync();
     }
 }

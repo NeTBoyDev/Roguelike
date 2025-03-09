@@ -175,7 +175,7 @@ MonoBehaviour:
   - {fileID: 6420892884039092259}
   openAngle: 90
   duration: 1
-  debugMode: 1
+  debugMode: 0
   <IsOpened>k__BackingField: 0
   _lastRotationDirection: 0
   _isCurrentlyOpen: 0

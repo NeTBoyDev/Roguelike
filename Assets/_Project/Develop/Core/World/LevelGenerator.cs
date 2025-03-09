@@ -97,7 +97,7 @@ public class LevelGenerator : MonoBehaviour
             .AddStep(GenerateFinalRoomInitial).AddDelay(RoomSpawnDelay)
             .AddStep(GenerateFloorAsync).AddDelay(settings.BakeFrameCount)
             .AddStep(SetupGraphDynamically).AddDelay(PlayerSpawnDelay)
-            .AddStep(SpawnPlayer).AddDelay(1)
+            .AddStep(SpawnPlayerAsync).AddDelay(1)
             .AddStep(SpawnVendor).AddDelay(1) //TEST VENDOR (NEED TO DELETE) (fake vendor)
             .AddStep(RemoveCollidersInSpawnedRooms);
 
@@ -111,7 +111,7 @@ public class LevelGenerator : MonoBehaviour
             room.RemoveAllRoomColliders();
         }
     }
-    public void SpawnPlayer()
+    public async void SpawnPlayerAsync()
     {
         var startRoom = GetStartRoom();
 
@@ -119,7 +119,12 @@ public class LevelGenerator : MonoBehaviour
         CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
         CheckNull(VendorPrefab, "Vendor prefab is null!");
 
-        _characterController = FindObjectOfType<PlayerCharacter>();
+        while (_characterController == null)
+        {
+            _characterController = FindObjectOfType<PlayerCharacter>();
+            await UniTask.Yield(PlayerLoopTiming.FixedUpdate);
+        }
+
         _characterController.SetPosition(startRoom.Spawnpoint.position);
         //Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
 
@@ -176,7 +181,7 @@ public class LevelGenerator : MonoBehaviour
 
         Vector3 startPos = GetStartRoom().transform.position;
         Vector3 direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), 0, UnityEngine.Random.Range(-1f, 1f)).normalized;
-        Vector3 finalPosition = startPos + direction * 500f;
+        Vector3 finalPosition = startPos + direction * 100f;
 
         _finalRoom = Instantiate(randomLastRoom, finalPosition, GetRandomRotation(), LevelContainer.transform);
         SpawnedRooms.Add(_finalRoom);

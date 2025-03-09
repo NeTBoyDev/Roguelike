@@ -1,4 +1,5 @@
 using _Project.Develop.Core.Entities;
+using _Project.Develop.Core.Enum;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
@@ -291,7 +292,14 @@ public class Anvil : MonoBehaviour
 
     private void StartUpgrade()
     {
+        // Проверяем условия для выхода
         if (_isUpgrading || _gemSlot.IsEmpty() || _weaponSlot.IsEmpty())
+        {;
+            return;
+        }
+
+        // Проверяем, что _progressImage задан
+        if (_progressImage == null)
         {
             return;
         }
@@ -301,9 +309,16 @@ public class Anvil : MonoBehaviour
         _progressImage.fillAmount = 0f;
 
         if (_statusText != null)
+        {
             _statusText.text = "Process...";
+        }
 
-        _upgradeTween = _progressImage.DOFillAmount(1f, UpgradeDuration)
+        Item item = _weaponSlot.Item;
+        float durationMultiplier = (item != null) ? GameData.Rarity[item.Rarity] : 1f;
+
+        float upgradeDuration = UpgradeDuration * durationMultiplier;
+
+        _upgradeTween = _progressImage.DOFillAmount(1f, upgradeDuration)
             .OnComplete(() => TryCompleteUpgrade());
     }
     public void CancelUpgrade()
