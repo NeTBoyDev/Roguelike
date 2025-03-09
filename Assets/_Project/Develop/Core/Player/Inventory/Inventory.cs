@@ -114,9 +114,6 @@ public class Inventory : MonoBehaviour
 
             slot.onPointerEnter += ShowItemInfo;
             slot.onPointerExit += CloseItemInfo;
-
-            CombatSystem.playerModel.Stats[StatType.Health].OnModify += a => UpdateStatsText();
-            CombatSystem.playerModel.Stats[StatType.Stamina].OnModify += a => UpdateStatsText();
         }
 
         OnInventoryStateChange += value =>
@@ -143,6 +140,7 @@ public class Inventory : MonoBehaviour
     {
         HandleInput();
         UpdatePreviewItem();
+        UpdateStatsText();
     }
     private void HandleInput()
     {
@@ -355,10 +353,10 @@ public class Inventory : MonoBehaviour
             return;
         }
 
+        ((UseableItem)Model.SelectedItem).Use(CombatSystem.playerModel);
         if (((UseableItem)Model.SelectedItem).Count > 1)
         {
             ((UseableItem)Model.SelectedItem).Count--;
-            ((UseableItem)Model.SelectedItem).Use(CombatSystem.playerModel);
         }
         else
             RemoveHotbarItem(Model.SelectedItem);

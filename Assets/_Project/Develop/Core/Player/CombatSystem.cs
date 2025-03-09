@@ -71,7 +71,6 @@ public class CombatSystem : MonoBehaviour
     private bool mayAttack = true;
 
     private PlayerCharacter character;
-    public StatPreset preset;
 
     public Slider HpSlider;
     public Slider StaminaSlider;
@@ -120,11 +119,21 @@ public class CombatSystem : MonoBehaviour
 
         Inventory.OnInventoryStateChange += value => mayAttack = !value;
         
-        //InitializeStats();
+        InitializeStats(GameData._preset);
     }
 
     public void InitializeStats(StatPreset preset)
     {
+        foreach (var stat in playerModel.Stats)
+        {
+            print(stat.Key);
+            stat.Value.SetValue(preset.Stats.First(s => s.Type == stat.Key).CurrentValue,preset.Stats.First(s => s.Type == stat.Key).MaxValue);
+        }
+        
+        playerModel.Stats[StatType.Stamina] = new Stat(StatType.Stamina, preset.Stats.First(s=>s.Type == StatType.Stamina).BaseValue, preset.Stats.First(s=>s.Type == StatType.Stamina).MaxValue);
+        playerModel.Stats[StatType.Health] = new Stat(StatType.Health, preset.Stats.First(s=>s.Type == StatType.Health).BaseValue, preset.Stats.First(s=>s.Type == StatType.Health).MaxValue);
+       
+        
         var agility = playerModel.Stats[StatType.Agility];
         agility.OnModify += (value) => character.SetSpeed(3 + value/5);
         
@@ -136,17 +145,13 @@ public class CombatSystem : MonoBehaviour
         stamina.OnModify += (value) => StaminaSlider.value = value;
         StaminaSlider.maxValue = stamina.BaseValue;
         
-        foreach (var stat in playerModel.Stats)
-        {
-            print(stat.Key);
-            stat.Value.SetValue(preset.Stats.First(s => s.Type == stat.Key).CurrentValue);
-        }
+        
     }
 
     private void RegenStats()
     {
-        playerModel.Stats[StatType.Health].Modify(Time.deltaTime * playerModel.Stats[StatType.Stamina].BaseValue/100);
-        playerModel.Stats[StatType.Stamina].Modify(Time.deltaTime * 10 * playerModel.Stats[StatType.Stamina].BaseValue/100);
+        playerModel.Stats[StatType.Health].Modify(Time.deltaTime);
+        playerModel.Stats[StatType.Stamina].Modify(Time.deltaTime * 10);
     }
 
     public void SetWeapon(Weapon weapon)

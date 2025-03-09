@@ -33,11 +33,7 @@ public class SelectableCharacter : MonoBehaviour
             camera.transform.DORotate(new Vector3(0,90,0), 1);
             DescriptionPanel.SetActive(false);
         });
-        _select.onClick.AddListener(() =>
-        {
-            GameData._preset = Stats;
-            SceneManager.LoadSceneAsync(1);
-        });
+        
     }
 
     private void OnMouseDown()
@@ -48,5 +44,11 @@ public class SelectableCharacter : MonoBehaviour
 
         camera.transform.DOMove(transform.position + transform.forward*3 + transform.up*2, 1);
         camera.transform.DORotate(Quaternion.LookRotation(-transform.forward - transform.right/2, camera.transform.up).eulerAngles, 1);
+        _select.onClick.RemoveAllListeners();
+        _select.onClick.AddListener(() =>
+        {
+            GameData._preset = Stats;
+            SceneManager.LoadSceneAsync(1);
+        });
     }
 }

@@ -13,22 +13,22 @@ MonoBehaviour:
   m_Name: Mage
   m_EditorClassIdentifier: 
   Stats:
+  - <Type>k__BackingField: 7
+    <BaseValue>k__BackingField: 60
+    <CurrentValue>k__BackingField: 60
+    <MaxValue>k__BackingField: 60
+  - <Type>k__BackingField: 6
+    <BaseValue>k__BackingField: 65
+    <CurrentValue>k__BackingField: 65
+    <MaxValue>k__BackingField: 65
   - <Type>k__BackingField: 1
     <BaseValue>k__BackingField: 2
     <CurrentValue>k__BackingField: 2
     <MaxValue>k__BackingField: 200
-  - <Type>k__BackingField: 7
-    <BaseValue>k__BackingField: 60
-    <CurrentValue>k__BackingField: 60
-    <MaxValue>k__BackingField: 500
   - <Type>k__BackingField: 2
     <BaseValue>k__BackingField: 7
     <CurrentValue>k__BackingField: 7
     <MaxValue>k__BackingField: 200
-  - <Type>k__BackingField: 6
-    <BaseValue>k__BackingField: 65
-    <CurrentValue>k__BackingField: 65
-    <MaxValue>k__BackingField: 500
   - <Type>k__BackingField: 3
     <BaseValue>k__BackingField: 15
     <CurrentValue>k__BackingField: 15

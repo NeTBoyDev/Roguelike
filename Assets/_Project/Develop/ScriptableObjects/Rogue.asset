@@ -13,22 +13,22 @@ MonoBehaviour:
   m_Name: Rogue
   m_EditorClassIdentifier: 
   Stats:
+  - <Type>k__BackingField: 7
+    <BaseValue>k__BackingField: 80
+    <CurrentValue>k__BackingField: 80
+    <MaxValue>k__BackingField: 80
+  - <Type>k__BackingField: 6
+    <BaseValue>k__BackingField: 120
+    <CurrentValue>k__BackingField: 120
+    <MaxValue>k__BackingField: 120
   - <Type>k__BackingField: 1
     <BaseValue>k__BackingField: 6
     <CurrentValue>k__BackingField: 6
     <MaxValue>k__BackingField: 200
-  - <Type>k__BackingField: 7
-    <BaseValue>k__BackingField: 80
-    <CurrentValue>k__BackingField: 80
-    <MaxValue>k__BackingField: 500
   - <Type>k__BackingField: 2
     <BaseValue>k__BackingField: 13
     <CurrentValue>k__BackingField: 13
     <MaxValue>k__BackingField: 200
-  - <Type>k__BackingField: 6
-    <BaseValue>k__BackingField: 120
-    <CurrentValue>k__BackingField: 120
-    <MaxValue>k__BackingField: 500
   - <Type>k__BackingField: 3
     <BaseValue>k__BackingField: 4
     <CurrentValue>k__BackingField: 4
