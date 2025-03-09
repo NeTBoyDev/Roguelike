@@ -1,22 +1,29 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using NaughtyAttributes;
+using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 public enum MoveType
 {
     Forward,
     Circle,
-    OrbitTarget
+    OrbitTarget,
+    CustomDirection
 }
+
 public class TweenMover : MonoBehaviour
 {
     [field: SerializeField] public MoveType MoveType { get; private set; } = MoveType.Forward;
 
     [SerializeField, MinValue(0)] private float moveDuration = 2f;
+    [SerializeField, MinValue(0)] private float delayBeforeStart = 0f;
 
     [SerializeField, MinValue(0), ShowIf(nameof(MoveType), MoveType.Forward)] private float forwardDistance = 5f;
-    [ShowIf(nameof(MoveType), MoveType.Forward)] public UnityEvent OnAnimationEnded;
+    [SerializeField, ShowIf(nameof(MoveType), MoveType.CustomDirection)] private Vector3 customDirection = Vector3.forward;
+    [SerializeField] private bool useLocalSpace = true;
+    [SerializeField] private Transform target; //Целевой объект для движения
+    public Action<Collider> OnAnimationEnded;
 
     [SerializeField, ShowIf(nameof(MoveType), MoveType.Circle)] private float circleRadius = 3f;
     [SerializeField, ShowIf(nameof(MoveType), MoveType.Circle)] private float circleSpeed = 1f;
@@ -26,97 +33,247 @@ public class TweenMover : MonoBehaviour
     [SerializeField, ShowIf(nameof(MoveType), MoveType.OrbitTarget)] private int orbitTimes = -1;
 
     [Header("Curve Influence")]
-    [SerializeField] private AnimationCurve heightCurve = AnimationCurve.Linear(0f, 0f, 1f, 0f); //По умолчанию линейная (без изменений)
-    [SerializeField] private float heightScale = 1f; //Масштаб влияния кривой на высоту
+    [SerializeField] private AnimationCurve heightCurve = AnimationCurve.Linear(0f, 0f, 1f, 0f);
+    [SerializeField] private float heightScale = 1f;
 
-    private Vector3 _initialPosition;
-    private Quaternion _initialRotation;
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+
+    private Tween _moveTween;
+    [SerializeField, ReadOnly] private bool isAnimating;
+    public bool IsAnimationFinished { get; private set; }
+    private Collider _targerColldier;
+
+    private Transform TargetTransform => target != null ? target : transform;
 
     private void Awake()
     {
-        _initialPosition = transform.position;
-        _initialRotation = transform.rotation;
+        if (useLocalSpace && TargetTransform.parent != null)
+        {
+            originalPosition = TargetTransform.localPosition;
+            originalRotation = TargetTransform.localRotation;
+        }
+        else
+        {
+            originalPosition = TargetTransform.position;
+            originalRotation = TargetTransform.rotation;
+        }
+        initialPosition = originalPosition;
+        initialRotation = originalRotation;
+        IsAnimationFinished = false;
+        isAnimating = false;
+
+        OnAnimationEnded += (a) => StopMove(1);
     }
 
-    [Button, EnableIf(nameof(IsPlaying))]
+    private void OnDestroy() => OnAnimationEnded = null;
+
+    [Button, EnableIf(nameof(CanStartAnimation))]
     public void StartMove()
     {
-        DOTween.Kill(transform);
-
-        switch (MoveType)
+        if (isAnimating || IsAnimationFinished)
         {
-            case MoveType.Forward:
-                MoveForward();
-                break;
-
-            case MoveType.Circle:
-                MoveCircle();
-                break;
-
-            case MoveType.OrbitTarget:
-                MoveOrbitTarget();
-                break;
+            Debug.LogWarning("Animation is already running or finished!");
+            return;
         }
+
+        DOTween.Kill(TargetTransform);
+        ResetToOriginalPosition();
+        initialPosition = useLocalSpace && TargetTransform.parent != null ? TargetTransform.localPosition : TargetTransform.position;
+        initialRotation = useLocalSpace && TargetTransform.parent != null ? TargetTransform.localRotation : TargetTransform.rotation;
+
+        IsAnimationFinished = false;
+        isAnimating = true;
+
+        DOVirtual.DelayedCall(delayBeforeStart, () =>
+        {
+            switch (MoveType)
+            {
+                case MoveType.Forward:
+                    MoveForward();
+                    break;
+                case MoveType.Circle:
+                    MoveCircle();
+                    break;
+                case MoveType.OrbitTarget:
+                    MoveOrbitTarget();
+                    break;
+                case MoveType.CustomDirection:
+                    MoveCustomDirection();
+                    break;
+            }
+        });
     }
+
     [Button, EnableIf(nameof(IsPlaying))]
-    public void StopMove()
+    public void PlayWithoutReset()
     {
-        DOTween.KillAll(transform);
-        
-        transform.position = _initialPosition;
-        transform.rotation = _initialRotation;
+        if (isAnimating || IsAnimationFinished)
+        {
+            Debug.LogWarning("Animation is already running or finished!");
+            return;
+        }
+
+        DOTween.Kill(TargetTransform);
+        initialPosition = useLocalSpace && TargetTransform.parent != null ? TargetTransform.localPosition : TargetTransform.position;
+        initialRotation = useLocalSpace && TargetTransform.parent != null ? TargetTransform.localRotation : TargetTransform.rotation;
+
+        isAnimating = true;
+
+        DOVirtual.DelayedCall(delayBeforeStart, () =>
+        {
+            switch (MoveType)
+            {
+                case MoveType.Forward:
+                    MoveForward();
+                    break;
+                case MoveType.Circle:
+                    MoveCircle();
+                    break;
+                case MoveType.OrbitTarget:
+                    MoveOrbitTarget();
+                    break;
+                case MoveType.CustomDirection:
+                    MoveCustomDirection();
+                    break;
+            }
+        });
+    }
+
+    [Button, EnableIf(nameof(CanStopAnimation))]
+    public async void StopMove(float delay = 0f)
+    {
+        await UniTask.Delay(TimeSpan.FromSeconds(delay));
+
+        if (isAnimating)
+        {
+            Debug.LogWarning("Cannot stop animation while it is running!");
+            return;
+        }
+
+        DOTween.Kill(TargetTransform);
+
+        Vector3 currentPosition = useLocalSpace && TargetTransform.parent != null
+            ? TargetTransform.localPosition
+            : TargetTransform.position;
+
+        Vector3 targetPosition = originalPosition;
+        Quaternion currentRotation = useLocalSpace && TargetTransform.parent != null
+            ? TargetTransform.localRotation
+            : TargetTransform.rotation;
+
+        Quaternion targetRotation = originalRotation;
+
+        float returnDuration = moveDuration;
+        _moveTween = TargetTransform
+            .DOLocalMove(targetPosition, returnDuration)
+            .SetEase(Ease.InOutSine)
+            .OnComplete(() =>
+            {
+                IsAnimationFinished = false;
+                isAnimating = false;
+            });
+
+        TargetTransform
+            .DOLocalRotateQuaternion(targetRotation, returnDuration)
+            .SetEase(Ease.InOutSine);
+    }
+
+    private void ResetToOriginalPosition()
+    {
+        if (useLocalSpace && TargetTransform.parent != null)
+        {
+            TargetTransform.localPosition = originalPosition;
+            TargetTransform.localRotation = originalRotation;
+        }
+        else
+        {
+            TargetTransform.position = originalPosition;
+            TargetTransform.rotation = originalRotation;
+        }
     }
 
     private bool IsPlaying() => Application.isPlaying;
 
-    #region Move Algorithms
+    private bool CanStartAnimation() => Application.isPlaying && !isAnimating;
+
+    private bool CanStopAnimation() => Application.isPlaying && !isAnimating;
 
     public void SetMoveType(MoveType moveType) => MoveType = moveType;
+
     private void MoveForward()
     {
-        Vector3 forwardDirection = transform.forward * forwardDistance;
-        Vector3 targetPosition = _initialPosition + forwardDirection;
-        Debug.Log($"Initial position: {_initialPosition}, Target position: {targetPosition}");
+        Vector3 direction = useLocalSpace ? TargetTransform.forward * forwardDistance : Vector3.forward * forwardDistance;
+        MoveInDirection(direction);
+    }
 
+    private void MoveCustomDirection()
+    {
+        Vector3 direction = useLocalSpace ? TargetTransform.TransformDirection(customDirection) : customDirection;
+        MoveInDirection(direction);
+    }
+
+    private void MoveInDirection(Vector3 direction)
+    {
+        Vector3 startPosition = useLocalSpace && TargetTransform.parent != null ? TargetTransform.parent.TransformPoint(initialPosition) : initialPosition;
+        Vector3 targetPosition = startPosition + direction;
         float progress = 0f;
-        transform.position = _initialPosition;
 
-        DOTween.To(() => progress, x => progress = x, 1f, moveDuration)
+        _moveTween = DOTween.To(() => progress, x => progress = x, 1f, moveDuration)
             .SetEase(Ease.InOutSine)
-            .OnUpdate(() => {
-                Vector3 newPosition = Vector3.Lerp(_initialPosition, targetPosition, progress);
-
+            .OnUpdate(() =>
+            {
+                Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, progress);
                 float curveValue = heightCurve.Evaluate(progress);
-                float heightOffset = curveValue * heightScale;
-
-                newPosition.y = newPosition.y + heightOffset;
-
-                transform.position = newPosition;
+                if (curveValue != 0f)
+                {
+                    float heightOffset = curveValue * heightScale;
+                    newPosition.y += heightOffset;
+                }
+                TargetTransform.position = newPosition;
             })
-            .OnComplete(() => OnAnimationEnded?.Invoke());
+            .OnComplete(() =>
+            {
+                IsAnimationFinished = true;
+                isAnimating = false;
+                OnAnimationEnded?.Invoke(_targerColldier);
+            });
     }
 
     private void MoveCircle()
     {
         float angle = 0f;
-        transform.position = _initialPosition + new Vector3(circleRadius, 0, 0);
+        Vector3 center = useLocalSpace && TargetTransform.parent != null
+            ? TargetTransform.parent.TransformPoint(initialPosition)
+            : initialPosition;
 
-        DOTween.To(() => angle, x => angle = x, 360f, circleSpeed)
+        _moveTween = DOTween.To(() => angle, x => angle = x, 360f, circleSpeed)
             .SetLoops(-1, LoopType.Restart)
             .OnUpdate(() =>
             {
                 float progress = angle / 360f;
                 float rad = angle * Mathf.Deg2Rad;
-                Vector3 newPosition = _initialPosition + new Vector3(
+                Vector3 newPosition = center + new Vector3(
                     Mathf.Cos(rad) * circleRadius,
                     0,
                     Mathf.Sin(rad) * circleRadius
                 );
 
-                float heightOffset = heightCurve.Evaluate(progress) * heightScale;
-                newPosition.y += heightOffset;
-                transform.position = newPosition;
-                transform.LookAt(_initialPosition);
+                float curveValue = heightCurve.Evaluate(progress);
+                if (curveValue != 0f)
+                {
+                    float heightOffset = curveValue * heightScale;
+                    newPosition.y += heightOffset;
+                }
+                TargetTransform.position = newPosition;
+                TargetTransform.LookAt(center);
+            })
+            .OnStepComplete(() => 
+            {
+                IsAnimationFinished = true;
+                OnAnimationEnded?.Invoke(_targerColldier);
             });
     }
 
@@ -129,26 +286,63 @@ public class TweenMover : MonoBehaviour
         }
 
         float angle = 0f;
-        transform.position = orbitTarget.position + new Vector3(orbitRadius, 0, 0);
+        Vector3 orbitCenter = orbitTarget.position;
 
-        DOTween.To(() => angle, x => angle = x, 360f, moveDuration)
+        _moveTween = DOTween.To(() => angle, x => angle = x, 360f, moveDuration)
             .SetLoops(orbitTimes, LoopType.Restart)
             .OnUpdate(() =>
             {
                 float progress = angle / 360f;
                 float rad = angle * Mathf.Deg2Rad;
-                Vector3 newPosition = orbitTarget.position + new Vector3(
-                    Mathf.Cos(rad) * orbitRadius,
-                    0,
-                    Mathf.Sin(rad) * orbitRadius
-                );
+                Vector3 newPosition = useLocalSpace && orbitTarget.parent != null
+                    ? orbitTarget.parent.TransformPoint(orbitCenter + new Vector3(
+                        Mathf.Cos(rad) * orbitRadius,
+                        0,
+                        Mathf.Sin(rad) * orbitRadius))
+                    : orbitCenter + new Vector3(
+                        Mathf.Cos(rad) * orbitRadius,
+                        0,
+                        Mathf.Sin(rad) * orbitRadius);
 
-                float heightOffset = heightCurve.Evaluate(progress) * heightScale;
-                newPosition.y += heightOffset;
-
-                transform.position = newPosition;
-                transform.LookAt(orbitTarget.position);
+                float curveValue = heightCurve.Evaluate(progress);
+                if (curveValue != 0f)
+                {
+                    float heightOffset = curveValue * heightScale;
+                    newPosition.y += heightOffset;
+                }
+                TargetTransform.position = newPosition;
+                TargetTransform.LookAt(orbitCenter);
+            })
+            .OnComplete(() =>
+            {
+                IsAnimationFinished = true;
+                isAnimating = false; // Разрешаем новые анимации
+                OnAnimationEnded?.Invoke(_targerColldier);
             });
     }
-    #endregion
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent(out CombatSystem player) && !isAnimating && !IsAnimationFinished)
+        {
+            StartMove();
+            _targerColldier = other;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.TryGetComponent(out CombatSystem player) && !isAnimating && !IsAnimationFinished)
+        {
+            StartMove();
+            _targerColldier = other;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.TryGetComponent(out CombatSystem player))
+        {
+            _targerColldier = null;
+        }
+    }
 }

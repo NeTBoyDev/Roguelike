@@ -508,7 +508,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3248466358300691436}
-  m_Mesh: {fileID: -6281424698479989189, guid: 0d64b6887a1f33b4386c5fec51e29c40, type: 3}
+  m_Mesh: {fileID: 7600354733793498603, guid: a52cc53948ad1e1449c3264628e69970, type: 3}
 --- !u!23 &5123311366480946190
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5286,6 +5286,12 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5754084199372789682, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 7600354733793498603, guid: a52cc53948ad1e1449c3264628e69970,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
       propertyPath: m_Name
@@ -7048,6 +7054,12 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5754084199372789682, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 7600354733793498603, guid: a52cc53948ad1e1449c3264628e69970,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
       propertyPath: m_Name
@@ -9999,6 +10011,12 @@ PrefabInstance:
       propertyPath: m_CastShadows
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5754084199372789682, guid: 0d64b6887a1f33b4386c5fec51e29c40,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 7600354733793498603, guid: a52cc53948ad1e1449c3264628e69970,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
       propertyPath: m_Name

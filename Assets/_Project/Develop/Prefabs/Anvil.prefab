@@ -1763,7 +1763,7 @@ MonoBehaviour:
   _upgradeButton: {fileID: 4959018352236717388}
   _progressImage: {fileID: 9095704718212533316}
   _statusText: {fileID: 97818721390797188}
-  <UpgradeDuration>k__BackingField: 6
+  <UpgradeDuration>k__BackingField: 2
 --- !u!65 &4261917399425360472
 BoxCollider:
   m_ObjectHideFlags: 0
