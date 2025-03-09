@@ -13,6 +13,7 @@ using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -718,13 +719,15 @@ public class CombatSystem : MonoBehaviour
         DOTween.To(() => CrossScreen.alpha, x => CrossScreen.alpha = x, 0, .75f).SetUpdate(true);
         DOTween.To(() => UiScreen.alpha, x => UiScreen.alpha = x, 0, .75f).SetUpdate(true);
         DOTween.To(() => MinimapScreen.alpha, x => MinimapScreen.alpha = x, 0, .75f).SetUpdate(true);
-        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0, 3f).SetUpdate(true);
-        
+        var tween = DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0, 3f);
+        SceneManager.sceneLoaded += (s,a) => tween.Kill();
         _manager.StopPlaying(Reload);
         
         _manager.ProduceSound(transform.position,DieClip);
         
         OnDie?.Invoke();
+        
+        
     }
 
     public static event Action OnDie;

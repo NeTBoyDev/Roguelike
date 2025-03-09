@@ -134,13 +134,21 @@ public class Inventory : MonoBehaviour
                 Model.Minimap.SetActive(!value);
         };
 
-        CombatSystem.OnDie += () => isDead = true;
-        CombatSystem.OnDie += () =>
-        {
-            enabled = false;
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        };
+        CombatSystem.OnDie += Die;
+
+    }
+
+    private void OnDestroy()
+    {
+        CombatSystem.OnDie -= Die;
+    }
+
+    private void Die()
+    {
+        isDead = true;
+        enabled = false;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public void RemoveWeapon() => CombatSystem.RemoveWeapon();
