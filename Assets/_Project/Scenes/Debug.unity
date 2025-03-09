@@ -25747,6 +25747,12 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.50670505, y: 1.1235807, z: -0.0071138144}
     m_Extent: {x: 0.46454844, y: 0.14827722, z: 0.1778044}
   m_DirtyAABB: 0
+--- !u!4 &770217081 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5003453202321455018, guid: bcd8cf2dc2a4070419c1842908868655,
+    type: 3}
+  m_PrefabInstance: {fileID: 5747076515357273066}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &771209598
 GameObject:
   m_ObjectHideFlags: 0
@@ -45941,6 +45947,11 @@ PrefabInstance:
       propertyPath: _interactText
       value: 
       objectReference: {fileID: 67135734}
+    - target: {fileID: -1756355577968386675, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: <dontDestroyOnLoad>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 799392648365534754, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -46056,6 +46067,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6298406021101203070, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7528292338955704060, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_Name
@@ -46081,6 +46097,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8891845354889872281, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: m_TranslationOffset.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8891845354889872281, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: m_TranslationOffset.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8891845354889872281, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: m_TranslationOffset.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8891845354889872281, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: m_Sources.Array.data[0].sourceTransform
+      value: 
+      objectReference: {fileID: 770217081}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

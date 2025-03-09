@@ -173,7 +173,7 @@ public class Inventory : MonoBehaviour
     {
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
-        if (hit.collider != null && hit.collider.TryGetComponent(out Vendor v))
+        if (hit.collider != null && (hit.collider.TryGetComponent(out Vendor v) || hit.collider.TryGetComponent(out Anvil a)))
         {
             _vendorText.enabled = true;
         }
