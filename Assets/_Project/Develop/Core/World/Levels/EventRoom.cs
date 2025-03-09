@@ -136,6 +136,12 @@ public class EventRoom : MonoBehaviour
 
         foreach (var entity in _entities)
         {
+            if (entity.transform.position.y < -100)
+            {
+                _entities.Remove(entity);
+                Destroy(entity.gameObject);
+            }    
+
             if (entity != null && !entity.IsDead)
             {
                 return false;
