@@ -47948,6 +47948,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1756355577968386675, guid: bcd8cf2dc2a4070419c1842908868655,
+        type: 3}
+      propertyPath: <dontDestroyOnLoad>k__BackingField
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 799392648365534754, guid: bcd8cf2dc2a4070419c1842908868655,
         type: 3}
       propertyPath: m_AnchorMax.y
