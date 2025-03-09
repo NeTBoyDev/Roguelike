@@ -357,7 +357,7 @@ public class Anvil : MonoBehaviour
         _gemSlot.ClearSlot();
         _progressImage.fillAmount = 0f;
 
-        UpdateButtonState(1);
+        UpdateButtonState(2);
     }
 
     private bool CalculateUpgradeSuccess(Item gem)
