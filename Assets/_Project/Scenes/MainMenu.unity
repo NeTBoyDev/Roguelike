@@ -4182,6 +4182,8 @@ GameObject:
   - component: {fileID: 43590839}
   - component: {fileID: 43590838}
   - component: {fileID: 43590837}
+  - component: {fileID: 43590841}
+  - component: {fileID: 43590840}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -4291,6 +4293,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 43590835}
   m_CullTransparentMesh: 1
+--- !u!114 &43590840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43590835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3c99712bf90a44f9d635d3b9f397c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectType: 0
+  duration: 0.3
+  easeType: 27
+  hoverScale: {x: 1.1, y: 1.1, z: 1.1}
+  normalScale: {x: 1, y: 1, z: 1}
+  hoverRotation: {x: 0, y: 0, z: 5}
+  randomRotationRange: {x: 5, y: 5, z: 5}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  randomColorRange: {x: 0.2, y: 0.2, z: 0.2}
+  affectImage: 1
+  affectText: 1
+  affectChildText: 1
+  hoverOffset: {x: 0, y: 5, z: 0}
+  EffectSound: {fileID: 8300000, guid: aeb4cd0ecc7e5374da2534ba852a3a59, type: 3}
+--- !u!114 &43590841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 43590835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3c99712bf90a44f9d635d3b9f397c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectType: 3
+  duration: 0.3
+  easeType: 13
+  hoverScale: {x: 1.1, y: 1.1, z: 1.1}
+  normalScale: {x: 1, y: 1, z: 1}
+  hoverRotation: {x: 0, y: 0, z: 5}
+  randomRotationRange: {x: 5, y: 5, z: 5}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  randomColorRange: {x: 0.2, y: 0.2, z: 0.2}
+  affectImage: 1
+  affectText: 1
+  affectChildText: 1
+  hoverOffset: {x: 0, y: 5, z: 0}
+  EffectSound: {fileID: 0}
 --- !u!1 &44669741
 GameObject:
   m_ObjectHideFlags: 0
@@ -12843,6 +12897,8 @@ GameObject:
   - component: {fileID: 1445207730}
   - component: {fileID: 1445207729}
   - component: {fileID: 1445207728}
+  - component: {fileID: 1445207732}
+  - component: {fileID: 1445207731}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -12952,6 +13008,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1445207726}
   m_CullTransparentMesh: 1
+--- !u!114 &1445207731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445207726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3c99712bf90a44f9d635d3b9f397c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectType: 3
+  duration: 0.3
+  easeType: 13
+  hoverScale: {x: 1.1, y: 1.1, z: 1.1}
+  normalScale: {x: 1, y: 1, z: 1}
+  hoverRotation: {x: 0, y: 0, z: 5}
+  randomRotationRange: {x: 5, y: 5, z: 5}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  randomColorRange: {x: 0.2, y: 0.2, z: 0.2}
+  affectImage: 1
+  affectText: 1
+  affectChildText: 1
+  hoverOffset: {x: 0, y: 5, z: 0}
+  EffectSound: {fileID: 0}
+--- !u!114 &1445207732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445207726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a3c99712bf90a44f9d635d3b9f397c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectType: 0
+  duration: 0.3
+  easeType: 27
+  hoverScale: {x: 1.1, y: 1.1, z: 1.1}
+  normalScale: {x: 1, y: 1, z: 1}
+  hoverRotation: {x: 0, y: 0, z: 5}
+  randomRotationRange: {x: 5, y: 5, z: 5}
+  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  randomColorRange: {x: 0.2, y: 0.2, z: 0.2}
+  affectImage: 1
+  affectText: 1
+  affectChildText: 1
+  hoverOffset: {x: 0, y: 5, z: 0}
+  EffectSound: {fileID: 8300000, guid: aeb4cd0ecc7e5374da2534ba852a3a59, type: 3}
 --- !u!1001 &1472354838
 PrefabInstance:
   m_ObjectHideFlags: 0

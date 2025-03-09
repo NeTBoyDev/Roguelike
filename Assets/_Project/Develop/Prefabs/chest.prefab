@@ -204,3 +204,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isKitStart: 0
+  open: {fileID: 8300000, guid: af53217a3fd4b7d449720b2c45bbf82e, type: 3}
