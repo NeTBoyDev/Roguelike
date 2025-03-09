@@ -6,16 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum RoomEventType
 {
     None,
-    MobWave
+    MobWave,
+    Boss
 }
 
 public class EventRoom : MonoBehaviour
 {
-    [field: SerializeField, ShowIf(nameof(EventType), RoomEventType.MobWave)] public Transform[] SpawnPoints { get; private set; } = null;
+    [field: SerializeField] public Transform[] SpawnPoints { get; private set; } = null;
     [field: SerializeField, MinValue(0), ShowIf(nameof(EventType), RoomEventType.MobWave)] private float _firstSpawnDelay;
     [field: SerializeField, MinValue(0), ShowIf(nameof(EventType), RoomEventType.MobWave)] private float _spawnDelay;
 
@@ -25,6 +27,9 @@ public class EventRoom : MonoBehaviour
     private List<AIBase> _entities = new(1);
     private GameEvent _roomEvent = null;
     private Inventory _playerInventory;
+
+    public UnityEvent OnRoomEnter;
+    public UnityEvent OnRoomCleared;
 
     private void Start()
     {
@@ -45,7 +50,17 @@ public class EventRoom : MonoBehaviour
                     .AddEvent(DestroyAllEntities)
                     .Build();
                 break;
-
+            case RoomEventType.Boss:
+                _roomEvent = EventBuilder.Create()
+                    .AddEvent(CloseAllDoors)
+                    .AddDelay(_firstSpawnDelay)
+                    .AddEvent(SpawnBoss)
+                    .AddEvent(WaitForRoomCleared)
+                    .AddEvent(ReOpenDoors)
+                    .AddEvent(GiveReward)
+                    .AddEvent(DestroyAllEntities)
+                    .Build();
+                break;
             default:
                 break;
         }
@@ -61,6 +76,7 @@ public class EventRoom : MonoBehaviour
     {
         if(other.TryGetComponent(out CombatSystem system))
         {
+            OnRoomEnter?.Invoke();
             ExecuteRoomEvents().Forget();
             GetComponent<Collider>().enabled = false;
         }
@@ -86,6 +102,22 @@ public class EventRoom : MonoBehaviour
 
             await UniTask.Delay(TimeSpan.FromSeconds(_spawnDelay));
         }
+    }
+    
+    private async void SpawnBoss()
+    {
+        var spawnedEnemy = MobSpawner.Instance.GetRandomMob(GameData._map);
+        spawnedEnemy.transform.position = GetRandomPosition();
+        spawnedEnemy.transform.localScale *= 2;
+        spawnedEnemy.ModifyDamage(4);
+        spawnedEnemy.ModifySpeed(1.5f);
+        spawnedEnemy.ModifyHP(10);
+        spawnedEnemy.ModifyDropQuality(2);
+        _entities.Add(spawnedEnemy);
+
+
+        await UniTask.Delay(TimeSpan.FromSeconds(_spawnDelay));
+        
     }
 
     private async UniTask WaitForRoomCleared(CancellationToken token)
@@ -176,6 +208,7 @@ public class EventRoom : MonoBehaviour
     private void GiveReward()
     {
         Debug.Log("give reward");
+        OnRoomCleared?.Invoke();
         //_playerInventory.ChangePlayerGold(100);
     }
     private Vector3 GetRandomPosition() => SpawnPoints.OrderBy(_ => UnityEngine.Random.value).FirstOrDefault().position;

@@ -18,9 +18,13 @@ public class Chest : MonoBehaviour
         lid = transform.GetChild(0);
     }
 
+    private bool isOpened;
+
     public void Open()
     {
-        
+        if (isOpened)
+            return;
+        isOpened = true;
         if (isKitStart)
         {
             var container = ItemGenerator.Instance.GenerateWeaponGameobject(GameData._preset._startWeapon,Rarity.Common).GetComponent<Rigidbody>();
@@ -28,9 +32,9 @@ public class Chest : MonoBehaviour
             var scale = container.transform.localScale;
             container.transform.localScale = scale * .2f;
             container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
-            container.transform.DOJump(new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
-            //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
-            container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
+            container.transform.DOJump(new Vector3(Random.Range(-1, 2), 1, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
+            //container.AddForce(container.transform.up * 30,ForceMode.Force);
+            //container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
         }
         else
         {
@@ -44,9 +48,9 @@ public class Chest : MonoBehaviour
                 var scale = container.transform.localScale;
                 container.transform.localScale = scale * .2f;
                 container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
-                container.transform.DOJump(new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
-                //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
-                container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
+                container.transform.DOJump(new Vector3(Random.Range(-1, 2), 1, Random.Range(-1, 2)), 3, 1, 1).SetRelative();
+                //container.AddForce(container.transform.up * 30,ForceMode.Force);
+                //container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
             }    
         }
 

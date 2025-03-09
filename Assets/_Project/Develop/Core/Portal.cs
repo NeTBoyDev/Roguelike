@@ -6,11 +6,16 @@ using UnityEngine.SceneManagement;
 
 public class Portal : MonoBehaviour
 {
+    [field:SerializeField]public bool inDungeon { get; set; } = false;
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.TryGetComponent(out CombatSystem c))
         {
-            SceneManager.LoadSceneAsync(2);
+            if(inDungeon)
+                SceneManager.LoadSceneAsync(1);
+            else
+                SceneManager.LoadSceneAsync(2);
+            
         }
     }
 }

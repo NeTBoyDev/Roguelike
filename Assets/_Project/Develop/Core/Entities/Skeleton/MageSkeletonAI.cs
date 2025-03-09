@@ -42,8 +42,6 @@ public class MageSkeletonAI : AIBase
 
     void Start()
     {
-        skeletonModel = new Creature("skeleton1");
-        skeletonModel[StatType.Agility].SetValue(1);
         destinationSetter = GetComponent<AIDestinationSetter>();
         aiPath = GetComponent<AIPath>();
         
