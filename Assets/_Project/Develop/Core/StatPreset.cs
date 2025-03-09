@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using _Project.Develop.Core;
 using _Project.Develop.Core.Base;
 using _Project.Develop.Core.Enum;
 using UnityEngine;
@@ -8,4 +9,6 @@ using UnityEngine;
 public class StatPreset : ScriptableObject
 {
     public List<Stat> Stats;
+    public GameObject VisualPrefab;
+    public WeaponType _startWeapon;
 }

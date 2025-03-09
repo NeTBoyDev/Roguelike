@@ -32,12 +32,20 @@ public class SelectableCharacter : MonoBehaviour
             camera.transform.DOMove(new Vector3(1518f,783f,-817), 1);
             camera.transform.DORotate(new Vector3(0,90,0), 1);
             DescriptionPanel.SetActive(false);
+            foreach (var c in FindObjectsOfType<SelectableCharacter>())
+            {
+                c.GetComponent<BoxCollider>().enabled = true;
+            }
         });
         
     }
 
     private void OnMouseDown()
     {
+        foreach (var c in FindObjectsOfType<SelectableCharacter>())
+        {
+            c.GetComponent<BoxCollider>().enabled = false;
+        }
         
         DescriptionPanel.SetActive(true);
         description.text = Description;
