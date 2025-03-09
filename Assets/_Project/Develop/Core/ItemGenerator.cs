@@ -76,6 +76,7 @@ namespace _Project.Develop.Core
         public GameObject[] ModificatorObjects;
         public GameObject[] UseableItems;
         public GameObject[] Shields,SpellBooks;
+        public GameObject[] CrossbowProjectile,SpellProjectile;
 
         public Effect[] MeleeEffects = new Effect[]
         {
@@ -312,7 +313,7 @@ namespace _Project.Develop.Core
                     e.SetMagnitude((int)rarity);
                 weaponModel.Effects.Add(effect);
                 if (gem.Rarity == Rarity.Legendary)
-                    gem.AddProjectile(new Projectile("vfx_Projectile_SwordFire"));
+                    gem.AddProjectile(GetRandomProjectile());
             }
             else if (weaponModel is Artifact || weaponModel is SecondaryWeapon)
             {
@@ -375,6 +376,17 @@ namespace _Project.Develop.Core
 
             // Выбираем случайный флаг
             return allFlags[Random.Range(0, allFlags.Length)];
+        }
+
+        public Projectile GetRandomProjectile()
+        {
+            var array = CrossbowProjectile.Concat(SpellProjectile).ToArray();
+            return new Projectile(array[Random.Range(0, array.Length)].name);
+        }
+        public Projectile GetRandomProjectile(WeaponType type)
+        {
+            var array = type == WeaponType.Crossbow ? CrossbowProjectile: SpellProjectile;
+            return new Projectile(array[Random.Range(0, array.Length)].name);
         }
     }
     [Flags]

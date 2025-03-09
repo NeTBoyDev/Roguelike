@@ -100,3 +100,30 @@ MonoBehaviour:
   SpellBooks:
   - {fileID: 919132149155446097, guid: c5823ccfb4636d641b7d0d567d4502ce, type: 3}
   - {fileID: 919132149155446097, guid: 6b724d72b3b9a2e418d0ad3651aad942, type: 3}
+  CrossbowProjectile:
+  - {fileID: 1170744857039610, guid: 1fcfcb93d7455e94bb4991c5ab289a41, type: 3}
+  - {fileID: 1391574063814312, guid: 68a0ef4dcae9aa14687734d594059d40, type: 3}
+  - {fileID: 1170744857039610, guid: afbfa7d0f636e0a4db9f7f5959f3399e, type: 3}
+  - {fileID: 1260705795423738, guid: e21f397f19b330b43a512abfdfd2c479, type: 3}
+  - {fileID: 1049234075114562, guid: c7e9268bc510d734e980e1e5b5898911, type: 3}
+  - {fileID: 1603392920371116, guid: b45a1889b41ca8f4d8ea147d8d705bee, type: 3}
+  SpellProjectile:
+  - {fileID: 1374267004960804, guid: 10a196906512b5141bfd56285ee6c562, type: 3}
+  - {fileID: 1374267004960804, guid: 22d294288012ca446bf50ffb2281ba95, type: 3}
+  - {fileID: 1157088314812518, guid: 2b98800eb2d081f4fa7a3598af604760, type: 3}
+  - {fileID: 1846563170864394, guid: 3bbebb6123d7fdd4fa718a9ea192c837, type: 3}
+  - {fileID: 1823173409967616, guid: 1608c3f9bcd1e9746b09dcb49a56fea9, type: 3}
+  - {fileID: 1823173409967616, guid: c2b318905b842b34fbcd30056dc06ee0, type: 3}
+  - {fileID: 1961964258596952, guid: eca1ff6741def5a468081e17839fc91e, type: 3}
+  - {fileID: 1961964258596952, guid: ba44394998abfd74691113457d3c133f, type: 3}
+  - {fileID: 1707102027251842, guid: dfb85277a4a133d45bc2d5f31d82309c, type: 3}
+  - {fileID: 1707102027251842, guid: 2c74bf7b715f20f478650b039f104ea9, type: 3}
+  - {fileID: 1997882812359486, guid: 840f338b0237d3440b6d0de9ca9481f5, type: 3}
+  - {fileID: 1746672929845058, guid: db5608cc982a3544882c10440997ffdc, type: 3}
+  - {fileID: 1746672929845058, guid: 066d7c4cdca7a744fb9457e7b49580db, type: 3}
+  - {fileID: 1746672929845058, guid: d914bf125c123ec4994f1988475d0aad, type: 3}
+  - {fileID: 1746672929845058, guid: f44a3d27c7c4d174794ed789ee4333bc, type: 3}
+  - {fileID: 1607489160101874, guid: 1220774a6e4cd454aa215fc9dfec7f4a, type: 3}
+  - {fileID: 1607489160101874, guid: 413b180ebab02d349a31789fab789ef6, type: 3}
+  - {fileID: 1305997383178436, guid: 5b54c2e1bf70dd248902db6814a270fb, type: 3}
+  - {fileID: 1040889220841686, guid: 9ae5e242e15c7494a8bd65e18812ce62, type: 3}
