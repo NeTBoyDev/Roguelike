@@ -624,6 +624,14 @@ public class Inventory : MonoBehaviour
             effects += $"Heals {per.magnitude * per.Duration} health\n";
             effects += $"In {per.Duration} seconds\n";
         }
+        else if (item is Map)
+        {
+            _itemStatText.text = string.Empty;
+            foreach (var stat in item.Stats)
+            {
+                effects += $"{stat.Value.Type.ToString()} : {stat.Value.CurrentValue*100:f1}%\n";
+            }
+        }
         else
         {
             foreach (var effect in item.Effects)

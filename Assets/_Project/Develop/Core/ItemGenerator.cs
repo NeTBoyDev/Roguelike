@@ -72,6 +72,7 @@ namespace _Project.Develop.Core
         #endregion
         
         public GameObject[] Artifacts;
+        public GameObject MapModel;
 
         public GameObject[] ModificatorObjects;
         public GameObject[] UseableItems;
@@ -171,6 +172,7 @@ namespace _Project.Develop.Core
                 WeaponType.Hammer => Hammers[Random.Range(0,Hammers.Length)],
                 WeaponType.Gem => ModificatorObjects[Random.Range(0,ModificatorObjects.Length)],
                 WeaponType.Artifact => Artifacts[Random.Range(0,Artifacts.Length)],
+                WeaponType.Map => MapModel,
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -205,6 +207,7 @@ namespace _Project.Develop.Core
                 WeaponType.Hammer => Hammers.FirstOrDefault(i=>i.name == name),
                 WeaponType.Gem => ModificatorObjects.FirstOrDefault(i=>i.name == name),
                 WeaponType.Artifact => Artifacts.FirstOrDefault(i=>i.name == name),
+                WeaponType.Map => MapModel,
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
 
@@ -232,6 +235,8 @@ namespace _Project.Develop.Core
                 obj = ModificatorObjects.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
             if(weapon is Artifact)
                 obj = Artifacts.FirstOrDefault(m =>weapon.Id == m.name); // Исправлено с Range на Melee
+            if(weapon is Map)
+                obj = MapModel; // Исправлено с Range на Melee
             
             var weaponContainer = Instantiate(weapon.View).AddComponent<EntityContainer>();
             weaponContainer.name = obj.name;
@@ -287,6 +292,7 @@ namespace _Project.Develop.Core
                 WeaponType.Hammer => new Hammer(name,rarity),
                 WeaponType.Gem => new Gem(name),
                 WeaponType.Artifact => new Artifact(name),
+                WeaponType.Map => new Map(rarity,name),
                 
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
@@ -402,7 +408,8 @@ namespace _Project.Develop.Core
         Staff = 128,
         Crossbow = 256,
         Gem,
-        Artifact
+        Artifact,
+        Map
         /*RangeWeapon = Crossbow | Staff ,
         MeeleWeapon = Sword | Dagger | Axe | Hammer,*/
         
