@@ -138,12 +138,14 @@ public class CombatSystem : MonoBehaviour
         agility.OnModify += (value) => character.SetSpeed(3 + value/5);
         
         var health = playerModel.Stats[StatType.Health];
+        print(health.BaseValue);
         health.OnModify += (value) => HpSlider.value = value;
         HpSlider.maxValue = health.BaseValue;
         
         var stamina = playerModel.Stats[StatType.Stamina];
         stamina.OnModify += (value) => StaminaSlider.value = value;
         StaminaSlider.maxValue = stamina.BaseValue;
+        print(stamina.BaseValue);
         
         
     }

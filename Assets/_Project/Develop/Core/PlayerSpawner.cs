@@ -17,6 +17,10 @@ public class PlayerSpawner : MonoBehaviour
             chest.isKitStart = true;
             //PlayerPrefab.GetComponentInChildren<CombatSystem>().InitializeStats(GameData._preset);
         }
+        else
+        {
+            FindObjectOfType<CombatSystem>().GetComponent<PlayerCharacter>().SetPosition(transform.position);
+        }
     }
 
 }

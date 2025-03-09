@@ -15,6 +15,10 @@ public class AIBase : MonoBehaviour
     private void Awake()
     {
         skeletonModel = new Creature("skeleton1");
+        skeletonModel.Stats[StatType.Health] = new Stat(StatType.Health, 100,5000);
+        skeletonModel.Stats[StatType.DropCount] = new Stat(StatType.DropCount, 1);
+        skeletonModel.Stats[StatType.DropQuality] = new Stat(StatType.DropQuality, 1);
+        skeletonModel[StatType.Agility].SetValue(1);
     }
 
     public virtual void TakeDamage(float damage)
@@ -38,9 +42,9 @@ public class AIBase : MonoBehaviour
                 var scale = container.transform.localScale;
                 container.transform.localScale = scale * .2f;
                 container.transform.DOScale(scale, 2.5f).SetEase(Ease.OutBack);
-                container.transform.DOJump(container.transform.position + new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2)), 2, 1, 1);
-                //container.AddForce(Vector3.up * 1 + ),ForceMode.Force);
-                container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
+                container.transform.DOJump(container.transform.position + new Vector3(Random.Range(-1, 2), 1, Random.Range(-1, 2)), 2, 1, 1).SetRelative();
+                //container.AddForce(Vector3.up * 30,ForceMode.Force);
+                //container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
             }
         }    
     }

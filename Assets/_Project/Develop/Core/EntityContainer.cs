@@ -5,13 +5,13 @@ using _Project.Develop.Core.Entities;
 using UnityEngine;
 using UnityEngine.Animations;
 
-[RequireComponent(typeof(Rigidbody),typeof(MeshCollider))]
+[RequireComponent(typeof(Rigidbody),typeof(BoxCollider))]
 public class EntityContainer : MonoBehaviour
 {
     private void Awake()
     {
-        GetComponent<MeshCollider>().convex = true;
-        GetComponent<Rigidbody>().drag = 1;
+        GetComponent<Rigidbody>().drag = 0.2f;
+        GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Continuous;
     }
 
     public BaseEntity ContainedEntity { get; private set; }
