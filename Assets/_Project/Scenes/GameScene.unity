@@ -501,8 +501,17 @@ MonoBehaviour:
   - {fileID: 1898664814548399640, guid: 8e9976e9242a2e34ba0c6950a299fb18, type: 3}
   <RoomPrefabs>k__BackingField:
   - {fileID: 1898664814548399640, guid: 41c30ca69d18e144ba1c8a4270d1bc28, type: 3}
+  - {fileID: 1898664814548399640, guid: 37ac57fd36642e54fb59ee44a007c3eb, type: 3}
+  - {fileID: 1898664814548399640, guid: ee8c41e23ab5cf44d8e7cb1897fbea81, type: 3}
+  - {fileID: 1898664814548399640, guid: 945216f5528d80d4588517006110e8a8, type: 3}
+  - {fileID: 1898664814548399640, guid: 8f3e5c2bc57066b4caeb172b5e94f020, type: 3}
+  - {fileID: 1898664814548399640, guid: 5deeb9bf11cab4748a9aa92473d7abc4, type: 3}
+  - {fileID: 1898664814548399640, guid: 3bc3b2d9042a0fd459b7cf6e45f13a72, type: 3}
+  - {fileID: 1898664814548399640, guid: ebb203b4711eb6c4faa5d3d2dd7658c9, type: 3}
+  - {fileID: 1898664814548399640, guid: e22213902f90b3c45a61fea73d11fad0, type: 3}
+  - {fileID: 1898664814548399640, guid: e5d4fa8bbbd174141aaf4bdbef763c95, type: 3}
   <GenerateAlgorithm>k__BackingField: 2
-  <MaxRoomCount>k__BackingField: 8
+  <MaxRoomCount>k__BackingField: 6
   <OverlapDoorThreshold>k__BackingField: 1
   <MinRoomsBeforeFinalConnection>k__BackingField: 1
   <StartSpawnDelay>k__BackingField: 0.2

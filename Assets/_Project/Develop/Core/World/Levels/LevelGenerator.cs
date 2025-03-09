@@ -101,7 +101,8 @@ public class LevelGenerator : MonoBehaviour
             .AddStep(GenerateFloorAsync)
             .AddStep(SpawnPlayerAsync).AddDelay(2).AddDelay(settings.BakeFrameCount)
             .AddStep(SetupGraphDynamically).AddDelay(PlayerSpawnDelay)
-            .AddStep(SpawnVendor).AddDelay(1) //TEST VENDOR (NEED TO DELETE) (fake vendor)
+            //.AddStep(SpawnVendor).AddDelay(1) //TEST VENDOR (NEED TO DELETE) (fake vendor)
+            .AddDelay(1)
             .AddStep(RemoveCollidersInSpawnedRooms);
 
         await _pipeline.Execute();
@@ -721,9 +722,12 @@ public class LevelGenerator : MonoBehaviour
         Room currentRoom = currentDoor.GetComponentInParent<Room>(); //Комната, которую подключаем
         Room doorRoom = doorToConnect.GetComponentInParent<Room>(); //Комната, к которой подключаемся
 
-        if (currentRoom.EventRoom != null)
+        if (currentRoom.EventRooms.Count > 0)
         {
-            currentRoom.EventRoom.AddToLinkedRooms(doorRoom);
+            foreach (var eventRooms in currentRoom.EventRooms)
+            {
+                eventRooms.AddToLinkedRooms(doorRoom);
+            }
             if (DebugMode)
                 Debug.Log($"EventRoom {currentRoom.name} linked to {doorRoom.name}");
         }
