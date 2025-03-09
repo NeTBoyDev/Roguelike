@@ -1,4 +1,5 @@
 using _Project.Develop.Core;
+using _Project.Develop.Core.Enum;
 using UnityEditor;
 using UnityEngine;
 
@@ -44,6 +45,19 @@ public class MobSpawner : ScriptableObject
         mob.ModifyDamage(multiplyer);
         mob.ModifyHP(multiplyer);
         mob.ModifySpeed(multiplyer);
+        mob.ModifyDropCount(multiplyer);
+        mob.ModifyDropQuality(multiplyer);
+        return mob;
+    }
+    
+    public AIBase GetRandomMob(Map map)
+    {
+        var mob = Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]);
+        mob.ModifyDamage(map.Stats[StatType.MobPower].CurrentValue);
+        mob.ModifyHP(map.Stats[StatType.MobPower].CurrentValue);
+        mob.ModifySpeed(map.Stats[StatType.MobPower].CurrentValue);
+        mob.ModifyDropCount(map.Stats[StatType.DropCount].CurrentValue);
+        mob.ModifyDropQuality(map.Stats[StatType.DropQuality].CurrentValue);
         return mob;
     }
 }

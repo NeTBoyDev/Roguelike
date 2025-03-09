@@ -28,6 +28,8 @@ public class Inventory : MonoBehaviour
     [SerializeField] private TMP_Text _itemStatText;
     [SerializeField] private TMP_Text _itemEffectText;
     [SerializeField] public TMP_Text _itemDescriptionText;
+    [SerializeField] public TMP_Text _interactText;
+    [SerializeField] public TMP_Text _vendorText;
     
     [SerializeField] private TMP_Text _playerStatsText;
         
@@ -171,6 +173,15 @@ public class Inventory : MonoBehaviour
     {
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
+        if (hit.collider != null && hit.collider.TryGetComponent(out Vendor v))
+        {
+            _vendorText.enabled = true;
+        }
+        else
+        {
+            _vendorText.enabled = false;
+        }
+        
         if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Vendor vendor))
         {
             if (_currentVendor == vendor)
@@ -211,10 +222,18 @@ public class Inventory : MonoBehaviour
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
+            _interactText.enabled = true;
             ShowItemInfo((Item)cont.ContainedEntity);
         }
-        else if(!InventoryState)
+        else if (!InventoryState)
+        {
+            _interactText.enabled = false;
             CloseItemInfo();
+        }
+        else
+        {
+            _interactText.enabled = false;
+        }
     }
 
     private void TryPickUpItem()
