@@ -1,6 +1,7 @@
 using System;
 using _Project.Develop.Core;
 using _Project.Develop.Core.Enum;
+using _Project.Develop.Core.Player;
 using DG.Tweening;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -9,14 +10,17 @@ public class Chest : MonoBehaviour
 {
     public bool isKitStart;
     private Transform lid;
-
+    public AudioClip open;
+    private SoundManager manager;
     private void Awake()
     {
+        manager = new SoundManager();
         lid = transform.GetChild(0);
     }
 
     public void Open()
     {
+        
         if (isKitStart)
         {
             var container = ItemGenerator.Instance.GenerateWeaponGameobject(GameData._preset._startWeapon,Rarity.Common).GetComponent<Rigidbody>();
@@ -47,7 +51,7 @@ public class Chest : MonoBehaviour
         }
 
         lid.transform.DOLocalRotate(new Vector3(-110, 0, 0), .75f).SetEase(Ease.OutBounce).OnComplete(()=>transform.DOScale(Vector3.zero, 1).SetEase(Ease.InBack).OnComplete(() => Destroy(gameObject)));
-        
+        manager.ProduceSound(transform.position,open);
     }
     protected Rarity CalculateRarity()
     {

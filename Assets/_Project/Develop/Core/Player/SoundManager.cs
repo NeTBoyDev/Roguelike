@@ -65,6 +65,18 @@ namespace _Project.Develop.Core.Player
             }
                 
         }
+
+        public void ProduceDDOLSound(AudioClip clip)
+        {
+            if (GameObject.Find("DDOLSound") != null)
+                return;
+            var source = new GameObject("DDOLSound").AddComponent<AudioSource>();
+            source.clip = clip;
+            source.volume = 0.1f;
+            source.loop = true;
+            source.Play();
+            GameObject.DontDestroyOnLoad(source);
+        }
         
         public async void ProducePhrase(Vector3 position,AudioClip sound,bool infinite = false)
         {
