@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class Minimap : MonoBehaviour
 {
@@ -252,5 +253,11 @@ public class Minimap : MonoBehaviour
             UpdateUVRect();
             minimapRawImage.uvRect = uvRect;
         }
+    }
+
+    public void GoToMenu()
+    {
+        Destroy(FindObjectOfType<Player>().gameObject);
+        SceneManager.LoadSceneAsync(0);
     }
 }
