@@ -78,6 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sensitivity: 1
+  mayUpdate: 1
 --- !u!1 &293918419783260009
 GameObject:
   m_ObjectHideFlags: 0
@@ -799,6 +800,7 @@ MonoBehaviour:
   _cameraSpring: {fileID: 6638236787349203236}
   _cameraLean: {fileID: 1926950279930443430}
   animator: {fileID: 7363260879509228690}
+  _stepClips: []
 --- !u!1 &2079180153984613692
 GameObject:
   m_ObjectHideFlags: 0
@@ -3334,6 +3336,28 @@ MonoBehaviour:
   attackCooldown: 0.5
   comboWindow: 1.5
   hasShield: 1
+  Crosshair: []
+  Cross: {fileID: 0}
+  CrosshairStartPos: []
+  ChargeSpellEffect: {fileID: 0}
+  WeaponParent: {fileID: 0}
+  SecondaryWeaponParent: {fileID: 0}
+  HitSounds: []
+  SwingSounds: []
+  SpellCast: {fileID: 0}
+  SpellPrepare: {fileID: 0}
+  BlockHit: {fileID: 0}
+  Reload: {fileID: 0}
+  Shot: {fileID: 0}
+  DieClip: {fileID: 0}
+  preset: {fileID: 0}
+  HpSlider: {fileID: 0}
+  StaminaSlider: {fileID: 0}
+  HitImage: {fileID: 0}
+  DeadScreen: {fileID: 0}
+  CrossScreen: {fileID: 0}
+  MinimapScreen: {fileID: 0}
+  UiScreen: {fileID: 0}
 --- !u!1 &8656944776373299725
 GameObject:
   m_ObjectHideFlags: 0

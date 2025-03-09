@@ -36,6 +36,7 @@ public class SkeletonAI : AIBase
     protected void Start()
     {
         skeletonModel = new Creature("skeleton1");
+        skeletonModel[StatType.Agility].SetValue(1);
         destinationSetter = GetComponent<AIDestinationSetter>();
         aiPath = GetComponent<AIPath>();
         
@@ -47,6 +48,8 @@ public class SkeletonAI : AIBase
 
         ChangeState(new ApproachState(this));
     }
+
+    
 
     void Update()
     {
@@ -138,7 +141,7 @@ public class ApproachState : IState
     {
         skeleton.animator.SetBool("Walking",true);
         skeleton.AIPath.canMove = true;
-        skeleton.AIPath.maxSpeed = 3f; // Скорость приближения
+        skeleton.AIPath.maxSpeed = 3f * skeleton.skeletonModel[StatType.Agility].CurrentValue; // Скорость приближения
     }
 
     public void Execute()
@@ -174,7 +177,7 @@ public class RetreatState : IState
     {
         skeleton.animator.SetBool($"Walking",true);
         skeleton.AIPath.canMove = true;
-        skeleton.AIPath.maxSpeed = 2f; 
+        skeleton.AIPath.maxSpeed = 2f * skeleton.skeletonModel[StatType.Agility].CurrentValue; 
     }
 
     public void Execute()
@@ -213,7 +216,7 @@ public class KeepDistanceState : IState
     {
         skeleton.animator.SetBool($"Walking",true);
         skeleton.AIPath.canMove = true;
-        skeleton.AIPath.maxSpeed = 2.5f;
+        skeleton.AIPath.maxSpeed = 2.5f * skeleton.skeletonModel[StatType.Agility].CurrentValue;
     }
 
     public void Execute()

@@ -76,6 +76,8 @@ MonoBehaviour:
   - {fileID: 919132149155446097, guid: 1bc8afcf8e339dc478a339b58305fce1, type: 3}
   - {fileID: 919132149155446097, guid: 603d3a5792e147c40915992c2e642d4e, type: 3}
   - {fileID: 919132149155446097, guid: fd8ba6e293447d64f8732e0a28d56b68, type: 3}
+  MapModel: {fileID: 3335786473655801190, guid: 95b15fa3dd12c3b45aa5011e0c053719,
+    type: 3}
   ModificatorObjects:
   - {fileID: 5579081699372154065, guid: 81a5cecd73f16c24bb560c9fe20871e6, type: 3}
   - {fileID: 8159233065879722223, guid: 082ab3f177ff03542814dd2a1a91911b, type: 3}

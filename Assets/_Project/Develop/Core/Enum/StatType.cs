@@ -13,6 +13,10 @@ namespace _Project.Develop.Core.Enum
         AttackRange,
         Difficulty,
         ExperienceReward,
-        RangeAttackSpeed
+        RangeAttackSpeed,
+        MobPower,
+        DropQuality,
+        DropCount,
+        RoomCount
     }
 }

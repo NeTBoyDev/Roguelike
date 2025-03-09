@@ -37,4 +37,18 @@ public class AIBase : MonoBehaviour
             container.AddTorque(new Vector3(Random.Range(-15,15),Random.Range(-15,15),Random.Range(-15,15)));
         }
     }
+    
+    public virtual void ModifyHP(float multiplyier)
+    {
+        skeletonModel[StatType.Health].SetValue(skeletonModel[StatType.Health].CurrentValue*multiplyier);
+    }
+    public virtual void ModifySpeed(float multiplyier)
+    {
+        skeletonModel[StatType.Agility].SetValue(skeletonModel[StatType.Agility].CurrentValue*multiplyier);
+    }
+    
+    public virtual void ModifyDamage(float multiplyier)
+    {
+        skeletonModel[StatType.Strength].SetValue(skeletonModel[StatType.Strength].CurrentValue*multiplyier);
+    }
 }
