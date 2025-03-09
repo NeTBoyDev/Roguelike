@@ -22,7 +22,7 @@ public class Inventory : MonoBehaviour
 
     [SerializeField] private Camera _camera;
     [SerializeField] private Image _dragPreviewImage;
-
+    
     [SerializeField] private RectTransform _itemInfoPanel;
     [SerializeField] private TMP_Text _itemNameText;
     [SerializeField] private TMP_Text _itemStatText;
@@ -30,9 +30,9 @@ public class Inventory : MonoBehaviour
     [SerializeField] public TMP_Text _itemDescriptionText;
     [SerializeField] public TMP_Text _interactText;
     [SerializeField] public TMP_Text _vendorText;
-
+    
     [SerializeField] private TMP_Text _playerStatsText;
-
+        
     [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public InventoryView View { get; private set; } = null;
     [field: SerializeField] public InventoryModel Model { get; private set; } = null;
@@ -40,12 +40,12 @@ public class Inventory : MonoBehaviour
     [Header("Input Settings")]
     public KeyCode OpenInventoryKey = KeyCode.Tab;
     public KeyCode UseItemKey = KeyCode.E;
-    public KeyCode PickItemKey = KeyCode.F; // And open vendor/book/anvil panels
+    public KeyCode PickItemKey = KeyCode.F; //And open vendorPanel
     public KeyCode CloseKey = KeyCode.Escape;
 
     public Item DragableItem { get; private set; } = null;
     public InventorySlot LastInteractSlot { get; private set; } = null;
-    public int SelectedHotbarIndex { get; private set; } = 0;
+    public int SelectedHotbarIndex { get; private set; }  = 0;
     public CombatSystem CombatSystem { get; private set; } = null;
 
     private bool InventoryState;
@@ -55,11 +55,11 @@ public class Inventory : MonoBehaviour
     [field: Tooltip("Item pickup & vendor interact distance")]
     [field: SerializeField] public float InteractionDistance { get; private set; } = 5f;
     [field: SerializeField] public TMP_Text GoldText { get; private set; } = null;
-    [SerializeField, ReadOnly] private Vendor _currentVendor = null;
+    [SerializeField,ReadOnly] private Vendor _currentVendor = null;
     [SerializeField, ReadOnly] private Anvil _currentAnvil = null;
-    [SerializeField, ReadOnly] private BookOfTheAbyss _currentBook = null; // Добавили BookOfTheAbyss
 
     #region Initialize
+
     private void Awake()
     {
         if (dontDestroyOnLoad)
@@ -115,8 +115,8 @@ public class Inventory : MonoBehaviour
             slot.onPointerEnter += ShowItemInfo;
             slot.onPointerExit += CloseItemInfo;
 
-            CombatSystem.playerModel.Stats[StatType.Health].OnModify += a => UpdateStatsText();
-            CombatSystem.playerModel.Stats[StatType.Stamina].OnModify += a => UpdateStatsText();
+            CombatSystem.playerModel.Stats[StatType.Health].OnModify += a=> UpdateStatsText();
+            CombatSystem.playerModel.Stats[StatType.Stamina].OnModify += a=> UpdateStatsText();
         }
 
         OnInventoryStateChange += value =>
@@ -129,11 +129,11 @@ public class Inventory : MonoBehaviour
 
             UpdateStatsText();
 
-            if (Model.Minimap != null)
+            if(Model.Minimap != null)
                 Model.Minimap.SetActive(!value);
         };
     }
-
+    
     public void RemoveWeapon() => CombatSystem.RemoveWeapon();
     public void RemoveSecondaryWeapon() => CombatSystem.RemoveSecondaryWeapon();
     #endregion 
@@ -148,11 +148,11 @@ public class Inventory : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.N))
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(0);
         }
         if (Input.GetKeyDown(KeyCode.M))
         {
-            SceneManager.LoadScene(2);
+            SceneManager.LoadScene(1);
         }
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
@@ -160,9 +160,8 @@ public class Inventory : MonoBehaviour
 
         if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentVendor != null && _currentVendor.IsVendorOpen()) CloseVendorInterface();
         if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentAnvil != null && _currentAnvil.IsAnvilOpen()) CloseAnvilInterface();
-        if (Input.GetKeyDown(CloseKey) || Input.GetKeyDown(OpenInventoryKey) && _currentBook != null && _currentBook.IsBookOpen()) CloseBookInterface();
 
-        TryOpenVendorOrAnvilOrBook();
+        TryOpenVendorOrAnvil();
 
         CheckForItem();
         HandleHotbarInput();
@@ -170,11 +169,11 @@ public class Inventory : MonoBehaviour
 
     public void ChangePlayerGold(int amount) => PlayerGold += amount;
 
-    private void TryOpenVendorOrAnvilOrBook() // Обновили метод
+    private void TryOpenVendorOrAnvil()
     {
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
-        if (hit.collider != null && (hit.collider.TryGetComponent(out Vendor v) || hit.collider.TryGetComponent(out Anvil a) || hit.collider.TryGetComponent(out BookOfTheAbyss b)))
+        if (hit.collider != null && (hit.collider.TryGetComponent(out Vendor v) || hit.collider.TryGetComponent(out Anvil a)))
         {
             _vendorText.enabled = true;
         }
@@ -182,7 +181,7 @@ public class Inventory : MonoBehaviour
         {
             _vendorText.enabled = false;
         }
-
+        
         if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Vendor vendor))
         {
             if (_currentVendor == vendor)
@@ -214,27 +213,12 @@ public class Inventory : MonoBehaviour
         {
             CloseAnvilInterface();
         }
-
-        if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out BookOfTheAbyss book))
-        {
-            if (_currentBook == book)
-            {
-                CloseBookInterface();
-            }
-            else
-            {
-                OpenBookInterface(book);
-            }
-        }
-        else if (_currentBook != null && Vector3.Distance(transform.GetChild(0).position, _currentBook.transform.position) > _currentBook.BookCloseDistance)
-        {
-            CloseBookInterface();
-        }
     }
 
     private void CheckForItem()
     {
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
+
 
         if (hit.collider != null && hit.collider.TryGetComponent(out EntityContainer cont))
         {
@@ -259,6 +243,7 @@ public class Inventory : MonoBehaviour
             AddItem(container.ContainedEntity as Item);
             Destroy(container.gameObject);
         }
+
     }
 
     private bool TryGetContainer(out EntityContainer container)
@@ -319,12 +304,12 @@ public class Inventory : MonoBehaviour
     {
         bool enabled = !View.Inventory.activeInHierarchy;
 
-        if (_currentVendor != null || _currentAnvil != null || _currentBook != null)
+        if (_currentVendor != null)
             return;
 
         InventorySetAcitve(enabled);
         UpdateCursorState(enabled);
-        ResetDragIfClosing(enabled);
+        ResetDragIfClosing(!enabled);
 
         OnInventoryStateChange?.Invoke(enabled);
     }
@@ -354,7 +339,7 @@ public class Inventory : MonoBehaviour
             Debug.Log(Model.SelectedItem);
             return;
         }
-
+        
         if (((UseableItem)Model.SelectedItem).Count > 1)
         {
             ((UseableItem)Model.SelectedItem).Count--;
@@ -362,7 +347,7 @@ public class Inventory : MonoBehaviour
         }
         else
             RemoveHotbarItem(Model.SelectedItem);
-
+        
         UpdateAllHotbarSlots();
         Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
     }
@@ -431,7 +416,7 @@ public class Inventory : MonoBehaviour
     private void DropItemOutOfInventory(PointerEventData data, Item item, InventorySlot slot)
     {
         if (!RectTransformUtility.RectangleContainsScreenPoint(View.Inventory.GetComponent<RectTransform>(), data.position) &&
-            !VendorIsActive() && !AnvilIsActive() && !BookIsActive()) // Добавили проверку на книгу
+            !VendorIsActive() && !AnvilIsActive())
         {
             DropItemInWorld(item);
             RemoveItem(slot);
@@ -445,6 +430,7 @@ public class Inventory : MonoBehaviour
                 CombatSystem.RemoveWeapon();
             else if (slot.SlotType == SlotType.SecondaryWeapon)
                 CombatSystem.RemoveSecondaryWeapon();
+            //etc.
 
             ResetDrag();
             UpdateAllHotbarSlots();
@@ -464,17 +450,17 @@ public class Inventory : MonoBehaviour
 
     private bool VendorIsActive() => _currentVendor != null && _currentVendor.IsVendorOpen();
     private bool AnvilIsActive() => _currentAnvil != null && _currentAnvil.IsAnvilOpen();
-    private bool BookIsActive() => _currentBook != null && _currentBook.IsBookOpen(); // Добавили проверку активности книги
 
     private void DropItemInWorld(Item item)
     {
-        var container = ItemGenerator.Instance.GenerateContainer(item, true);
+        var container = ItemGenerator.Instance.GenerateContainer(item,true);
         container.transform.position = _camera.transform.position + _camera.transform.forward;
         container.GetComponent<Rigidbody>().AddForce(_camera.transform.forward * 3, ForceMode.Impulse);
     }
     #endregion
 
     #region QuickMove logic
+
     private void QuickMoveItem(PointerEventData eventData, Item item, InventorySlot sourceSlot)
     {
         if (item == null || eventData.button != PointerEventData.InputButton.Right || sourceSlot.SlotType == SlotType.Hotbar) return;
@@ -584,6 +570,7 @@ public class Inventory : MonoBehaviour
         }
         else if (item is UseableItem)
         {
+            // Ищем первый пустой слот в хотбаре или возвращаем текущий выбранный
             return View.HotbarSlots.FirstOrDefault(s => s.IsEmpty()) ??
                    View.HotbarSlots[SelectedHotbarIndex];
         }
@@ -643,7 +630,7 @@ public class Inventory : MonoBehaviour
                 effects += $"{stat.Value.Type.ToString()} : {stat.Value.CurrentValue}\n";
             }
         }
-        else if (item is RagePotion || item is AgilityPotions || item is WisdomPotion)
+        else if (item is RagePotion || item is AgilityPotions  || item is WisdomPotion) // ДОПИСАТЬ ДЛЯ ВСЕХ ПОТОК
         {
             if (((UseableItem)item).GetEffect() is ContinuousEffect cont)
             {
@@ -651,7 +638,7 @@ public class Inventory : MonoBehaviour
                 effects += $"For {cont.Duration}\n seconds";
             }
         }
-        else if (item is UseableItem && ((UseableItem)item).GetEffect() is PeriodicEffect per)
+        else if( item is UseableItem && ((UseableItem)item).GetEffect() is PeriodicEffect per)
         {
             effects += $"Heals {per.magnitude * per.Duration} health\n";
             effects += $"In {per.Duration} seconds\n";
@@ -661,7 +648,7 @@ public class Inventory : MonoBehaviour
             _itemStatText.text = string.Empty;
             foreach (var stat in item.Stats)
             {
-                effects += $"{stat.Value.Type.ToString()} : {stat.Value.CurrentValue * 100:f1}%\n";
+                effects += $"{stat.Value.Type.ToString()} : {stat.Value.CurrentValue*100:f1}%\n";
             }
         }
         else
@@ -671,6 +658,7 @@ public class Inventory : MonoBehaviour
                 effects += $"{effect.Name}\n";
             }
         }
+        
 
         _itemEffectText.text = effects;
         _itemDescriptionText.text = "No description yet";
@@ -685,7 +673,8 @@ public class Inventory : MonoBehaviour
 
     public void OpenVendorInterface(Vendor vendor)
     {
-        if (_currentVendor != null && _currentVendor != vendor)
+
+        if(_currentVendor != null && _currentVendor != vendor)
         {
             CloseVendorInterface();
         }
@@ -731,35 +720,6 @@ public class Inventory : MonoBehaviour
         {
             _currentAnvil.CloseAnvil();
             _currentAnvil = null;
-
-            InventorySetAcitve(false);
-            UpdateCursorState(false);
-
-            OnInventoryStateChange?.Invoke(false);
-        }
-    }
-
-    // Добавили методы для BookOfTheAbyss
-    public void OpenBookInterface(BookOfTheAbyss book)
-    {
-        if (_currentBook != null && _currentBook != book)
-        {
-            CloseBookInterface();
-        }
-        _currentBook = book;
-        _currentBook.OpenBook();
-
-        InventorySetAcitve(true);
-        UpdateCursorState(true);
-
-        OnInventoryStateChange?.Invoke(true);
-    }
-    public void CloseBookInterface()
-    {
-        if (_currentBook != null)
-        {
-            _currentBook.CloseBook();
-            _currentBook = null;
 
             InventorySetAcitve(false);
             UpdateCursorState(false);
