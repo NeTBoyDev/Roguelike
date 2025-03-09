@@ -9,6 +9,7 @@ using UnityEngine;
 using System.Collections;
 using Cysharp.Threading.Tasks.Linq;
 using UnityEditor;
+using _Project.Develop.Core.Enum;
 
 public enum GenerateAlgorithm
 {
@@ -72,7 +73,11 @@ public class LevelGenerator : MonoBehaviour
 
     public void Initialize(LevelGeneratorSettings settings)
     {
-        MaxRoomCount = settings.MaxRoomCount;
+        if (GameData._map != null)
+            MaxRoomCount = (int)(settings.MaxRoomCount * GameData._map.Stats[StatType.RoomCount].CurrentValue);
+        else
+            MaxRoomCount = settings.MaxRoomCount;
+
         GenerateAlgorithm = settings.GenerateAlgorithm;
 
         LevelContainer = GetLevelContainer();
@@ -93,17 +98,14 @@ public class LevelGenerator : MonoBehaviour
         }
 
         _pipeline = LevelGenerationPipeline.Create().AddDelay(StartSpawnDelay)
-            .AddStep(GenerateStartRoom).AddDelay(LastRoomSpawnDelay)
-            .AddStep(GenerateFinalRoomInitial).AddDelay(RoomSpawnDelay)
-            .AddStep(GenerateFloorAsync).AddDelay(settings.BakeFrameCount)
+            .AddStep(GenerateFloorAsync)
+            .AddStep(SpawnPlayerAsync).AddDelay(2).AddDelay(settings.BakeFrameCount)
             .AddStep(SetupGraphDynamically).AddDelay(PlayerSpawnDelay)
-            .AddStep(SpawnPlayerAsync).AddDelay(1)
             .AddStep(SpawnVendor).AddDelay(1) //TEST VENDOR (NEED TO DELETE) (fake vendor)
             .AddStep(RemoveCollidersInSpawnedRooms);
 
         await _pipeline.Execute();
     }
-
     private void RemoveCollidersInSpawnedRooms()
     {
         foreach (var room in SpawnedRooms)
@@ -116,8 +118,8 @@ public class LevelGenerator : MonoBehaviour
         var startRoom = GetStartRoom();
 
         //CheckNull(PlayerPrefab, "Player prefab is null!");
-        CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
-        CheckNull(VendorPrefab, "Vendor prefab is null!");
+        //CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
+        //CheckNull(VendorPrefab, "Vendor prefab is null!");
 
         while (_characterController == null)
         {
@@ -191,83 +193,147 @@ public class LevelGenerator : MonoBehaviour
 
     public async UniTask GenerateFloorAsync()
     {
-        while (_currentRoomCount < MaxRoomCount && !_finalRoomConnected)
+        bool generationSuccessful = false;
+        int maxAttempts = 10; // Ограничение попыток
+        int attemptCount = 0;
+
+        while (!generationSuccessful && attemptCount < maxAttempts)
         {
-            bool placedAnyRoom = false;
+            attemptCount++;
+            Debug.Log($"<color=yellow>[Level Generator]:</color> Generation attempt {attemptCount}/{maxAttempts}");
 
-            var allBaseRooms = GetAllRandomBaseRooms().ToArray();
+            // Очищаем текущий уровень перед новой попыткой
+            ClearCurrentLevel();
 
-            if (allBaseRooms.Length == 0 && _currentRoomCount < MaxRoomCount)
+            // Генерируем стартовую комнату
+            GenerateStartRoom();
+            if (SpawnedRooms.Count == 0)
             {
-                Debug.LogWarning($"No available rooms to spawn at count {_currentRoomCount}. Possible range restrictions or all unique rooms used.");
-
-                if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
-                {
-                    Debug.Log("<color=yellow>[Level Generator]:</color> No more rooms available. Connecting to final room...");
-                    TryConnectToFinalRoom(forceConnect: true);
-                }
-                break;
+                Debug.LogError("Failed to spawn start room. Retrying...");
+                continue;
             }
+            await Delay(RoomSpawnDelay, _spawnSource.Token);
 
-            foreach (var room in allBaseRooms)
+            // Основной цикл генерации промежуточных комнат
+            while (_currentRoomCount < MaxRoomCount && !_finalRoomConnected)
             {
-                if (_currentRoomCount >= MaxRoomCount || _finalRoomConnected)
+                bool placedAnyRoom = false;
+                var allBaseRooms = GetAllRandomBaseRooms().ToArray();
+
+                if (allBaseRooms.Length == 0 && _currentRoomCount < MaxRoomCount)
+                {
+                    Debug.LogWarning($"No available rooms to spawn at count {_currentRoomCount}. Possible range restrictions or all unique rooms used.");
+                    if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
+                    {
+                        Debug.Log("<color=yellow>[Level Generator]:</color> No more rooms available. Connecting to final room...");
+                        TryConnectToFinalRoom(forceConnect: true);
+                    }
                     break;
+                }
 
-                if (room == null)
-                    continue;
-
-                var spawnedRoom = SpawnRoom(room);
-                if (spawnedRoom != null)
+                foreach (var room in allBaseRooms)
                 {
-                    placedAnyRoom = true;
-                    _currentRoomCount++;
-                    await Delay(RoomSpawnDelay, _spawnSource.Token);
+                    if (_currentRoomCount >= MaxRoomCount || _finalRoomConnected)
+                        break;
+
+                    if (room == null)
+                        continue;
+
+                    var spawnedRoom = SpawnRoom(room);
+                    if (spawnedRoom != null)
+                    {
+                        placedAnyRoom = true;
+                        _currentRoomCount++;
+                        await Delay(RoomSpawnDelay, _spawnSource.Token);
+                    }
+                }
+
+                if (!placedAnyRoom && !_finalRoomConnected)
+                {
+                    Debug.LogWarning($"Cannot generate more rooms. Generated rooms: {_currentRoomCount}/{MaxRoomCount}");
+                    if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
+                    {
+                        Debug.Log("<color=yellow>[Level Generator]:</color> Connecting to final room as no more regular rooms can be placed.");
+                        TryConnectToFinalRoom(forceConnect: true);
+                    }
+                    break;
                 }
             }
 
-            if (!placedAnyRoom && !_finalRoomConnected)
+            // Генерируем финальную комнату, если она еще не создана
+            if (_finalRoom == null)
             {
-                Debug.LogWarning($"Cannot generate more rooms. Generated rooms: {_currentRoomCount}/{MaxRoomCount}");
-
-                if (_currentRoomCount >= MinRoomsBeforeFinalConnection)
+                GenerateFinalRoomInitial();
+                if (_finalRoom == null)
                 {
-                    Debug.Log("<color=yellow>[Level Generator]:</color> Connecting to final room as no more regular rooms can be placed.");
-                    TryConnectToFinalRoom(forceConnect: true);
+                    Debug.LogError("Failed to spawn final room. Retrying...");
+                    continue;
                 }
-                break;
+                await Delay(RoomSpawnDelay, _spawnSource.Token);
+            }
+
+            // Подключаем финальную комнату, если еще не подключена
+            if (!_finalRoomConnected && _currentRoomCount >= MinRoomsBeforeFinalConnection)
+            {
+                Debug.Log("<color=yellow>[Level Generator]:</color> Generation complete. Now connecting final room...");
+                for (int attempt = 0; attempt < 12; attempt++)
+                {
+                    if (TryConnectToFinalRoom(forceConnect: true))
+                    {
+                        _finalRoomConnected = true;
+                        Debug.Log($"<color=green>[Level Generator]:</color> Successfully connected final room on attempt {attempt + 1}!");
+                        break;
+                    }
+                    await Delay(0.2f, _spawnSource.Token);
+                }
+            }
+
+            // Проверяем успешность генерации
+            if (_currentRoomCount >= MaxRoomCount && _finalRoomConnected)
+            {
+                generationSuccessful = true;
+            }
+            else
+            {
+                Debug.LogWarning($"<color=red>[Level Generator]:</color> Failed to spawn required rooms. Spawned: {_currentRoomCount}/{MaxRoomCount}. Final room connected: {_finalRoomConnected}. Retrying...");
             }
         }
 
-        if (!_finalRoomConnected && _currentRoomCount >= MinRoomsBeforeFinalConnection)
+        if (!generationSuccessful)
         {
-            Debug.Log("<color=yellow>[Level Generator]:</color> Generation complete. Now connecting final room...");
-
-            for (int attempt = 0; attempt < 12; attempt++)
-            {
-                if (TryConnectToFinalRoom(forceConnect: true))
-                {
-                    _finalRoomConnected = true;
-                    Debug.Log($"<color=green>[Level Generator]:</color> Successfully connected final room on attempt {attempt + 1}!");
-                    break;
-                }
-
-                await Delay(0.2f, _spawnSource.Token);
-            }
+            Debug.LogError($"<color=red>[Level Generator]:</color> Failed to generate level after {maxAttempts} attempts!");
         }
 
         string connectionStatus = _finalRoomConnected ? "<color=green>Connected</color>" : "<color=red>Not Connected</color>";
         Debug.Log($"<color=yellow>[Level Generator]:</color> Created {_currentRoomCount} rooms. Total rooms: {SpawnedRooms.Count}. Final room status: {connectionStatus}");
     }
+    private void ClearCurrentLevel()
+    {
+        foreach (var room in SpawnedRooms)
+        {
+            if (room != null)
+            {
+                Destroy(room.gameObject);
+            }
+        }
 
+        SpawnedRooms.Clear();
+
+        _spawnedOnceRooms.Clear();
+
+        _currentRoomCount = 0;
+
+        _finalRoomConnected = false;
+        _finalRoom = null;
+    }
     private bool TryConnectToFinalRoom(bool forceConnect = false)
     {
         var recentRooms = forceConnect
             ? SpawnedRooms
                 .Where(r => r != _finalRoom)
                 .OrderByDescending(r => SpawnedRooms.IndexOf(r))
-                .Take(3)
-            : SpawnedRooms.OrderByDescending(r => SpawnedRooms.IndexOf(r)).Take(3).ToList();
+                .Take(5)
+            : SpawnedRooms.OrderByDescending(r => SpawnedRooms.IndexOf(r)).Take(5).ToList();
 
         //Attempt 1: standard door connection
         foreach (var room in recentRooms)
@@ -303,51 +369,78 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
-        //Attempt 2: emergency connection
+        // Попытка 2: экстренное соединение — спавн рядом со случайной комнатой
         if (forceConnect && !_finalRoomConnected)
         {
             Debug.Log("[Level Generator]: Using emergency connection method for final room...");
-            var anyRoomWithDoors = SpawnedRooms
-                .Where(r => r != _finalRoom && r.Doors.Any(d => !d.Connected))
-                .OrderBy(r => Vector3.Distance(r.transform.position, SpawnedRooms[0].transform.position))
-                .FirstOrDefault();
 
-            if (anyRoomWithDoors != null)
+            // Выбираем случайную комнату с хотя бы одной свободной дверью
+            var roomsWithDoors = SpawnedRooms
+                .Where(r => r != _finalRoom && r.Doors.Any(d => d != null && !d.Connected))
+                .OrderBy(_ => UnityEngine.Random.value) // Случайный порядок
+                .ToList();
+
+            if (roomsWithDoors.Count == 0)
             {
-                var door = anyRoomWithDoors.Doors.FirstOrDefault(d => !d.Connected);
-                if (door != null)
+                Debug.LogWarning("No rooms with available doors found for emergency connection.");
+                return false;
+            }
+
+            // Пробуем несколько комнат (до 3 попыток)
+            for (int roomAttempt = 0; roomAttempt < Math.Min(3, roomsWithDoors.Count); roomAttempt++)
+            {
+                var randomRoom = roomsWithDoors[roomAttempt];
+                var sourceDoor = randomRoom.Doors.FirstOrDefault(d => d != null && !d.Connected);
+                var targetDoor = _finalRoom.Doors.FirstOrDefault(d => d != null && !d.Connected);
+
+                if (sourceDoor == null || targetDoor == null)
                 {
-                    float distanceMultiplier = 2.0f;
-                    Vector3 centerPosition = SpawnedRooms[0].transform.position;
-                    Vector3 directionFromCenter = (door.ConnectPoint.position - centerPosition).normalized;
+                    continue;
+                }
 
-                    Vector3 forwardPoint = door.ConnectPoint.position + door.ConnectPoint.forward * 15f;
-                    forwardPoint += 10f * distanceMultiplier * directionFromCenter;
+                // Пробуем несколько позиций рядом с комнатой (до 5 попыток)
+                for (int positionAttempt = 0; positionAttempt < 5; positionAttempt++)
+                {
+                    // Случайное направление и расстояние (от 10 до 20 единиц)
+                    Vector3 randomDirection = UnityEngine.Random.insideUnitSphere;
+                    randomDirection.y = 0; // Ограничиваем по горизонтали
+                    randomDirection = randomDirection.normalized;
+                    float randomDistance = UnityEngine.Random.Range(10f, 20f);
 
-                    _finalRoom.transform.position = forwardPoint;
-                    _finalRoom.transform.rotation = Quaternion.LookRotation(-door.ConnectPoint.forward);
+                    Vector3 newPosition = randomRoom.transform.position + randomDirection * randomDistance;
+                    _finalRoom.transform.position = newPosition;
 
-                    var closestFinalDoor = _finalRoom.Doors
-                        .Where(d => !d.Connected)
-                        .OrderBy(d => Vector3.Distance(d.ConnectPoint.position, door.ConnectPoint.position))
-                        .FirstOrDefault();
+                    // Вычисляем угол поворота и округляем до кратного 90° в меньшую сторону
+                    Quaternion lookRotation = Quaternion.LookRotation(-randomDirection);
+                    float yAngle = lookRotation.eulerAngles.y; // Получаем угол по оси Y
+                    float roundedAngle = Mathf.Floor(yAngle / 90f) * 90f; // Округляем в меньшую сторону
+                    _finalRoom.transform.rotation = Quaternion.Euler(0, roundedAngle, 0);
 
-                    if (closestFinalDoor != null)
+                    // Проверяем коллизии и соединяем, если позиция свободна
+                    if (!IsCollided(_finalRoom))
                     {
-                        Vector3 offset = door.ConnectPoint.position - closestFinalDoor.ConnectPoint.position;
+                        // Точное выравнивание дверей
+                        Vector3 offset = sourceDoor.ConnectPoint.position - targetDoor.ConnectPoint.position;
                         _finalRoom.transform.position += offset;
 
-                        // Try to connect even with small intersections
-                        if (!IsCollided(_finalRoom) || forceConnect)
+                        if (!IsCollided(_finalRoom)) // Дополнительная проверка после выравнивания
                         {
-                            ConnectDoors(door, closestFinalDoor, false);
-                            Debug.Log("[Level Generator]: Emergency connection to final room successful!");
+                            ConnectDoors(sourceDoor, targetDoor, false);
+                            Debug.Log($"<color=green>[Level Generator]:</color> Emergency connection successful near {randomRoom.name} at angle {roundedAngle}°!");
                             return true;
+                        }
+                        else
+                        {
+                            _finalRoom.transform.position -= offset; // Откат выравнивания
                         }
                     }
                 }
             }
+
+            Debug.LogWarning("[Level Generator]: Failed to find a valid position for final room in emergency mode.");
+            return false;
         }
+
         return false;
     }
 
@@ -620,16 +713,23 @@ public class LevelGenerator : MonoBehaviour
 
         if (distance <= OverlapDoorThreshold)
         {
-            doorToConnect.gameObject.SetActive(false);
+            currentDoor.gameObject.SetActive(false);
             if (DebugMode)
-                Debug.Log($"Door {doorToConnect.name} disabled (distance: {distance})", doorToConnect);
+                Debug.Log($"Door {currentDoor.name} disabled (distance: {distance})", currentDoor);
         }
 
-        Room doorRoom = doorToConnect.GetComponentInParent<Room>();
-        if (doorRoom == _finalRoom)
+        Room currentRoom = currentDoor.GetComponentInParent<Room>(); //Комната, которую подключаем
+        Room doorRoom = doorToConnect.GetComponentInParent<Room>(); //Комната, к которой подключаемся
+
+        if (currentRoom.EventRoom != null)
         {
-            _finalRoomConnected = true;
+            currentRoom.EventRoom.AddToLinkedRooms(doorRoom);
+            if (DebugMode)
+                Debug.Log($"EventRoom {currentRoom.name} linked to {doorRoom.name}");
         }
+
+        if (doorRoom == _finalRoom)
+            _finalRoomConnected = true;
 
         if (addRoomCount)
             _currentRoomCount++;

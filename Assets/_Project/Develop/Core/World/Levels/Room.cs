@@ -32,23 +32,13 @@ public class Room : MonoBehaviour
     [field: Header("Debug")]
     [field: SerializeField, ReadOnly] public Collider[] RoomColliders { get; private set; } = null;
     [field: SerializeField, ReadOnly] public List<Door> Doors { get; private set; } = null;
+    [field: SerializeField] public EventRoom EventRoom { get; private set; } = null;
 
     private void Awake()
     {
         RoomColliders = GetComponents<Collider>();
         Doors = GetComponentsInChildren<Door>(true).ToList();
     }
-    //private async void Start()
-    //{
-    //    //EventBuilder use example
-    //    //var chain = EventBuilder.Create()
-    //    //    .AddEvent(IsStartRoom)
-    //    //    .AddDelay(2)
-    //    //    .AddEvent(() => Debug.Log("EVENT!")).Build();
-
-
-    //    //await chain.Execute();
-    //}
     public float GetRoomSize() => GetComponent<SpriteRenderer>().bounds.size.x;
     public bool IsStartRoom() => Type == RoomType.StartRoom;
     public void RemoveAllRoomColliders()

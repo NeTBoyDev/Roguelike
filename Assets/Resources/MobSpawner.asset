@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MobSpawner
   m_EditorClassIdentifier: 
   mobPrefabs:
-  - {fileID: 0}
-  - {fileID: 5644091712623602746, guid: 8193e200e0a943b4589645434ca51b65, type: 3}
-  - {fileID: 5546351701083468669, guid: cb3554cc985975a4094dc0bbfaf37a0c, type: 3}
-  - {fileID: 5534461243503241816, guid: 54346e0157ab7774b9517ddf2ee9cf01, type: 3}
+  - {fileID: 6586474959256624309, guid: 54346e0157ab7774b9517ddf2ee9cf01, type: 3}
+  - {fileID: 5228044185877766626, guid: cb3554cc985975a4094dc0bbfaf37a0c, type: 3}
+  - {fileID: 4419769635141355163, guid: 8193e200e0a943b4589645434ca51b65, type: 3}
+  - {fileID: 9200524697600985750, guid: 593937ccb0864c24097fe1d8c2d32caf, type: 3}

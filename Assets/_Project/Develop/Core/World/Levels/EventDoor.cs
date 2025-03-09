@@ -57,16 +57,20 @@ public class EventDoor : MonoBehaviour
     }
     public void CloseDoor()
     {
-        if (!_isCurrentlyOpen) return;
+        //if (!_isCurrentlyOpen) return;
 
-        door.DORotate(Vector3.zero, duration)
-            .OnStart(() => ChangeTriggers(true))
+        door.DOLocalRotate(Vector3.zero, duration)
+            .OnStart(() => ChangeTriggers(false))
             .OnComplete(() => _isCurrentlyOpen = false);
     }
 
     public void ReopenDoor()
     {
-        if (_isCurrentlyOpen || _lastRotationDirection == 0f) return;
+        if (_isCurrentlyOpen || _lastRotationDirection == 0f)
+        {
+            ChangeTriggers(true);
+            return;
+        }
 
         float targetAngle = _lastRotationDirection * openAngle;
 

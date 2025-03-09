@@ -3,6 +3,7 @@ using _Project.Develop.Core.Player;
 using UnityEngine;
 using Pathfinding;
 using Random = UnityEngine.Random;
+using _Project.Develop.Core.Base;
 
 public enum MageSkeletonState
 {
@@ -365,6 +366,8 @@ public class MageDeadState : IState
         skeleton.AIPath.canMove = false;
         Debug.Log("Skeleton is dead!");
         skeleton.DropLoot();
+
+        skeleton.IsDead = true;
     }
 
     public void Execute() { }

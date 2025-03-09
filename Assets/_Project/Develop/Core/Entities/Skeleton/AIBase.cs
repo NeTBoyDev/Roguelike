@@ -11,12 +11,10 @@ using Random = UnityEngine.Random;
 
 public class AIBase : MonoBehaviour
 {
+    public bool IsDead;
     private void Awake()
     {
-        
         skeletonModel = new Creature("skeleton1");
-        skeletonModel.Stats[StatType.DropCount] = new Stat(StatType.DropCount,1);
-        skeletonModel.Stats[StatType.DropQuality] = new Stat(StatType.DropCount,1);
     }
 
     public virtual void TakeDamage(float damage)
@@ -80,7 +78,7 @@ public class AIBase : MonoBehaviour
     
     public virtual void ModifyDropCount(float multiplyier)
     {
-        skeletonModel[StatType.DropCount].SetValue(skeletonModel[StatType.DropQuality].CurrentValue*multiplyier);
+        skeletonModel[StatType.DropCount].SetValue(skeletonModel[StatType.DropCount].CurrentValue*multiplyier);
     }
     public virtual void ModifyDropQuality(float multiplyier)
     {
