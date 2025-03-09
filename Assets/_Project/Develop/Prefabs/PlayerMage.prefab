@@ -26671,6 +26671,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bb33687a1e091f468f30aacd0bcbcd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <dontDestroyOnLoad>k__BackingField: 1
+  _camera: {fileID: 7697672571659402706}
   _dragPreviewImage: {fileID: 8506584755703301981}
   _itemInfoPanel: {fileID: 8410403988629655842}
   _itemNameText: {fileID: 3345311446819364826}

@@ -20,6 +20,8 @@ public enum GenerateAlgorithm
 
 public class LevelGenerator : MonoBehaviour
 {
+    [field: SerializeField] private OutOfBounceController outOfBounceController;
+
     [field: HorizontalLine(2, EColor.Green)]
     [field: SerializeField] public List<Room> StartRooms { get; private set; } = null;
     [field: SerializeField] public List<Room> LastRooms { get; private set; } = null;
@@ -62,6 +64,7 @@ public class LevelGenerator : MonoBehaviour
     private LevelGenerationPipeline _pipeline;
     private readonly Dictionary<Room, bool> _spawnedOnceRooms = new();
     private Room _finalRoom;
+    private PlayerCharacter _characterController;
 
     #region Initialize
     private void Awake() => astarPath = FindObjectOfType<AstarPath>();
@@ -112,11 +115,16 @@ public class LevelGenerator : MonoBehaviour
     {
         var startRoom = GetStartRoom();
 
-        CheckNull(PlayerPrefab, "Player prefab is null!");
+        //CheckNull(PlayerPrefab, "Player prefab is null!");
         CheckNull(startRoom.Spawnpoint, "Spawnpoint is null!");
         CheckNull(VendorPrefab, "Vendor prefab is null!");
 
-        Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
+        _characterController = FindObjectOfType<PlayerCharacter>();
+        _characterController.SetPosition(startRoom.Spawnpoint.position);
+        //Instantiate(PlayerPrefab, startRoom.Spawnpoint.position, Quaternion.identity);
+
+
+        outOfBounceController.Initialize(_characterController);
     }
 
     private void CheckNull(object obj, string errorMessage)
