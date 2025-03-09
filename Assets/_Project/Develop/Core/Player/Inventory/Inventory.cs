@@ -85,14 +85,14 @@ public class Inventory : MonoBehaviour
 
     private void Start()
     {
-        Initialize();
+        Initialize();/*
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.UseableItems, Rarity.Rare);*/
 
         View.Inventory.SetActive(false);
     }
@@ -133,6 +133,8 @@ public class Inventory : MonoBehaviour
             if (Model.Minimap != null)
                 Model.Minimap.SetActive(!value);
         };
+
+        CombatSystem.OnDie += () => isDead = true;
     }
 
     public void RemoveWeapon() => CombatSystem.RemoveWeapon();
@@ -337,8 +339,15 @@ public class Inventory : MonoBehaviour
         OnInventoryStateChange?.Invoke(enabled);
     }
 
+    private bool isDead;
     public void UpdateCursorState(bool enabled)
     {
+        if (isDead)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            return;
+        }
         Cursor.visible = enabled;
         Cursor.lockState = enabled ? CursorLockMode.None : CursorLockMode.Locked;
     }
