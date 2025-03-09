@@ -6,7 +6,7 @@ namespace _Project.Develop.Core.Effects.Base
 {
     public abstract class SpellEffect : Effect
     {
-        protected float magnitude;
+        public float magnitude;
         
         public void SetMagnitude(float value)
         {

@@ -82,7 +82,7 @@ namespace _Project.Develop.Core
         public Effect[] MeleeEffects = new Effect[]
         {
             new PoisonEffect(5, 1, 5),
-            new SlowEffect(5)
+            new SlowEffect(0.05f)
         };
 
         public Effect[] RangeEffects = new Effect[]
@@ -296,12 +296,29 @@ namespace _Project.Develop.Core
                 
                 _ => throw new ArgumentOutOfRangeException(nameof(weaponType), weaponType, null)
             };
-
-            weaponModel.Rarity = rarity;
+            
+            if (weaponModel is Artifact artifact && rarity == Rarity.Common)
+            {
+                weaponModel = new Artifact(artifact.Id);
+                weaponModel.Rarity = Rarity.Uncommon;
+            }
+            else if (weaponModel is Gem g && rarity == Rarity.Common)
+            {
+                weaponModel = new Gem(g.Id);
+                weaponModel.Rarity = Rarity.Uncommon;
+            }
+            else
+            {
+                weaponModel.Rarity = rarity;
+            }
+            
+            
 
             Effect[] effectsArray;
             int effectCount = (int)rarity;
             var count = Random.Range(0, effectCount);
+            
+            
             
             if (weaponModel is MeeleWeapon || weaponModel is RangeWeapon)
             {
@@ -313,28 +330,20 @@ namespace _Project.Develop.Core
             }
             else if(weaponModel is Gem gem)
             {
-                if (gem.Rarity == Rarity.Common)
-                {
-                    gem = new Gem(gem.Id);
-                    gem.Rarity = Rarity.Uncommon;
-                }
+                
                 effectsArray = Random.value > .5f ? MeleeEffects : RangeEffects;
                 var effect = effectsArray[Random.Range(0, effectsArray.Length)];
                 if(effect is SpellEffect e)
-                    e.SetMagnitude((int)rarity);
+                    e.SetMagnitude(e.magnitude * GameData.Rarity[rarity]);
                 weaponModel.Effects.Add(effect);
                 if (gem.Rarity == Rarity.Legendary)
                     gem.AddProjectile(GetRandomProjectile());
             }
-            else if (weaponModel is Artifact|| weaponModel is SecondaryWeapon)
+            else if (weaponModel is Artifact || weaponModel is SecondaryWeapon)
             {
                 for (int i = 0; i < (int)weaponModel.Rarity; i++)
                 {
-                    if (weaponModel is Artifact arti && arti.Rarity == Rarity.Common)
-                    {
-                        arti = new Artifact(arti.Id);
-                        arti.Rarity = Rarity.Uncommon;
-                    }
+                    
                     var stat = (StatType)Random.Range(1, 4);
                     if (weaponModel.Stats.ContainsKey(stat))
                     {

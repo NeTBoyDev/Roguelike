@@ -50,6 +50,11 @@ public class MageSkeletonAI : AIBase
         destinationSetter.target = target;
 
         animator = GetComponent<Animator>();
+        
+        skeletonModel[StatType.Agility].OnModify += value =>
+        {
+            AIPath.maxSpeed *= value; 
+        };
 
         ChangeState(new MageKeepDistanceState(this));
     }
@@ -144,7 +149,7 @@ public class MageKeepDistanceState : IState
     {
         skeleton.animator.SetBool("Walking", true);
         skeleton.AIPath.canMove = true;
-        skeleton.AIPath.maxSpeed = 2.5f;
+        skeleton.AIPath.maxSpeed = 2.5f * skeleton.skeletonModel[StatType.Agility].CurrentValue;
     }
 
     public void Execute()
@@ -189,7 +194,7 @@ public class MageRetreatState : IState
     {
         skeleton.animator.SetBool("Walking", true);
         skeleton.AIPath.canMove = true;
-        skeleton.AIPath.maxSpeed = 3f; // Быстрее отступаем
+        skeleton.AIPath.maxSpeed = 3f * skeleton.skeletonModel[StatType.Agility].CurrentValue; // Быстрее отступаем
     }
 
     public void Execute()

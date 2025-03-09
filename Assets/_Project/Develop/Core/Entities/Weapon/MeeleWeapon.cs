@@ -26,7 +26,6 @@ public class MeeleWeapon : Weapon
         
         
         //Effects.Add(new ShotCount());           // Выпуск снаряда
-        
     }
 
     

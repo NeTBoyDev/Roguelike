@@ -45,6 +45,10 @@ public class SkeletonAI : AIBase
 
         animator = GetComponent<Animator>();
         hitEffect = GetComponentInChildren<ParticleSystem>();
+        skeletonModel[StatType.Agility].OnModify += value =>
+        {
+            AIPath.maxSpeed = 2.5f * value; 
+        };
 
         ChangeState(new ApproachState(this));
     }
