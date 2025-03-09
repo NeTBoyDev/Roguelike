@@ -1,7 +1,8 @@
+using Cysharp.Threading.Tasks;
 using NaughtyAttributes;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading;
 using UnityEngine;
 
 public enum RoomType
@@ -31,7 +32,7 @@ public class Room : MonoBehaviour
     [field: Header("Debug")]
     [field: SerializeField, ReadOnly] public Collider[] RoomColliders { get; private set; } = null;
     [field: SerializeField, ReadOnly] public List<Door> Doors { get; private set; } = null;
-    [field: SerializeField] public List<EventRoom> EventRooms { get; private set; } = null;
+    [field: SerializeField] public EventRoom EventRoom { get; private set; } = null;
 
     private void Awake()
     {
