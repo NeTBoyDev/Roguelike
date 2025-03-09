@@ -13,7 +13,7 @@ public class PlayerCamera : MonoBehaviour
     
     private Vector3 _eulerAngles;
 
-    private bool mayUpdate = true;
+    public bool mayUpdate = true;
     public void Initialize(Transform target)
     {
         transform.position = target.position;
@@ -22,10 +22,15 @@ public class PlayerCamera : MonoBehaviour
         transform.eulerAngles = _eulerAngles = target.eulerAngles;
 
         Inventory.OnInventoryStateChange += value => mayUpdate = !value;
+        CombatSystem.OnDie += () => isDead = true;
     }
+
+    private bool isDead;
 
     public void UpdateRotation(CameraInput input)
     {
+        if (isDead)
+            return;
         if (!mayUpdate)
         {
             transform.eulerAngles = _eulerAngles;
