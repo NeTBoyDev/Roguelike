@@ -164,14 +164,6 @@ public class Inventory : MonoBehaviour
     }
     private void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            SceneManager.LoadScene(1);
-        }
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            SceneManager.LoadScene(2);
-        }
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) UseSelectedItem();

@@ -360,8 +360,8 @@ public class CombatSystem : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-            ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
+        //if (Input.GetKeyDown(KeyCode.Q))
+        //    ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Shield, Rarity.Legendary);
 
         playerModel.Update(Time.deltaTime);
 
