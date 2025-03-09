@@ -39,6 +39,7 @@ namespace _Project.Develop.Core.Enum
         }
 
         public static StatPreset _preset;
+        public static Map _map;
 
     }
 }

@@ -251,6 +251,9 @@ public class BookOfTheAbyss : MonoBehaviour
         float useDuration = _useDuration * durationMultiplier;
 
         _upgradeTween = _progressImage.DOFillAmount(1f, useDuration).OnComplete(() => CompleteUse());
+        
+        GameData._map = _mapSlot.Item as Map;
+        
     }
 
     private void CompleteUse()
