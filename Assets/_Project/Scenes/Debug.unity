@@ -31291,7 +31291,12 @@ PrefabInstance:
     - target: {fileID: 556168740153814198, guid: 174cca78b77fb4b42a0d5ce840b4be76,
         type: 3}
       propertyPath: <BuyMultiplier>k__BackingField
-      value: 8
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 556168740153814198, guid: 174cca78b77fb4b42a0d5ce840b4be76,
+        type: 3}
+      propertyPath: <SellMultiplier>k__BackingField
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8315369866804618020, guid: 174cca78b77fb4b42a0d5ce840b4be76,
         type: 3}
