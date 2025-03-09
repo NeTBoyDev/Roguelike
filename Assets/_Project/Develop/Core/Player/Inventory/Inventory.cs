@@ -369,11 +369,16 @@ public class Inventory : MonoBehaviour
             ((UseableItem)Model.SelectedItem).Count--;
         }
         else
+        {
             RemoveHotbarItem(Model.SelectedItem);
+            Model.SetSelectedItem(null);
+        }
+        manager.ProduceSound(transform.position,_usePotion);   
+        
 
         UpdateAllHotbarSlots();
-        Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
-        manager.ProduceSound(transform.position,_usePotion);
+        //Debug.Log($"Item: {Model.SelectedItem.Id}, ItemCount: {Model.SelectedItem?.Count ?? 0}, Rarity: {Model.SelectedItem.Rarity}");
+        
     }
     #endregion  
 
