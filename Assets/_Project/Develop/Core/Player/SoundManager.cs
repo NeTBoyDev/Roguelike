@@ -18,6 +18,7 @@ namespace _Project.Develop.Core.Player
 
         private float volume;
         private List<AudioSource> _sources = new();
+        private AudioSource _phrase;
         private static ObjectPool<AudioSource> _pool = new(()=>new GameObject("Sound").AddComponent<AudioSource>()
             ,s=>
             {
@@ -62,6 +63,22 @@ namespace _Project.Develop.Core.Player
                 source.loop = true;
                 source.Play();
             }
+                
+        }
+        
+        public async void ProducePhrase(Vector3 position,AudioClip sound,bool infinite = false)
+        {
+            if (sound == null)
+                return;
+
+            _phrase ??= new GameObject("Phare").AddComponent<AudioSource>();
+            
+            _phrase.Stop();
+
+            _phrase.transform.position = position;
+            _phrase.clip = sound;
+            _phrase.volume = volume;
+            _phrase.PlayOneShot(sound);
                 
         }
 

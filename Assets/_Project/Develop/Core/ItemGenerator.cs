@@ -313,6 +313,11 @@ namespace _Project.Develop.Core
             }
             else if(weaponModel is Gem gem)
             {
+                if (gem.Rarity == Rarity.Common)
+                {
+                    gem = new Gem(gem.Id);
+                    gem.Rarity = Rarity.Uncommon;
+                }
                 effectsArray = Random.value > .5f ? MeleeEffects : RangeEffects;
                 var effect = effectsArray[Random.Range(0, effectsArray.Length)];
                 if(effect is SpellEffect e)
@@ -321,10 +326,15 @@ namespace _Project.Develop.Core
                 if (gem.Rarity == Rarity.Legendary)
                     gem.AddProjectile(GetRandomProjectile());
             }
-            else if (weaponModel is Artifact || weaponModel is SecondaryWeapon)
+            else if (weaponModel is Artifact|| weaponModel is SecondaryWeapon)
             {
                 for (int i = 0; i < (int)weaponModel.Rarity; i++)
                 {
+                    if (weaponModel is Artifact arti && arti.Rarity == Rarity.Common)
+                    {
+                        arti = new Artifact(arti.Id);
+                        arti.Rarity = Rarity.Uncommon;
+                    }
                     var stat = (StatType)Random.Range(1, 4);
                     if (weaponModel.Stats.ContainsKey(stat))
                     {

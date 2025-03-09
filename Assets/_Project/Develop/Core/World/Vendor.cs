@@ -5,6 +5,7 @@ using DG.Tweening;
 using NaughtyAttributes;
 using System.Collections.Generic;
 using System.Linq;
+using _Project.Develop.Core.Player;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -58,11 +59,13 @@ public class Vendor : MonoBehaviour
 
     [Header("Phrases Change to sounds")]
     #region Phrases
-    [SerializeField] private string[] _greetings = { "Welcome, traveler!", "Good to see you!", "What do you seek today?" };
-    [SerializeField] private string[] _farewells = { "Farewell!", "Come back soon!", "Safe travels!" };
-    [SerializeField] private string[] _buyPhrases = { "A fine purchase!", "Enjoy your new item!", "Good choice!" };
-    [SerializeField] private string[] _noMoneyPhrases = { "Not enough gold!", "You’re short on coin!", "Come back with more gold!" };
-    [SerializeField] private string[] _sellPhrases = { "Thanks for the goods!", "A fair trade!", "I’ll take that off your hands!" };
+    [SerializeField] private AudioClip[] _greetings;
+    [SerializeField] private AudioClip[] _farewells;
+    [SerializeField] private AudioClip[] _buyPhrases;
+    [SerializeField] private AudioClip[] _noMoneyPhrases;
+    [SerializeField] private AudioClip[] _sellPhrases;
+
+    private SoundManager _soundManager = new();
     #endregion
 
     #region Initialize
@@ -201,7 +204,7 @@ public class Vendor : MonoBehaviour
 
         _playerInventory.InventorySetAcitve(true);
 
-        Debug.Log(GetRandomPhrase(_greetings));
+        _soundManager.ProducePhrase(transform.position,GetRandomPhrase(_greetings));
 
         UpdateTotalGoldText();
         UpdateSellAllButtonState();
@@ -217,8 +220,7 @@ public class Vendor : MonoBehaviour
             _playerInventory.InventorySetAcitve(false);
             _playerInventory.UpdateCursorState(false);
         }
-
-        Debug.Log(GetRandomPhrase(_farewells));
+        _soundManager.ProducePhrase(transform.position,GetRandomPhrase(_farewells));
     }
 
     #endregion
@@ -302,7 +304,7 @@ public class Vendor : MonoBehaviour
         if ( _playerInventory != null && _playerInventory.GoldText != null)
             _playerInventory.GoldText.text = $"{_playerInventory.PlayerGold}";
     }
-    private string GetRandomPhrase(string[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];
+    private AudioClip GetRandomPhrase(AudioClip[] phrases) => phrases[UnityEngine.Random.Range(0, phrases.Length)];
 
     public void SellAllItems()
     {
@@ -331,7 +333,7 @@ public class Vendor : MonoBehaviour
         }
 
         Debug.Log($"<color=green>Sold all items for <color=cyan>{totalValue}</color> gold!</color>");
-        Debug.Log(GetRandomPhrase(_sellPhrases));
+        _soundManager.ProducePhrase(transform.position,GetRandomPhrase(_sellPhrases));
 
         UpdatePlayerGoldText();
         UpdateTotalGoldText();
@@ -569,6 +571,8 @@ public class Vendor : MonoBehaviour
     {
         if (DOTween.IsTweening(_itemGoldText.transform))
             return;
+        
+        _soundManager.ProducePhrase(transform.position,GetRandomPhrase(_noMoneyPhrases));
 
         _itemGoldText.transform.DOShakePosition(0.5f, strength: 5f, vibrato: 10, randomness: 90, snapping: false, fadeOut: true);
     }
@@ -619,7 +623,7 @@ public class Vendor : MonoBehaviour
             _playerInventory.CombatSystem.SetSecondArtifact(artifact2);
         }
 
-        Debug.Log(GetRandomPhrase(_buyPhrases));
+        _soundManager.ProducePhrase(transform.position,GetRandomPhrase(_buyPhrases));
         _playerInventory.ResetDrag();
     }
 
