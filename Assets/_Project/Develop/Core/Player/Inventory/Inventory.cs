@@ -12,9 +12,12 @@ using _Project.Develop.Core.Effects.Base;
 using _Project.Develop.Core.Entities.Potions;
 using _Project.Develop.Core.Enum;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Inventory : MonoBehaviour
 {
+    [field: SerializeField] public bool dontDestroyOnLoad { get; private set; } = false;
+    private static Inventory _instance;
     public int PlayerGold { get; private set; } = 1000;
 
     [SerializeField] private Camera _camera;
@@ -57,8 +60,21 @@ public class Inventory : MonoBehaviour
 
     private void Awake()
     {
+        if (dontDestroyOnLoad)
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+        }
+
         CombatSystem = GetComponentInChildren<CombatSystem>();
-        _camera = GetComponentInChildren<Camera>();
     }
 
     private void Start()
@@ -128,6 +144,14 @@ public class Inventory : MonoBehaviour
     }
     private void HandleInput()
     {
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            SceneManager.LoadScene(0);
+        }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            SceneManager.LoadScene(1);
+        }
         if (Input.GetKeyDown(OpenInventoryKey)) ToggleInventory();
         if (Input.GetKeyDown(PickItemKey)) TryPickUpItem();
         if (Input.GetKeyDown(UseItemKey)) UseSelectedItem();

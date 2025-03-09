@@ -229,12 +229,53 @@ public class Vendor : MonoBehaviour
         if (item == null)
             return 0;
 
-        int basePrice = 10;
-
-        int rarityMultiplier = (int)item.Rarity * 5;
+        int basePrice = 30;
+        int rarityMultiplier = (int)item.Rarity;
         int effectCount = item.Effects.Count;
 
-        return (int)((basePrice + rarityMultiplier * effectCount * 5) * multiplier);
+        int finalPrice;
+
+        switch (item)
+        {
+            case MeeleWeapon _:
+                basePrice = 20;
+                finalPrice = basePrice + rarityMultiplier * 5 + effectCount * 5;
+                break;
+
+            case RangeWeapon _:
+                basePrice = 20;
+                finalPrice = basePrice + rarityMultiplier * 5 + effectCount * 5;
+                break;
+
+            case SecondaryWeapon _:
+                basePrice = 20;
+                finalPrice = basePrice + rarityMultiplier * 5 + effectCount * 5;
+                break;
+
+            case Artifact _:
+                basePrice = 80;
+                finalPrice = basePrice + rarityMultiplier * 30 + effectCount * 10;
+                break;
+
+            case UseableItem _:
+                basePrice = 10;
+                finalPrice = basePrice + rarityMultiplier * 5 + effectCount * 5;
+                break;
+
+            case Gem _:
+                basePrice = 50;
+                finalPrice = basePrice + rarityMultiplier * 4 + effectCount * 7;
+                break;
+
+            default:
+                finalPrice = basePrice + rarityMultiplier + effectCount * 5;
+                break;
+        }
+
+        if (item.IsStackable)
+            finalPrice *= item.Count;
+
+        return Mathf.RoundToInt(finalPrice * multiplier);
     }
     private void UpdateTotalGoldText()
     {
@@ -569,79 +610,17 @@ public class Vendor : MonoBehaviour
         {
             _playerInventory.CombatSystem.SetSecondaryWeapon(secondaryWeapon);
         }
-        //artifacts add logic here
+        if (emptySlot.SlotType == SlotType.Artifact1 && item is Artifact artifact1)
+        { 
+            _playerInventory.CombatSystem.SetFirstArtifact(artifact1);
+        }
+        if(emptySlot.SlotType == SlotType.Artifact2 && item is Artifact artifact2)
+        {
+            _playerInventory.CombatSystem.SetSecondArtifact(artifact2);
+        }
 
         Debug.Log(GetRandomPhrase(_buyPhrases));
         _playerInventory.ResetDrag();
-
-
-        //Debug.Log("TEST1");
-
-        //if (item == null || _playerInventory.DragableItem == null)
-        //{
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-
-        //Debug.Log("TEST2");
-        //InventorySlot sourceSlot = _playerInventory.LastInteractSlot;
-        //if (!BuySlots.Contains(sourceSlot))
-        //{
-        //    Debug.Log("You can only drag items from vendor's Buy slots in Buy mode!");
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-        //Debug.Log("TEST3");
-        //if (BuySlots.Contains(targetSlot) || VendorView.GetAllConcatSlots().Contains(targetSlot))
-        //{
-        //    Debug.Log("You cannot move items to vendor slots in Buy mode!");
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-        //Debug.Log("TEST4");
-        //if (!targetSlot.IsEmpty())
-        //{
-        //    Debug.Log("Cannot buy: target slot must be empty!");
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-        //Debug.Log("TEST5");
-        //if (!InventoryDragDropHandler.IsValid(item, targetSlot))
-        //{
-        //    Debug.Log("Cannot buy: invalid slot for this item!");
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-        //int itemPrice = CalculateItemPrice(item);
-        //Debug.Log("TEST6");
-
-        //if (_playerInventory.PlayerGold < itemPrice)
-        //{
-        //    Debug.Log(GetRandomPhrase(_noMoneyPhrases));
-        //    _playerInventory.ResetDrag();
-        //    return;
-        //}
-        //Debug.Log("TEST7");
-        //_playerInventory.ChangePlayerGold(-itemPrice);
-        //_playerInventory.AddItem(item);
-        //targetSlot.InitializeSlot(item);
-
-        //if (item.Count > 1)
-        //{
-        //    item.Count--;
-        //    sourceSlot.UpdateVisual();
-        //}
-        //else
-        //{
-        //    _vendorModel.RemoveItem(item);
-        //    sourceSlot.ClearSlot();
-        //}
-
-        //Debug.Log(GetRandomPhrase(_buyPhrases));
-
-        //UpdatePlayerGoldText();
-        //UpdateTotalGoldText();
-        //_playerInventory.ResetDrag();
     }
 
     private void HandleSell(PointerEventData data, Item item, InventorySlot targetSlot)
