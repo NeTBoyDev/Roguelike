@@ -61,6 +61,14 @@ public class InventorySlot : MonoBehaviour, IInventorySlot, IDragHandler, IDropH
         }
     }
 
+    public void SetItem(Item item)
+    {
+        if (item == null)
+            return;
+
+        Item = item;
+    }
+
     public void UpdateVisual()
     {
         if(Item == null)
