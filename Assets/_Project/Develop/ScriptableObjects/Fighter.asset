@@ -33,3 +33,6 @@ MonoBehaviour:
     <BaseValue>k__BackingField: 5
     <CurrentValue>k__BackingField: 5
     <MaxValue>k__BackingField: 200
+  VisualPrefab: {fileID: 3756061937663364362, guid: d86589610c1b8e944bf097893875ec23,
+    type: 3}
+  _startWeapon: 8

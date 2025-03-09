@@ -18,7 +18,7 @@ public class Inventory : MonoBehaviour
 {
     [field: SerializeField] public bool dontDestroyOnLoad { get; private set; } = false;
     private static Inventory _instance;
-    public int PlayerGold { get; private set; } = 1000;
+    public int PlayerGold { get; private set; } = 0;
 
     [SerializeField] private Camera _camera;
     [SerializeField] private Image _dragPreviewImage;
@@ -172,7 +172,7 @@ public class Inventory : MonoBehaviour
     {
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out RaycastHit hit, InteractionDistance);
 
-        if (hit.collider != null && (hit.collider.TryGetComponent(out Vendor v) || hit.collider.TryGetComponent(out Anvil a) || hit.collider.TryGetComponent(out BookOfTheAbyss b)))
+        if (hit.collider != null && (hit.collider.TryGetComponent(out Vendor v) || hit.collider.TryGetComponent(out Anvil a) || hit.collider.TryGetComponent(out BookOfTheAbyss b) || hit.collider.TryGetComponent(out Chest c)))
         {
             _vendorText.enabled = true;
         }
@@ -191,6 +191,10 @@ public class Inventory : MonoBehaviour
             {
                 OpenVendorInterface(vendor);
             }
+        }
+        else if (Input.GetKeyDown(PickItemKey) && hit.collider != null && hit.collider.TryGetComponent(out Chest chest))
+        {
+            chest.Open();
         }
         else if (_currentVendor != null && Vector3.Distance(transform.GetChild(0).position, _currentVendor.transform.position) > _currentVendor.VendorCloseDistance)
         {
