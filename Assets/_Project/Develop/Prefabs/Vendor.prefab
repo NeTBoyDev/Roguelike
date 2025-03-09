@@ -1778,11 +1778,11 @@ MonoBehaviour:
   OpenSellPanelButton: {fileID: 3983758307955456591}
   _sellAllButton: {fileID: 3234407141374937208}
   _totalGoldText: {fileID: 1999008245298276997}
-  <SellMultiplier>k__BackingField: 1
+  <SellMultiplier>k__BackingField: 2
   BuyPanel: {fileID: 7120817761376619543}
   OpenBuyPanelButton: {fileID: 7073978870137092310}
   _itemGoldText: {fileID: 1622152891044415933}
-  <BuyMultiplier>k__BackingField: 2
+  <BuyMultiplier>k__BackingField: 4
   <BuySlots>k__BackingField:
   - {fileID: 204342085722166993}
   - {fileID: 5995400626646040972}
@@ -1800,25 +1800,25 @@ MonoBehaviour:
   <LastSelectedMode>k__BackingField: 0
   <CurrentMode>k__BackingField: 0
   _greetings:
-  - Welcome, traveler!
-  - Good to see you!
-  - What do you seek today?
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _farewells:
-  - Farewell!
-  - Come back soon!
-  - Safe travels!
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _buyPhrases:
-  - A fine purchase!
-  - Enjoy your new item!
-  - Good choice!
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _noMoneyPhrases:
-  - Not enough gold!
-  - "You\u2019re short on coin!"
-  - Come back with more gold!
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   _sellPhrases:
-  - Thanks for the goods!
-  - A fair trade!
-  - "I\u2019ll take that off your hands!"
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!65 &5871055922761175189
 BoxCollider:
   m_ObjectHideFlags: 0
