@@ -6,7 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "MobSpawner")]
 public class MobSpawner : ScriptableObject
 {
-    [SerializeField] private AIBase[] mobPrefabs;
+    [SerializeField] private GameObject[] mobPrefabs;
     private static MobSpawner instance;
 
     public static MobSpawner Instance
@@ -37,11 +37,11 @@ public class MobSpawner : ScriptableObject
 
     public AIBase GetRandomMob()
     {
-        return Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]);
+        return Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]).GetComponent<AIBase>();
     }
     public AIBase GetRandomMob(float multiplyer)
     {
-        var mob = Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]);
+        var mob = Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]).GetComponent<AIBase>();
         mob.ModifyDamage(multiplyer);
         mob.ModifyHP(multiplyer);
         mob.ModifySpeed(multiplyer);
@@ -52,7 +52,8 @@ public class MobSpawner : ScriptableObject
     
     public AIBase GetRandomMob(Map map)
     {
-        var mob = Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]);
+        var mob = Instantiate(mobPrefabs[Random.Range(0, mobPrefabs.Length)]).GetComponent<AIBase>();
+
         mob.ModifyDamage(map.Stats[StatType.MobPower].CurrentValue);
         mob.ModifyHP(map.Stats[StatType.MobPower].CurrentValue);
         mob.ModifySpeed(map.Stats[StatType.MobPower].CurrentValue);

@@ -1,7 +1,8 @@
 using _Project.Develop.Core.Enum;
 using _Project.Develop.Core.Player;
 using UnityEngine;
-using Pathfinding; 
+using Pathfinding;
+using _Project.Develop.Core.Base;
 
 public enum SkeletonState
 {
@@ -404,6 +405,8 @@ public class DeadState : IState
         skeleton.AIPath.canMove = false;
         Debug.Log("Skeleton is dead!");
         skeleton.DropLoot();
+
+        skeleton.IsDead = true;
     }
 
     public void Execute() { }
