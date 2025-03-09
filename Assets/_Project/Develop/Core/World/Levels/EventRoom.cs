@@ -96,7 +96,7 @@ public class EventRoom : MonoBehaviour
         for (int i = 0; i < entityCount; i++)
         {
             var spawnedEnemy = MobSpawner.Instance.GetRandomMob(GameData._map);
-            spawnedEnemy.transform.position = GetRandomPosition();
+            spawnedEnemy.transform.position = SpawnPoints[i].position;
             _entities.Add(spawnedEnemy);
 
 
@@ -107,7 +107,7 @@ public class EventRoom : MonoBehaviour
     private async void SpawnBoss()
     {
         var spawnedEnemy = MobSpawner.Instance.GetRandomMob(GameData._map);
-        spawnedEnemy.transform.position = GetRandomPosition();
+        spawnedEnemy.transform.position = SpawnPoints[0].position;
         spawnedEnemy.transform.localScale *= 2;
         spawnedEnemy.ModifyDamage(4);
         spawnedEnemy.ModifySpeed(1.5f);
@@ -211,5 +211,4 @@ public class EventRoom : MonoBehaviour
         OnRoomCleared?.Invoke();
         //_playerInventory.ChangePlayerGold(100);
     }
-    private Vector3 GetRandomPosition() => SpawnPoints.OrderBy(_ => UnityEngine.Random.value).FirstOrDefault().position;
 }
