@@ -104,8 +104,8 @@ public class CombatSystem : MonoBehaviour
 
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Dagger, Rarity.Common);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
-        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Common);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Crossbow, Rarity.Legendary);
+        ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Crossbow, Rarity.Common);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Gem, Rarity.Legendary);
         /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Sword, Rarity.Legendary);
         ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Hammer, Rarity.Legendary);
@@ -186,7 +186,8 @@ public class CombatSystem : MonoBehaviour
             animator.SetBool("Axe",true);
 
         attackCooldown = 0.5f / equippedWeapon[StatType.AttackSpeed].CurrentValue;
-        animator.SetFloat("AttackSpeed",equippedWeapon[StatType.AttackSpeed].CurrentValue);
+        animator.SetFloat("AttackSpeed",equippedWeapon is MeeleWeapon ? equippedWeapon[StatType.AttackSpeed].CurrentValue 
+            : 1f + (1 -equippedWeapon.Stats[StatType.RangeAttackSpeed].CurrentValue));
     }
 
     private void ClearWeaponBooleans()
@@ -566,10 +567,11 @@ public class CombatSystem : MonoBehaviour
         CloseCrosshair(0);
         RangeWeapon rangeWeapon = (RangeWeapon)equippedWeapon;
         isReloading = true;
-        reloadTimer = 1f / rangeWeapon.Stats[StatType.AttackSpeed].CurrentValue; // Время перезарядки зависит от AttackSpeed
+        reloadTimer = 1f / (1 + (1-rangeWeapon.Stats[StatType.RangeAttackSpeed].CurrentValue)); // Время перезарядки зависит от AttackSpeed
         animator.SetBool("IsReloading", true); // Предполагается, что есть анимация перезарядки
+        animator.Play("Reload");
         _manager.ProduceSound(transform.position, Reload, true); // Звук перезарядки
-        OpenCrosshair(equippedWeapon[StatType.AttackSpeed].CurrentValue);
+        OpenCrosshair(reloadTimer);
     }
 
     private void EndReload()

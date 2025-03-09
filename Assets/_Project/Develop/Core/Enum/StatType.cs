@@ -12,6 +12,7 @@ namespace _Project.Develop.Core.Enum
         Health,
         AttackRange,
         Difficulty,
-        ExperienceReward
+        ExperienceReward,
+        RangeAttackSpeed
     }
 }

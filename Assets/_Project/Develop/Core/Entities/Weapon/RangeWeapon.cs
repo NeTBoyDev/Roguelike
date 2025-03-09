@@ -15,9 +15,9 @@ public class RangeWeapon : Weapon
     public bool isReloaded = false;
     public RangeWeapon(string id,Rarity rarity) : base(id,rarity)
     {
-
-        Stats[StatType.AttackSpeed].Modify(Effects.Count * Stats[StatType.AttackSpeed].CurrentValue);
-        Stats[StatType.StaminaCost].SetValue(Stats[StatType.AttackSpeed].CurrentValue * GameData.Rarity[Rarity]);
+        Stats[StatType.RangeAttackSpeed] = new Stat(StatType.RangeAttackSpeed, 1f / GameData.Rarity[Rarity]);
+        Stats[StatType.RangeAttackSpeed].Modify(Effects.Count * Stats[StatType.RangeAttackSpeed].CurrentValue);
+        Stats[StatType.StaminaCost].SetValue(Stats[StatType.StaminaCost].CurrentValue * GameData.Rarity[Rarity]);
         //Stats[StatType.AttackSpeed].SetValue(Stats[StatType.AttackSpeed].CurrentValue / GameData.Rarity[Rarity]);
     }
    
