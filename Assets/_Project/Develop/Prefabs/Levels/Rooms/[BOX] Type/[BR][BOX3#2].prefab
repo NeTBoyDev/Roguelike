@@ -266,7 +266,7 @@ Transform:
   m_GameObject: {fileID: 1858809321125851636}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2, y: -3, z: -9}
+  m_LocalPosition: {x: -2, y: 1, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -297,7 +297,7 @@ Transform:
   m_GameObject: {fileID: 2048151842862068130}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8, y: 1, z: -10}
+  m_LocalPosition: {x: -8, y: 1, z: -9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -856,7 +856,7 @@ Transform:
   m_GameObject: {fileID: 8108903900023986172}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13, y: 1, z: -13}
+  m_LocalPosition: {x: -14, y: 1, z: -14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1033,6 +1033,12 @@ MonoBehaviour:
   <EventType>k__BackingField: 1
   <LinkedRoom>k__BackingField:
   - {fileID: 1898664814548399640}
+  OnRoomEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomCleared:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &5171016090443822866
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -760,6 +760,12 @@ MonoBehaviour:
   <EventType>k__BackingField: 1
   <LinkedRoom>k__BackingField:
   - {fileID: 1898664814548399640}
+  OnRoomEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomCleared:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &1435483913388282606
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9172,12 +9178,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.765
+      value: -4.76
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0d64b6887a1f33b4386c5fec51e29c40,
         type: 3}

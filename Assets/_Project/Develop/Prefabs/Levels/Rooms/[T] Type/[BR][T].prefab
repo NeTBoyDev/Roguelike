@@ -163,6 +163,12 @@ MonoBehaviour:
   <EventType>k__BackingField: 1
   <LinkedRoom>k__BackingField:
   - {fileID: 1898664814548399640}
+  OnRoomEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnRoomCleared:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!65 &5031072716480738189
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3537,8 +3543,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 25, y: 5, z: 16.480991}
-  m_Center: {x: -8, y: 2.4, z: -7.847332}
+  m_Size: {x: 22.922255, y: 5, z: 16.480991}
+  m_Center: {x: -8.041106, y: 2.4, z: -7.847332}
 --- !u!65 &5165198744257420476
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3558,8 +3564,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 7.4319954, y: 5, z: 36.59913}
-  m_Center: {x: -12.864185, y: 2.4, z: -8.087499}
+  m_Size: {x: 7.4319954, y: 5, z: 34.77494}
+  m_Center: {x: -12.864185, y: 2.4, z: -7.951787}
 --- !u!1 &9045116308476680122
 GameObject:
   m_ObjectHideFlags: 0
