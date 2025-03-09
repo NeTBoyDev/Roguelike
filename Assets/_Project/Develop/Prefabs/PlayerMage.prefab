@@ -28576,6 +28576,7 @@ GameObject:
   - component: {fileID: 5180831724571813936}
   - component: {fileID: 2935836557354612002}
   - component: {fileID: 4085831249987131921}
+  - component: {fileID: 1619723584185774249}
   m_Layer: 7
   m_Name: Character
   m_TagString: Player
@@ -28750,7 +28751,6 @@ MonoBehaviour:
   Reload: {fileID: 8300000, guid: e9edef08d04b80d46b57d6c5dc809134, type: 3}
   Shot: {fileID: 8300000, guid: a24e9de35884e114d896029a2325ef28, type: 3}
   DieClip: {fileID: 8300000, guid: 25a957a166d1b014c91404c0e8fa7636, type: 3}
-  preset: {fileID: 11400000, guid: 62a432cc8d1418e4ba2412523953e02b, type: 2}
   HpSlider: {fileID: 6784985651554879450}
   StaminaSlider: {fileID: 8489299106713056653}
   HitImage: {fileID: 1472871280435012614}
@@ -28758,6 +28758,33 @@ MonoBehaviour:
   CrossScreen: {fileID: 4484887021257677562}
   MinimapScreen: {fileID: 6298406021101203070}
   UiScreen: {fileID: 6009877378519000460}
+--- !u!54 &1619723584185774249
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7374555609046552343}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 0
 --- !u!1 &7451806119365463475
 GameObject:
   m_ObjectHideFlags: 0
@@ -28930,6 +28957,7 @@ MonoBehaviour:
   <GoldText>k__BackingField: {fileID: 3689074465361137887}
   _currentVendor: {fileID: 0}
   _currentAnvil: {fileID: 0}
+  _currentBook: {fileID: 0}
 --- !u!1 &7539369705815728633
 GameObject:
   m_ObjectHideFlags: 0

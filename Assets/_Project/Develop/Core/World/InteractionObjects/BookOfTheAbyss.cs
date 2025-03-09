@@ -37,6 +37,7 @@ public class BookOfTheAbyss : MonoBehaviour
 
         _bookPanel.SetActive(false);
         UpdateButtonState();
+        PortalCollider.enabled = false;
     }
 
     private void FindPlayer()
@@ -256,6 +257,7 @@ public class BookOfTheAbyss : MonoBehaviour
         
     }
 
+    public Collider PortalCollider;
     private void CompleteUse()
     {
         _isUsing = false;
@@ -270,6 +272,8 @@ public class BookOfTheAbyss : MonoBehaviour
 
         if(PortalEffect != null)
             PortalEffect.Play();
+
+        PortalCollider.enabled = true;
 
         UpdateButtonState(5);
     }
