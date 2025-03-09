@@ -135,6 +135,12 @@ public class Inventory : MonoBehaviour
         };
 
         CombatSystem.OnDie += () => isDead = true;
+        CombatSystem.OnDie += () =>
+        {
+            enabled = false;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        };
     }
 
     public void RemoveWeapon() => CombatSystem.RemoveWeapon();

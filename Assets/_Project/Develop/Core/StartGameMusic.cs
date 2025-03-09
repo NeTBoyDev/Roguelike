@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using _Project.Develop.Core.Player;
@@ -9,9 +10,14 @@ public class StartGameMusic : MonoBehaviour
 
     public AudioClip clip;
     // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         Time.timeScale = 1;
+    }
+
+    void Start()
+    {
+        
         manager = new();
         manager.ProduceDDOLSound(clip);
     }

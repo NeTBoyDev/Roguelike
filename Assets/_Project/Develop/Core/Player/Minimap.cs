@@ -258,6 +258,7 @@ public class Minimap : MonoBehaviour
     public void GoToMenu()
     {
         Destroy(FindObjectOfType<Player>().gameObject);
+        Time.timeScale = 1;
         SceneManager.LoadSceneAsync(0);
     }
 }
