@@ -103,7 +103,7 @@ public class CombatSystem : MonoBehaviour
         Tweens = new TweenerCore<Vector3, Vector3, VectorOptions>[Crosshair.Length];
         for (int i = 0; i < Crosshair.Length; i++)
         {
-            CrosshairStartPos[i] = Crosshair[i].position;
+            CrosshairStartPos[i] = Crosshair[i].localPosition;
         }
 
         /*ItemGenerator.Instance.GenerateWeaponGameobject(WeaponType.Map, Rarity.Legendary);
@@ -328,7 +328,7 @@ public class CombatSystem : MonoBehaviour
                 case 3: direction = Vector2.left; break;
             }
 
-            Tweens[i] = Crosshair[i].DOMove(CrosshairStartPos[i] + direction * 5f, time);
+            Tweens[i] = Crosshair[i].DOLocalMove(CrosshairStartPos[i] + direction * 5f, time).SetRelative();
         }
 
         Tweens[0].onComplete += () => Cross.DOScale(Vector3.one, .25f);
@@ -343,7 +343,7 @@ public class CombatSystem : MonoBehaviour
             for (int i = 0; i < Crosshair.Length; i++)
             {
                 Tweens[i]?.Kill();
-                Tweens[i] = Crosshair[i].DOMove(CrosshairStartPos[i], 0.25f);
+                Tweens[i] = Crosshair[i].DOLocalMove(CrosshairStartPos[i], 0.25f);
             }
         }
         else
