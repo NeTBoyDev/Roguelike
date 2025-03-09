@@ -64,7 +64,7 @@ public class CombatSystem : MonoBehaviour
     [Header("Audio")] 
     [SerializeField] private AudioClip[] HitSounds;
     [SerializeField] private AudioClip[] SwingSounds;
-    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit,Reload,Shot;
+    [SerializeField] private AudioClip SpellCast, SpellPrepare, BlockHit,Reload,Shot,DieClip;
 
     [SerializeField] private SoundManager _manager = new();
 
@@ -76,6 +76,10 @@ public class CombatSystem : MonoBehaviour
     public Slider HpSlider;
     public Slider StaminaSlider;
     public Image HitImage;
+    public CanvasGroup DeadScreen;
+    public CanvasGroup CrossScreen;
+    public CanvasGroup MinimapScreen;
+    public CanvasGroup UiScreen;
 
     private void Awake()
     {
@@ -660,15 +664,28 @@ public class CombatSystem : MonoBehaviour
 
     public void TakeDamage(float value)
     {
+        
         if (isBlocking)
         {
+            if (playerModel.Stats[StatType.Health].CurrentValue - value / 3 <= 0)
+            {
+                Die();
+                return;
+            }
+            
             OnHitWhileBlocking();
             playerModel.Stats[StatType.Health].Modify(-value / 3);
         }
         else
         {
+            if (playerModel.Stats[StatType.Health].CurrentValue - value <= 0)
+            {
+                Die();
+                return;
+            }
             playerModel.Stats[StatType.Health].Modify(-value);
         }
+        
         _manager.ProduceSound(transform.position, HitSounds[Random.Range(0, HitSounds.Length)]);
         HitEffect();
     }
@@ -678,4 +695,28 @@ public class CombatSystem : MonoBehaviour
         HitImage.color = new Color(1, 1, 1, 1);
         DOTween.To(() => HitImage.color, x => HitImage.color = x, new Color(1, 1, 1, 0), .75f);
     }
+
+    private void Die()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        
+        var camera = FindObjectOfType<PlayerCamera>();
+        camera.mayUpdate = false;
+        camera.transform.DOJump(-camera.transform.forward, 1, 1, .75f).SetRelative();
+        camera.transform.DOLocalRotate(new Vector3(-75,0,-75), 1).SetEase(Ease.OutBounce);
+        DOTween.To(() => HitImage.color, x => HitImage.color = x, new Color(1, 1, 1, 1), .75f).SetUpdate(true);
+        DOTween.To(() => DeadScreen.alpha, x => DeadScreen.alpha = x, 1, .75f).SetUpdate(true);
+        DOTween.To(() => CrossScreen.alpha, x => CrossScreen.alpha = x, 0, .75f).SetUpdate(true);
+        DOTween.To(() => UiScreen.alpha, x => UiScreen.alpha = x, 0, .75f).SetUpdate(true);
+        DOTween.To(() => MinimapScreen.alpha, x => MinimapScreen.alpha = x, 0, .75f).SetUpdate(true);
+        DOTween.To(() => Time.timeScale, x => Time.timeScale = x, 0, 3f).SetUpdate(true);
+        
+        _manager.StopPlaying(Reload);
+        
+        _manager.ProduceSound(transform.position,DieClip);
+        
+        OnDie?.Invoke();
+    }
+
+    public static event Action OnDie;
 }
